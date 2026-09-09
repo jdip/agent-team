@@ -54,6 +54,11 @@ separate operations.
 
 ## Use it in a repository
 
+Authorized repository adoption and upgrades establish supported dependency graph,
+Dependabot alerts, security updates and native version-update coverage as part of
+alignment. Existing policy exceptions and unavailable capabilities are reported
+explicitly; see the [dependency upkeep standard](standard/README.md#dependency-upkeep).
+
 Choose the workflow for the target and give Codex its path:
 
 - [Greenfield Initialization](machine/skills/greenfield-init/SKILL.md) establishes

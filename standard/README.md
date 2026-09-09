@@ -25,6 +25,8 @@ copying an entire scaffolding tree.
   of Application Code and Tooling by purpose.
 - A root language/environment declaration for each existing component, following
   the policy below; component classification alone does not select its stack.
+- Dependency protection and native update coverage under the
+  [dependency upkeep](#dependency-upkeep) outcome below.
 - Executable scripts/pr-to-test.sh and scripts/promote-to-main.sh, paired with
   docs/workflows/pr-to-test.md and docs/workflows/promote-to-main.md.
 - One source/revision declaration in root AGENTS.md, delivered in the adoption or
@@ -44,6 +46,35 @@ Unmarked repos
 need Repository Adoption; ordinary upgrades use the recorded source's default
 branch unless the user requests a revision. Select one concrete revision and apply
 its relevant delta, preserving unrelated work.
+
+## Dependency upkeep
+
+Authorized Greenfield Initialization, Brownfield Adoption and Standards Upgrade
+include establishing supported dependency protection through `dependabot-upkeep`.
+For GitHub targets, enable the dependency graph, Dependabot alerts and Dependabot
+security updates where available, and configure version updates for the actual
+supported dependency surfaces. This is part of alignment, not a separate optional
+assessment. Preserve working configuration, compatible existing update automation
+and deliberate owner-approved exceptions; resolve conflicting policy with the
+owner instead of silently disabling or replacing it.
+
+Use manifests consumed by the real build or install path. A dependency hidden in
+an installation command is a coverage gap to assess, not automatically exempt;
+prefer exposing the existing pin through that installer's native manifest without
+duplicating its owner. Report unsupported sources such as manually reviewed external
+Git revisions through their existing update owner.
+
+Verify actual hosted settings and distinguish delivered configuration from active
+service. Record coverage, justified exceptions and exact blocked capabilities in
+the existing alignment evidence. Missing permissions or unavailable hosting features
+leave protection explicitly incomplete; continue independent alignment work.
+Configuration awaiting separately authorized default-branch delivery can finish
+verified test delivery with activation reported as pending. Do not claim active
+coverage or require promotion merely to complete source delivery.
+Additional credentials, paid features, visibility changes and separately required
+main promotion retain their own approval boundaries. Do not widen permissions,
+change hosting or invent a new updater to claim completion. Alignment does not
+authorize merging future dependency PRs.
 
 ## Optional repository verification
 
