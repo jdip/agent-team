@@ -15,8 +15,8 @@ choices, and resume after the human answers.
 
 Start with a lightweight overview: root README purpose, Git/worktree and dirty
 state, saved map/backlog selections, issue/PR status and labels, native dependencies,
-available task ownership evidence, and recent hygiene, adopted-verification and
-alignment assessment evidence.
+available task ownership evidence, dependency automation/alerts/update PRs, and
+recent hygiene, adopted-verification and alignment assessment evidence.
 Use the host's supported task tools when available. Inspect detailed requirements,
 checks, reviews, and code only for promising candidates and their necessary
 eligibility checks.
@@ -64,6 +64,7 @@ of a combined proposal and carry it forward across ordinary skill boundaries.
 | Selected Wayfinder map | Continue `next-waypoint-loop`; research facts and present human decisions. A different map needs an approved select-and-start proposal through `set-map`. |
 | New planning destination | Propose the concrete destination with charting, selection, and continuation; obtain the missing authority. Use `wayfinder`, then `set-map` and `next-waypoint-loop` for the approved portion. |
 | Entire map resolved | Use `to-spec` to draft the parent and complete ticket breakdown automatically. Present the batch and missing publication/admission/activation/execution approvals together; use `to-tickets` and selection/execution owners for the approved portion. Reuse the effort's implementation follow-up. |
+| Missing/stale dependency automation, actionable alerts or update PRs | Follow [dependency upkeep](maintenance.md#dependency-upkeep) for the stable-baseline gate and update-PR eligibility, then hand the concrete scope and existing approval to `dependabot-upkeep`. Return after the coherent step. |
 | Hygiene, adopted repository verification or Agent Team alignment | Follow [maintenance and alignment](maintenance.md) once the relevant baseline is stable. |
 | Missing or unclear project purpose | Use `define-project-goal` with the human operator when direction is needed; reuse an existing clear root README purpose. Agree missing invocation authority with a concrete offer, then carry approved wording through its owning documentation workflow. |
 
