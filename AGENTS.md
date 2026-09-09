@@ -53,3 +53,4 @@ repository; report the delivery blocker instead of inventing an alternate flow.
 ## Repository Standard
 
 - Source: https://github.com/jdip/agent-team
+- Revision: a8b363e79cf1001b42c3e79317348e27b26b3eb3
