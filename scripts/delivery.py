@@ -62,6 +62,8 @@ def pr(base, head, title, body_file, semver):
 
 
 def merge(number, expected_head, expected_base):
+    account = github('api', 'user')
+    author_email = f'{account["id"]}+{account["login"]}@users.noreply.github.com'
     info = github('pr', 'view', number, '--json', 'headRefOid,state,url')
     if info['state'] != 'OPEN' or info['headRefOid'] != expected_head:
         raise ValueError(f'PR revision/state changed: {info["url"]}')
@@ -88,13 +90,17 @@ def merge(number, expected_head, expected_base):
         # Older passing runs can precede registration of the new PR checks.
         print(f'PR {number} checks passed but merge readiness is {readiness}; waiting for GitHub.', flush=True)
         time.sleep(min(10, max(0, deadline - time.monotonic())))
-    call('gh', 'pr', 'merge', number, '--merge', '--match-head-commit', expected_head, capture=False)
+    call('gh', 'pr', 'merge', number, '--merge', '--match-head-commit', expected_head,
+         '--author-email', author_email, capture=False)
     result = github('pr', 'view', number, '--json', 'state,mergeCommit')
     if result['state'] != 'MERGED':
         raise ValueError(f'PR {number} is not merged; inspect external gates')
     revision = result['mergeCommit']['oid']
     print(f'Merged PR {number} as {revision}', flush=True)
     call('git', 'fetch', 'origin', capture=False)
+    author = call('git', 'show', '-s', '--format=%an%n%ae', revision).splitlines()
+    if author != [account['login'], author_email]:
+        raise ValueError(f'PR {number} merge author differs from the approved account/no-reply identity; keep the repository private and investigate')
     parents = call('git', 'show', '-s', '--format=%P', revision).split()
     if parents != [expected_base, expected_head]:
         raise ValueError(f'PR {number} merged with unexpected parents; merge exists but verification/tagging stopped')

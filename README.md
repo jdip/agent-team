@@ -28,6 +28,30 @@ inventories local and untracked, using the supported host project inventory wher
 available. The profile and reconciliation runbook own the exact installation
 inventory and commands.
 
+## Existing installations
+
+The v0.4.0 baseline starts independent Git history. For an installation using an
+older baseline, create a fresh checkout instead of merging the two histories.
+Preserve old checkouts, unfinished changes, and every checkout still backing a
+task. Register the fresh checkout through the host's supported project controls
+before selecting it for new work.
+
+An older Repository Standard revision cannot be resolved in this history. An
+explicitly authorized migration must compare trusted, privately retained old-source
+evidence with the chosen new revision and apply the relevant guidance changes;
+changing the recorded SHA alone does not establish adoption. Ordinary Standards
+Upgrade requires resolvable source revisions. Cleanup discovery safely skips
+repositories whose recorded revision cannot be verified until their migration is
+complete.
+
+After the repository migration, request Machine Reconciliation from the fresh
+checkout and verify fresh skill discovery. If a cleanup schedule reads an old source,
+use the schedule owner in [machine/CLEANUP-SCHEDULE.md](machine/CLEANUP-SCHEDULE.md)
+to select the verified new source, reuse its existing identity and cadence, and
+record the observed update through its receipt.
+Source publication, machine installation, and other repositories' upgrades remain
+separate operations.
+
 ## Use it in a repository
 
 Choose the workflow for the target and give Codex its path:
