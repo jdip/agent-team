@@ -19,6 +19,13 @@ Finish independent investigation before asking for missing decisions. Breaking
 upgrades, migrations, new runtimes, blanket auto-merge, main promotion, Machine
 Reconciliation, and separate background jobs require their own applicable authority.
 
+An authorized alignment handoff from Greenfield Initialization, Brownfield Adoption
+or Standards Upgrade includes the selected standard's dependency-protection outcome.
+Carry that authority through supported native setup and hosted-setting enablement;
+do not reduce the handoff to a recommendation or ask again for the same setup.
+Assessment-only handoffs remain read-only. Preserve deliberate owner exceptions
+and return substantive conflicts to the alignment owner.
+
 Read the actual manifests, lockfiles, workspaces, CI actions, existing automation,
 and `.github/dependabot.yml` or `.yaml`. Compare the working configuration with the
 default branch and intended update target; a local file alone does not establish
@@ -46,7 +53,10 @@ Derive a minimal recommendation from the observed dependency surfaces:
 - Cover supported manifests and directories, including actual monorepo/workspace
   boundaries. GitHub Actions uses `github-actions` at `/`. Vendored source, external
   skill revisions and deliberate toolchain pins are not automatically package
-  manifests; identify their existing update owner and report remaining coverage.
+  manifests. Inspect install commands for hidden package dependencies: a real
+  manifest consumed by the existing installer can expose the same exact pin.
+  Keep one source of truth and preserve the established runtime and isolation.
+  Identify remaining unsupported dependencies' update owners and coverage gaps.
 - Choose cadence, PR limits and groups for the repository's update volume and
   verification cost. Keep unrelated or breaking updates independently reviewable;
   group compatible changes only when they share verification. Preserve useful
@@ -57,6 +67,17 @@ Derive a minimal recommendation from the observed dependency surfaces:
   and configuration scoped to a non-default target does not configure them. Inspect
   alert/security-update settings separately; an alerts read failure is not consent
   to enable features or expand permissions.
+
+For an authorized protection setup, establish the dependency graph, Dependabot
+alerts and security updates using supported GitHub settings or APIs. Consult
+[security-update setup](https://docs.github.com/en/code-security/how-tos/secure-your-supply-chain/secure-your-dependencies/configure-security-updates)
+and [repository settings APIs](https://docs.github.com/en/rest/repos/repos)
+for the hosting version and available controls. Reuse already-enabled settings;
+read them back after changes. An unavailable endpoint or insufficient permission
+is a concrete blocker, not an empty alert set or permission to refresh credentials.
+Report unsupported or paid capabilities without enabling charges or broader access.
+Security updates propose fixes on the default branch; enabling them does not
+authorize merging those PRs outside the repository's delivery policy.
 
 Present the concrete configuration delta or keep/no-change recommendation, covered
 and unsupported surfaces, version/security targets, expected PR behavior, and
