@@ -1,7 +1,7 @@
 # Maintenance and alignment
 
-Use this branch when hygiene, adopted repository verification or Agent Team
-alignment is a plausible next action.
+Use this branch when dependency upkeep, hygiene, adopted repository verification
+or Agent Team alignment is a plausible next action.
 Consider missing assessment history, relevant changes since earlier evidence, and
 visible friction. Inspect enough to make a useful proposal with rough effort;
 compare it with other candidates instead of performing a full audit to rank them.
@@ -22,6 +22,30 @@ its actual stable starting state and use the adoption owner's baseline/bootstrap
 rules; do not require adoption's own outputs before it can start. Unfinished or
 uncertain local work still needs preservation and resolution. This exception does
 not make an in-flux codebase ready for hygiene.
+
+## Dependency upkeep
+
+Include missing/stale Dependabot setup, actionable dependency alerts, and pending
+update PRs in the ordinary candidate comparison. Inspect enough existing evidence
+to distinguish a setup gap, a failing update and an almost-delivered PR. Preserve claims, native
+dependencies, completion-first ranking and the user's keep/defer decisions.
+
+Apply the stable-baseline gate above before changing dependency automation or
+starting broad upkeep. An existing update PR is implementation work: assess its
+ownership and actual conflicts alongside other PRs rather than waiting for itself
+to finish before it becomes eligible. An urgent alert can justify proposing a
+priority change; it does not authorize taking over another task's work.
+
+Use `dependabot-upkeep` for the selected setup or update scope. Pass the repository,
+configuration/PR/alert evidence, delivery target and existing authorization. A
+discovery request can produce a recommendation; setup and update execution need
+approval covering the concrete work. That owner handles current GitHub behavior,
+breaking-update decisions, failed checks and review/delivery handoffs. Keep
+dependency justification with `dependency-review`, reached when relevant.
+
+After a verified upkeep step, return to ordinary selection with the observed
+remaining work. Reuse unchanged assessments and defer decisions; revisit them when
+dependency surfaces, automation, alerts, update PRs or relevant failures change.
 
 ## Hygiene
 

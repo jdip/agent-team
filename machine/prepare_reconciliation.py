@@ -296,10 +296,12 @@ def verify_models(required, advertised):
         raise ValueError(f'installed Codex does not support declared model/effort: {", ".join(missing)}')
 
 
-TOMLKIT_VERSION = '0.15.1'
-
-
 def provision_tomlkit(stage):
+    requirements = Path(__file__).with_name('requirements.txt')
+    pin = re.fullmatch(r'tomlkit==([0-9]+(?:\.[0-9]+)*)', requirements.read_text().strip())
+    if pin is None:
+        raise ValueError('candidate requirements must contain one exact tomlkit release pin')
+    expected_version = pin.group(1)
     dependency_root = stage / 'candidate-dependencies'
     pip = subprocess.run([sys.executable, '-m', 'pip', '--version'], capture_output=True, text=True)
     if pip.returncode == 0:
@@ -313,12 +315,12 @@ def provision_tomlkit(stage):
         install = [str(uv), 'pip', 'install', '--python', sys.executable]
     try:
         command(*install, '--index-url', 'https://pypi.org/simple', '--target', str(dependency_root), '--no-deps',
-                f'tomlkit=={TOMLKIT_VERSION}')
+                '--requirement', str(requirements))
     except ValueError as error:
         raise ValueError(f'isolated tomlkit acquisition failed: {error}') from error
     sys.path.insert(0, str(dependency_root))
     tomlkit = importlib.import_module('tomlkit')
-    if tomlkit.__version__ != TOMLKIT_VERSION:
+    if tomlkit.__version__ != expected_version:
         raise ValueError('isolated tomlkit version differs from the approved pin')
     return tomlkit
 

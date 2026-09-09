@@ -28,9 +28,11 @@ retains failed acquisition staging for inspection. Supply an explicit
 `--skills-root` (and, when distinct, `--upstream-root`) only when native discovery
 and receipt evidence cannot establish a single destination.
 
-Candidate preparation acquires the pinned [tomlkit 0.15.1](https://pypi.org/project/tomlkit/0.15.1/)
-into that run's staging directory through the host's existing Python `pip`, or its
-existing `uv` when `pip` is unavailable. It never installs a global dependency.
+Candidate preparation acquires [tomlkit](https://pypi.org/project/tomlkit/) at the
+exact pin in [requirements.txt](requirements.txt), consumed by the existing Python
+`pip` or `uv` installer into that run's staging directory with no transitive
+installation. Dependabot can propose changes to this same manifest; the installed
+version is checked against it. Preparation never installs a global dependency.
 
 The command stops if the current branch has unpublished commits, has diverged from
 its tracked remote, or a required target capability/source is unavailable. Publish

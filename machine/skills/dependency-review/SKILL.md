@@ -13,6 +13,10 @@ This skill is read-only. It establishes an evidence-backed decision for the owni
 workflow. It does not edit manifests, lockfiles, or callers, and it does not create
 or update tracker items.
 
+For version currency, Dependabot configuration or update PR delivery, return the
+assessment to [dependabot-upkeep](../dependabot-upkeep/SKILL.md). This read-only
+assessment does not itself authorize those changes.
+
 ## Establish the dependency's job
 
 For each dependency, trace the current requirement to actual callers and every

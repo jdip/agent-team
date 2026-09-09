@@ -10,6 +10,13 @@ source baseline, and authorized scope. Reuse that consent; assessment alone does
 not authorize this workflow's edits. Return its verified outcome or unresolved
 decision to the coordinator after following this workflow's own gates.
 
+Establish the selected standard's visibility and public-work outcome before any
+GitHub writes in this workflow, including tracker updates. Verify current visibility,
+preserve licensing and owner decisions, and connect the target's applicable policy
+to root guidance, tracker, review and delivery owners. Resolve required decisions
+before dependent publication; continue independent local work. Report actual policy
+use and unexercised paths with the delivery evidence.
+
 Resolve the human's target repository and requested source revision. Inspect the
 actual repository and local work first. If product behavior/workflows already exist,
 use Brownfield Adoption within the same request rather than treating the repo as
@@ -47,6 +54,11 @@ Use `define-project-goal` to establish the project purpose with the human operat
 Reuse a clear existing blurb; include approved purpose edits at the top of every
 root README in this workflow's own change and delivery. The skill owns the
 conversation and wording; return here afterward to complete adoption.
+
+Use `dependabot-upkeep` to establish the selected standard's dependency-protection
+outcome on the actual target. Pass the alignment setup authority, repository,
+dependency surfaces and delivery rules; verify enabled settings and active coverage,
+or report the exact unresolved capability. Return here for alignment delivery.
 
 Use `repository-verification` for its suitability assessment during normal
 inspection. Report its include/omit/defer recommendation with the other ready

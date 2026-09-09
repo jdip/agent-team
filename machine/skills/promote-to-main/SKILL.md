@@ -5,6 +5,10 @@ description: Promote verified test work through the repository’s canonical mai
 
 # Promote to Main
 
+Before any GitHub write, follow the target repository's applicable publication
+policy for outgoing source, metadata and evidence. Inspect approved commit identity
+and verify platform-created merge metadata after delivery; report any mismatch.
+
 Require the human's separate promotion request. Implementation, adoption, upgrade,
 or successful test delivery alone does not authorize promotion. Preserve the
 request's repository, environment, and intended test revision.

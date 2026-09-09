@@ -45,6 +45,14 @@ undocumented, inspect existing owners; report unresolved new-environment choices
 and wait for explicit authorization. This preference does not authorize migration or
 rewriting existing components.
 
+Declare dependencies through the component's canonical manifest and applicable
+lockfiles, using its established package-management and installation procedures.
+This applies to tooling and temporary or isolated installs as well as application
+code. Installers consume those declarations rather than maintain separate
+dependency or version lists in code. Preserve intentional pins and isolation.
+Where no native declaration mechanism exists, document the exception and its
+update owner.
+
 Stay on task and complete the requested scope. Include a blocker reasonably
 adjacent to that scope in the current task when its fix needs no large refactor
 and respects existing authorization boundaries. Limit incidental refactoring to
