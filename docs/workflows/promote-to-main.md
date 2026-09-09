@@ -1,5 +1,10 @@
 # Promote to main
 
+Before GitHub writes, follow the [public-work policy](../../SECURITY.md#public-repository-work)
+for outgoing source, metadata and evidence, including approved commit identity.
+The script verifies the merge author; inspect that result and the remaining
+platform-created metadata against the policy after delivery.
+
 Run only on a separate explicit promotion request. Issue implementation and
 next-issue-loop do not request promotion. Use a clean checkout of the intended
 origin/test revision, preserving existing task checkouts and unrelated work.

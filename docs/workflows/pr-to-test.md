@@ -1,5 +1,10 @@
 # PR to test
 
+Before GitHub writes, follow the [public-work policy](../../SECURITY.md#public-repository-work)
+for outgoing source, metadata and evidence, including approved commit identity.
+The script verifies the merge author; inspect that result and the remaining
+platform-created metadata against the policy after delivery.
+
 An implementation request includes preparation, intended commits, push, PR, checks,
 merge, and verified test delivery. Preserve unrelated work and use a clean committed
 task checkout. Read AGENTS.md and docs/development.md. Required tools are Git,

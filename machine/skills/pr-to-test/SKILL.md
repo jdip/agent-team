@@ -5,6 +5,10 @@ description: Deliver the intended task changes through the repository’s canoni
 
 # PR to Test
 
+Before any GitHub write, follow the target repository's applicable publication
+policy for outgoing source, metadata and evidence. Inspect approved commit identity
+and verify platform-created merge metadata after delivery; report any mismatch.
+
 Use on the human's delivery request or as the explicitly authorized delivery step
 of implementation/adoption work. A commit or finished subagent alone is not a new
 delivery request. This workflow does not authorize main promotion.

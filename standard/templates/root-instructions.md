@@ -13,6 +13,17 @@ do not publish a placeholder declaration or duplicate machine-level settings.
 - Actual development, Application Code/Tooling classification, and checks:
   docs/development.md.
 
+## Visibility and publication
+
+<Record verified current public/private visibility, separately from future intent.
+For public targets, link the repository-owned public-work policy and approved
+license. Private preparation may use an explicitly approved public-work policy.
+Resolve unknown or conflicting state; replace this placeholder with actual guidance.>
+
+Follow the applicable repository publication policy before GitHub writes,
+including source, metadata and evidence. Changes to visibility or licensing require
+the owner's explicit authorization.
+
 ## Languages and environments
 
 <Declare the approved language, runtime, build/package toolchain, and
