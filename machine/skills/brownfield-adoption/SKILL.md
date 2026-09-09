@@ -10,6 +10,13 @@ source baseline, and authorized scope. Reuse that consent; assessment alone does
 not authorize this workflow's edits. Return its verified outcome or unresolved
 decision to the coordinator after following this workflow's own gates.
 
+Establish the selected standard's visibility and public-work outcome before any
+GitHub writes in this workflow, including tracker updates. Verify current visibility,
+preserve licensing and owner decisions, and connect the target's applicable policy
+to root guidance, tracker, review and delivery owners. Resolve required decisions
+before dependent publication; continue independent local work. Report actual policy
+use and unexercised paths with the delivery evidence.
+
 Resolve the human's target repository and source request. Inspect existing product
 behavior, workflows, root instructions, domain docs, dirty state, and any Repository
 Standard declaration. If a valid declaration already exists, use Standards Upgrade.

@@ -27,6 +27,8 @@ copying an entire scaffolding tree.
   the policy below; component classification alone does not select its stack.
 - Dependency protection and native update coverage under the
   [dependency upkeep](#dependency-upkeep) outcome below.
+- Discoverable current repository visibility, with licensing and publication
+  safeguards under [visibility and public work](#visibility-and-public-work).
 - Executable scripts/pr-to-test.sh and scripts/promote-to-main.sh, paired with
   docs/workflows/pr-to-test.md and docs/workflows/promote-to-main.md.
 - One source/revision declaration in root AGENTS.md, delivered in the adoption or
@@ -46,6 +48,45 @@ Unmarked repos
 need Repository Adoption; ordinary upgrades use the recorded source's default
 branch unless the user requests a revision. Select one concrete revision and apply
 its relevant delta, preserving unrelated work.
+
+## Visibility and public work
+
+Greenfield Initialization, Brownfield Adoption and Standards Upgrade establish
+the target's current visibility in root guidance or a directly linked policy.
+Verify the exact remote and actual GitHub visibility when available. Record current
+public/private state separately from any intended future publication. An absent
+remote, inaccessible hosting state, or conflicting declaration leaves visibility
+unresolved: obtain the owner's intended state and resolve actual state before
+dependent publication. Adoption and upgrade authority never changes visibility.
+
+For public targets, inspect existing licensing and provenance, preserve required
+third-party notices, and establish an appropriate owner-approved license. Reuse
+settled licensing decisions. Missing or conflicting licensing requires an owner
+decision before publication; adoption does not grant relicensing authority.
+
+Establish a repository-owned public-work policy for public targets, linked from
+root agent guidance. Preserve an adequate existing policy and deliberate local
+choices. Private targets still exclude credentials and can apply an explicitly
+approved public-work policy during preparation for future publication.
+
+The policy requires review before the first applicable GitHub write, including
+issue/PR creation, comments, pushes and uploads. Cover source and relevant history,
+credentials, private identifiers and contact details, attribution, commit identity,
+branch/tag names, CI output, logs, screenshots, attachments and linked evidence.
+Establish approved commit identity and verify platform-created merge metadata.
+Preserve explicit public attribution and legitimate upstream authorship. Sanitize
+outgoing evidence; retain necessary unsanitized originals only in an established
+private destination. If none exists, resolve that destination before retaining or
+sharing such material. Automated checks supplement review, not complete privacy
+clearance; editing after publication does not retract earlier exposure.
+
+Wire the policy into the target's tracker instructions, review requirements and
+both delivery runbooks, so the adoption or upgrade itself follows it before any
+applicable publication. Reuse existing mechanisms instead of a separate publishing
+system. Complete independent local work while visibility or licensing decisions
+are pending; keep dependent writes paused. Verify actual declaration, license and
+policy handling through authorized real use, reporting unexercised paths and
+unresolved decisions without claiming publication approval.
 
 ## Dependency upkeep
 

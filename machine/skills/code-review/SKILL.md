@@ -10,6 +10,9 @@ Two-axis review of the requested committed or working-tree changes:
 
 The primary agent selects the reviewer using [reviewer routing](reviewer-routing.md) after preparing the comparison and requirements below. This applies to explicit reviews and delivery reviews. An already assigned reviewer performs its axes directly and returns findings to the primary; it does not reroute or spawn reviewers. A single reviewer checks both axes unless assigned only one. Review is read-only: report fixes for the implementation owner.
 
+Before publishing review comments or evidence, follow the target repository's
+applicable publication policy.
+
 Read the repository's instructions and available tracker guidance when fetching linked requirements. Missing tracker setup does not block review of requirements already supplied.
 
 ## Process
@@ -51,6 +54,11 @@ Each smell reads *what it is* → *how to fix*; match it against the diff:
 - **Refused Bequest**: a subclass or implementer that ignores or overrides most of what it inherits. → drop the inheritance, use composition.
 
 ### 4. Review the assigned axes
+
+Assess the target's applicable publication policy within both axes. Check outgoing
+source, metadata and evidence and establish whether this review precedes the
+change's first applicable GitHub write. Report any earlier unreviewed publication
+as an exposure requiring investigation; a later review is not prevention.
 
 For **Standards**, report violations of documented rules with the source rule and exact changed location. Apply the smell baseline as a heuristic, distinguishing actionable problems from optional improvements. Trace relevant callers and downstream effects. Apply the repository's Application Code/Tooling classification; assess actual required checks and evidence rather than inventing additional test suites or coverage requirements.
 
