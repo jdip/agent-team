@@ -6,7 +6,9 @@ across handoffs and reassesses at completed planning/implementation boundaries.
 It may supply a completion-first eligible child; dependencies, explicit user
 order, claims, and the Design gate still apply. Missing selection/execution
 authority remains a concrete human decision. The coordinator also considers
-hygiene, opted-in verification audits and Agent Team alignment under its stable-baseline assessment rules.
+dependency upkeep, hygiene, opted-in verification audits and Agent Team alignment
+under its stable-baseline assessment rules; existing update PRs remain candidates
+for ordinary implementation delivery.
 
 Wayfinder records substantive decisions and their resolutions. Resolve the whole
 associated map before executing mapped work. Small understood fixes can enter a
