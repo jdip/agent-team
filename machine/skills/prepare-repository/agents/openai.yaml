@@ -1,0 +1,6 @@
+interface:
+  display_name: "Prepare Repository"
+  short_description: "Resolve guidance conflicts before workflow adoption"
+  default_prompt: "Use $prepare-repository from Agent Team for the specified target repository and intended adoption or upgrade workflow."
+policy:
+  allow_implicit_invocation: true

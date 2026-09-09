@@ -1,0 +1,59 @@
+# Root AGENTS.md outline
+
+Adapt this outline to the actual repository. Replace descriptive placeholders;
+do not publish a placeholder declaration or duplicate machine-level settings.
+
+```markdown
+# <Repository name>
+
+<Repository-specific purpose, scope, and invariants.>
+
+- Work tracking: docs/agents/issue-tracker.md.
+- Domain documentation: docs/agents/domain.md.
+- Actual development, Application Code/Tooling classification, and checks:
+  docs/development.md.
+
+## Languages and environments
+
+<Declare the approved language, runtime, build/package toolchain, and
+execution/deployment environment for each existing component, such as CLI, app,
+server, or Tooling. Omit absent components
+and replace this placeholder with actual choices or a direct authoritative link.>
+
+Use each component's approved environment. Adding a language, runtime, build/
+package toolchain, or execution/deployment environment requires explicit user
+authorization, including for helpers and tooling; a feature request does not
+imply it. Prefer the same existing language
+across components where practical. Preserve established code; this preference does
+not authorize a migration or rewrite.
+
+## Checkouts and delivery
+
+Keep the primary local checkout on `test`, refreshed from `origin/test` by
+fast-forward only when clean. Reserve `test` for that checkout; never check it out
+in a linked worktree. Make all changes on `codex/` feature branches in separate
+worktrees based on fresh `origin/test`. Preserve local work and attached checkouts
+before switching or updating. Detached revision worktrees are valid for verification.
+
+Use the global `pr-to-test` skill with `docs/workflows/pr-to-test.md` and invoke
+`scripts/pr-to-test.sh` through checks, merge, and verified test delivery, including
+for documentation and small fixes. Do not commit or push changes directly to
+`test` or bypass branch protections.
+
+Promote only on a separate explicit user request. Use the global `promote-to-main`
+skill with `docs/workflows/promote-to-main.md` and invoke
+`scripts/promote-to-main.sh` from the clean primary `test` checkout through
+verification and main-to-test synchronization. If either canonical script is
+missing, check for duplicates, file an implementation issue in this repository,
+and report the delivery blocker instead of inventing an alternate flow.
+
+## Repository Standard
+
+- Source: https://github.com/jdip/agent-team
+- Revision: <full adopted commit SHA>
+```
+
+Keep existing useful instructions. Use the actual selected source revision and ship
+its declaration with the adoption/upgrade implementation. The source repository's
+scripts and runbooks are a small working example for its Tooling; adapt actual
+application gates and deployment effects locally rather than importing assumptions.

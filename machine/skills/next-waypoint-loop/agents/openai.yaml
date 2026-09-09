@@ -1,0 +1,6 @@
+interface:
+  display_name: "Next Waypoint Loop"
+  short_description: "Work saved-map tickets until human input is needed"
+  default_prompt: "Use $next-waypoint-loop to work through the saved Wayfinder map until human input or approval is needed."
+policy:
+  allow_implicit_invocation: false

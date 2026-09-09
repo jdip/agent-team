@@ -1,0 +1,180 @@
+#!/usr/bin/env python3
+"""Narrow native-automation observations and dedicated user-cron operations."""
+import argparse
+import hashlib
+import json
+import os
+from pathlib import Path
+import shlex
+import subprocess
+import sys
+import tomllib
+
+from reconcile import (atomic_file, cleanup_schedule_entry, cleanup_schedule_fingerprint,
+                       cleanup_schedule_preflight, encoded, fingerprint, parse_resolution, plain_path, read_receipt)
+
+DESKTOP_FIELDS = ('kind', 'name', 'prompt', 'status', 'rrule', 'model',
+                  'reasoning_effort', 'execution_environment', 'target', 'cwds')
+CRON_ID = 'cron:agent-team-cleanup'
+CRON_MARKER = ' # agent-team-cleanup'
+
+
+def receipt_hash(raw):
+    return hashlib.sha256(raw).hexdigest() if raw is not None else 'absent'
+
+
+def desktop(home, identity):
+    if not identity.startswith('automation:'):
+        raise ValueError('expected native automation identity')
+    name = identity.split(':', 1)[1]
+    if not name or '/' in name or name in ('.', '..'):
+        raise ValueError('invalid automation identity')
+    path = plain_path(home / 'automations' / name / 'automation.toml')
+    if not path.exists():
+        return None
+    data = tomllib.loads(path.read_text())
+    if data.get('version') != 1 or data.get('id') != name or data.get('kind') != 'cron':
+        raise ValueError('unknown native automation schema/identity')
+    result = {key: data[key] for key in DESKTOP_FIELDS}
+    result['rrule'] = ';'.join(sorted(result['rrule'].removeprefix('RRULE:').split(';')))
+    # Native timestamps and user notification preferences are not managed fields.
+    return result
+
+
+def crontab():
+    result = subprocess.run(['crontab', '-l'], capture_output=True, text=True,
+                            env={**os.environ, 'LC_ALL': 'C'})
+    if result.returncode == 1 and 'no crontab for' in result.stderr:
+        return ''
+    if result.returncode:
+        raise ValueError(f'cannot read user crontab: {result.stderr.strip()}')
+    return result.stdout
+
+
+def is_cleanup_cron_line(line):
+    return not line.lstrip().startswith('#') and line.rstrip('\r\n').endswith(CRON_MARKER)
+
+
+def cron_configuration(text):
+    matches = [line for line in text.splitlines() if is_cleanup_cron_line(line)]
+    if len(matches) > 1:
+        raise ValueError('multiple managed cleanup cron entries; investigate')
+    return {'line': matches[0]} if matches else None
+
+
+def observe(home, identity):
+    if identity.startswith('automation:'):
+        return desktop(home, identity)
+    if identity == CRON_ID:
+        return cron_configuration(crontab())
+    raise ValueError('unknown cleanup schedule identity')
+
+
+def preflight_other_entries(home, entries, identity, resolutions=None):
+    for target, entry in entries.items():
+        if target == identity:
+            continue
+        if entry['scope'] == {'kind': 'cleanup-schedule'}:
+            raise ValueError('another cleanup schedule is already receipted; resolve retirement first')
+        current = fingerprint(Path(target), entry['scope'])
+        if current != entry['fingerprint'] and (resolutions or {}).get(target) != (current or 'absent'):
+            raise ValueError(f'receipted target changed: {target}; no schedule write')
+
+
+def save(home, identity, configuration, expected_receipt):
+    path = home / '.agent-team/reconciliation-receipts-v1.json'
+    raw, entries = read_receipt(path)
+    if receipt_hash(raw) != expected_receipt:
+        raise ValueError('receipt changed since preflight; inspect actual schedule write before recovery')
+    if configuration is None:
+        if identity not in entries:
+            raise ValueError('retirement has no prior receipt evidence')
+        entries.pop(identity)
+    else:
+        entries[identity] = cleanup_schedule_entry(identity, configuration)
+    atomic_file(path, encoded({'version': 1, 'entries': list(entries.values())}) + b'\n')
+    print(f'Recorded observed schedule result for {identity}', flush=True)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('operation', choices=['inspect', 'record-desktop', 'install-cron', 'retire-cron'])
+    parser.add_argument('--codex-home', required=True)
+    parser.add_argument('--identity', default=CRON_ID)
+    parser.add_argument('--resolve', action='append', type=parse_resolution, default=[],
+                        metavar='TARGET=OBSERVED_SHA256_OR_absent', help='approved other target=observation conflict, preserving its receipt')
+    parser.add_argument('--approve', help='explicitly authorized conflicting observation fingerprint or absent')
+    parser.add_argument('--receipt-hash')
+    parser.add_argument('--observed-hash')
+    parser.add_argument('--observed-write', action='store_true')
+    parser.add_argument('--removed', action='store_true')
+    parser.add_argument('--stable-checkout')
+    parser.add_argument('--codex')
+    parser.add_argument('--hour', type=int, default=9)
+    parser.add_argument('--minute', type=int, default=0)
+    args = parser.parse_args()
+    home = plain_path(args.codex_home)
+    identity = args.identity
+    path = home / '.agent-team/reconciliation-receipts-v1.json'
+    raw, entries = read_receipt(path)
+    preflight_other_entries(home, entries, identity, dict(args.resolve))
+    current = observe(home, identity)
+    observed = cleanup_schedule_fingerprint(current)
+    if args.operation == 'record-desktop':
+        if not identity.startswith('automation:') or not args.observed_write:
+            raise ValueError('record only after an observed authorized native API write')
+        if args.receipt_hash is None or args.observed_hash != (observed or 'absent'):
+            raise ValueError('actual native state differs from the observed write')
+        if args.removed != (current is None):
+            raise ValueError('native removal/publication state does not match the operation')
+        save(home, identity, current, args.receipt_hash)
+        return
+    cleanup_schedule_preflight(entries.get(identity), identity, current, args.approve)
+    if args.operation == 'inspect':
+        print(json.dumps({'identity': identity, 'configuration': current,
+                          'fingerprint': observed, 'receipt_hash': receipt_hash(raw)}))
+        return
+    if sys.platform != 'linux' or identity != CRON_ID:
+        raise ValueError('cron installation/retirement is only for the actual headless Linux target')
+    original = crontab()
+    if cron_configuration(original) != current:
+        raise ValueError('cron state changed since preflight')
+    lines = [line for line in original.splitlines(keepends=True) if not is_cleanup_cron_line(line)]
+    if args.operation == 'install-cron':
+        if not args.stable_checkout or not args.codex or not 0 <= args.hour <= 23 or not 0 <= args.minute <= 59:
+            raise ValueError('supply actual stable checkout, Codex executable, and valid hour/minute')
+        stable, executable = plain_path(args.stable_checkout), plain_path(args.codex)
+        skill = stable / 'machine/skills/cleanup-task-artifacts/SKILL.md'
+        if not skill.is_file() or not os.access(executable, os.X_OK):
+            raise ValueError('stable cleanup source or Codex executable is unavailable')
+        prompt = f'Use the cleanup-task-artifacts skill at {skill}. Use only supported known project roots or explicitly supplied roots. Skip archival/removal when task evidence is unavailable. Preserve the stable source checkout. Notify only meaningful cleanup, failures, or required action; stay quiet on no-op runs. Do not reconcile or update machines.'
+        command = (f'CODEX_HOME={shlex.quote(str(home))} '
+                   f'PATH={shlex.quote(os.environ.get("PATH", "/usr/bin:/bin"))} '
+                   + shlex.join([str(executable), 'exec', '-C', str(stable), prompt]))
+        if any(char in command for char in ('\n', '\r', '%')):
+            raise ValueError('cron command needs supervised escaping before installation')
+        line = f'{args.minute} {args.hour} * * * {command}{CRON_MARKER}\n'
+        if lines and not lines[-1].endswith('\n'):
+            raise ValueError('existing crontab lacks final newline; investigate without altering unrelated bytes')
+        lines.append(line)
+        expected = {'line': line.rstrip('\n')}
+    else:
+        expected = None
+        if identity not in entries:
+            raise ValueError('cron retirement requires prior receipt evidence')
+    desired = ''.join(lines)
+    if crontab() != original or receipt_hash(read_receipt(path)[0]) != receipt_hash(raw):
+        raise ValueError('crontab or receipt changed immediately before write')
+    subprocess.run(['crontab', '-'], input=desired, text=True, check=True)
+    print(f'Wrote {identity}; verification and receipt pending', flush=True)
+    actual = crontab()
+    if actual != desired or cron_configuration(actual) != expected:
+        raise ValueError('crontab readback differs; inspect partial effects without retrying')
+    save(home, identity, expected, receipt_hash(raw))
+
+
+if __name__ == '__main__':
+    try:
+        main()
+    except (ValueError, OSError, KeyError, subprocess.CalledProcessError) as error:
+        sys.exit(f'Cleanup schedule stopped: {error}. Actual writes may precede receipt publication; inspect before recovery.')
