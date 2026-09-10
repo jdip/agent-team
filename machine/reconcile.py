@@ -9,6 +9,7 @@ import re
 import shutil
 import stat
 import subprocess
+import sys
 import tempfile
 import tomllib
 
@@ -55,6 +56,37 @@ def cleanup_schedule_entry(identity, observed_after_write):
     return {'target': identity, 'scope': {'kind': 'cleanup-schedule'},
             'algorithm': 'sha256', 'fingerprint': cleanup_schedule_fingerprint(observed_after_write)}
 
+
+def _mountinfo_path(value):
+    return re.sub(r'\\([0-7]{3})', lambda match: chr(int(match.group(1), 8)), value)
+
+
+def _wsl_mounts():
+    if sys.platform != 'linux' or 'microsoft' not in os.uname().release.casefold():
+        return ()
+    try:
+        mountinfo = Path('/proc/self/mountinfo').read_text(encoding='utf-8')
+    except OSError as error:
+        raise ValueError('cannot inspect the WSL mount table') from error
+    mounts = []
+    for line in mountinfo.splitlines():
+        before, separator, after = line.partition(' - ')
+        fields = before.split()
+        filesystem = after.split(maxsplit=2)
+        if not separator or len(fields) < 5 or len(filesystem) < 3:
+            raise ValueError('WSL mount table is malformed')
+        mounts.append((Path(_mountinfo_path(fields[4])),
+                       filesystem[0] == '9p' and 'aname=drvfs' in filesystem[2]))
+    return tuple(mounts)
+
+
+def _on_drvfs(path):
+    path = Path(os.path.abspath(path))
+    matches = [(mount, drvfs) for mount, drvfs in _wsl_mounts()
+               if path == mount or mount in path.parents]
+    return bool(matches) and max(matches, key=lambda item: len(item[0].parts))[1]
+
+
 def plain_path(path):
     if os.name == 'nt':
         value = os.fspath(path)
@@ -68,6 +100,8 @@ def plain_path(path):
             raise ValueError(f'expected a local Windows path with an unambiguous root: {path}')
         path = candidate
     path = Path(os.path.abspath(path))
+    if _on_drvfs(path):
+        raise ValueError(f'path is on a Windows-mounted DrvFS volume: {path}')
     if os.name == 'nt':
         import ctypes
         from ctypes import wintypes
@@ -90,6 +124,21 @@ def plain_path(path):
     # Resolve existing Windows spelling/aliases only after rejecting redirection.
     # Keep POSIX spelling unchanged so existing receipt identities stay valid.
     return path.resolve(strict=False) if os.name == 'nt' else path
+
+
+def executable_path(path):
+    """Validate a native command without resolving POSIX launcher symlinks."""
+    executable = plain_path(path) if os.name == 'nt' else Path(os.path.abspath(path))
+    if _on_drvfs(executable.resolve(strict=False)):
+        raise ValueError(f'executable is on a Windows-mounted DrvFS volume: {executable}')
+    return executable
+
+
+def command_path(name):
+    executable = shutil.which(name)
+    if executable is None:
+        raise ValueError(f'{name} executable is unavailable')
+    return executable_path(executable)
 
 
 def same_path(left, right):
@@ -273,7 +322,7 @@ def inventory(source, home, skills, upstream, upstream_root=None, claude_root=No
 
 def verify_upstream(stage, pin, packages):
     tree = json.loads(subprocess.check_output([
-        'gh', 'api', f'repos/mattpocock/skills/git/trees/{pin}?recursive=1']))
+        str(command_path('gh')), 'api', f'repos/mattpocock/skills/git/trees/{pin}?recursive=1']))
     if tree.get('truncated'):
         raise ValueError('upstream tree response is truncated')
     for name, prefix in packages:
@@ -425,7 +474,7 @@ def run(args):
     desired[config_target] = (candidate_config, config_scope)
     # Snapshot candidates before mutation. The source worktree must represent the
     # single revision selected by the supervisor, with no uncommitted edits.
-    if subprocess.check_output(['git', '-C', str(source), 'status', '--porcelain']):
+    if subprocess.check_output([str(command_path('git')), '-C', str(source), 'status', '--porcelain']):
         raise ValueError('source checkout has uncommitted changes; select a clean revision')
     prepared_files = {target: candidate.read_bytes() for target, (candidate, scope) in desired.items()
                       if scope['kind'] != 'directory'}

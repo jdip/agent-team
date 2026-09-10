@@ -20,11 +20,7 @@ import tomllib
 
 sys.dont_write_bytecode = True
 
-from reconcile import path_within, plain_path, same_path
-
-
-def executable_path(path):
-    return plain_path(path) if sys.platform == 'win32' else Path(os.path.abspath(path))
+from reconcile import command_path, executable_path, path_within, plain_path, same_path
 
 
 def discovered_path(path):
@@ -160,22 +156,23 @@ def select_source(repository, work_root):
     repository = plain_path(repository)
     if not (repository / '.git').exists():
         raise ValueError(f'not a Git checkout: {repository}')
-    plain_path(command('git', 'rev-parse', '--path-format=absolute', '--git-common-dir', cwd=repository))
-    branch = command('git', 'symbolic-ref', '--quiet', '--short', 'HEAD', cwd=repository)
-    remote = command('git', 'config', '--get', f'branch.{branch}.remote', cwd=repository)
-    merge = command('git', 'config', '--get', f'branch.{branch}.merge', cwd=repository)
+    git = str(command_path('git'))
+    plain_path(command(git, 'rev-parse', '--path-format=absolute', '--git-common-dir', cwd=repository))
+    branch = command(git, 'symbolic-ref', '--quiet', '--short', 'HEAD', cwd=repository)
+    remote = command(git, 'config', '--get', f'branch.{branch}.remote', cwd=repository)
+    merge = command(git, 'config', '--get', f'branch.{branch}.merge', cwd=repository)
     if remote == '.' or not merge.startswith('refs/heads/'):
         raise ValueError(f'{branch}: upstream identity is ambiguous; inspect branch tracking')
     remote_branch = merge.removeprefix('refs/heads/')
-    fresh = command('git', 'ls-remote', '--exit-code', remote, f'refs/heads/{remote_branch}',
+    fresh = command(git, 'ls-remote', '--exit-code', remote, f'refs/heads/{remote_branch}',
                     cwd=repository).split()[0]
     if not re.fullmatch(r'[0-9a-f]{40}', fresh):
         raise ValueError(f'{branch}: remote returned an invalid revision')
-    command('git', 'fetch', '--no-tags', '--no-write-fetch-head', remote, fresh, cwd=repository)
-    head = command('git', 'rev-parse', 'HEAD', cwd=repository)
+    command(git, 'fetch', '--no-tags', '--no-write-fetch-head', remote, fresh, cwd=repository)
+    head = command(git, 'rev-parse', 'HEAD', cwd=repository)
     if head != fresh:
-        ahead = subprocess.run(['git', 'merge-base', '--is-ancestor', fresh, head], cwd=repository)
-        behind = subprocess.run(['git', 'merge-base', '--is-ancestor', head, fresh], cwd=repository)
+        ahead = subprocess.run([git, 'merge-base', '--is-ancestor', fresh, head], cwd=repository)
+        behind = subprocess.run([git, 'merge-base', '--is-ancestor', head, fresh], cwd=repository)
         if ahead.returncode == 0:
             raise ValueError(f'{branch}: local commits are unpublished; publish or select their authority explicitly')
         if behind.returncode != 0:
@@ -183,7 +180,7 @@ def select_source(repository, work_root):
     root = Path(tempfile.mkdtemp(prefix='agent-team-source-', dir=work_root))
     checkout = root / 'source'
     try:
-        command('git', 'worktree', 'add', '--detach', str(checkout), fresh, cwd=repository)
+        command(git, 'worktree', 'add', '--detach', str(checkout), fresh, cwd=repository)
     except Exception:
         root.rmdir()
         raise
@@ -343,17 +340,18 @@ def provision_tomlkit(stage):
         raise ValueError('candidate requirements must contain one exact tomlkit release pin')
     expected_version = pin.group(1)
     dependency_root = stage / 'candidate-dependencies'
-    pip = subprocess.run([sys.executable, '-m', 'pip', '--version'], capture_output=True, text=True,
+    python = str(executable_path(sys.executable))
+    pip = subprocess.run([python, '-m', 'pip', '--version'], capture_output=True, text=True,
                          encoding='utf-8')
     if pip.returncode == 0:
-        install = [sys.executable, '-m', 'pip', 'install', '--disable-pip-version-check']
+        install = [python, '-m', 'pip', 'install', '--disable-pip-version-check']
     else:
         candidates = [shutil.which('uv'), Path.home() / '.local/bin/uv']
-        uv = next((Path(candidate) for candidate in candidates
+        uv = next((executable_path(candidate) for candidate in candidates
                    if candidate and Path(candidate).is_file() and os.access(candidate, os.X_OK)), None)
         if uv is None:
             raise ValueError('neither Python pip nor uv is available for isolated TOML candidate preparation')
-        install = [str(uv), 'pip', 'install', '--python', sys.executable]
+        install = [str(uv), 'pip', 'install', '--python', python]
     try:
         command(*install, '--index-url', 'https://pypi.org/simple', '--target', str(dependency_root), '--no-deps',
                 '--requirement', str(requirements))
@@ -458,15 +456,25 @@ def run_prepared(args):
     if not executable.is_file() or not os.access(executable, os.X_OK):
         raise ValueError(f'Codex executable is unavailable: {executable}')
     requested_home = args.codex_home
+    python = str(executable_path(sys.executable))
+    expected_home = None
     if sys.platform == 'win32':
         requested_home = requested_home or os.environ.get('CODEX_HOME')
         requested_home = plain_path(requested_home) if requested_home else None
+    elif sys.platform == 'linux' and 'microsoft' in os.uname().release.casefold():
+        requested_home = requested_home or os.environ.get('CODEX_HOME')
+        expected_home = plain_path(Path(requested_home).expanduser()
+                                   if requested_home else Path.home() / '.codex')
+        if requested_home:
+            requested_home = expected_home
     stage = None
     verified_stage = False
     try:
         initialized, discovered, models = app_server_data(executable, requested_home, source, args.timeout)
         home = plain_path(initialized['codexHome'])
         if requested_home and not same_path(home, plain_path(requested_home)):
+            raise ValueError(f'Codex app-server resolved a different CODEX_HOME: {home}')
+        if expected_home and not same_path(home, expected_home):
             raise ValueError(f'Codex app-server resolved a different CODEX_HOME: {home}')
         _, receipt = read_receipt(home / '.agent-team/reconciliation-receipts-v1.json')
         claude_executable = probe_claude(args.timeout, args.claude)
@@ -512,7 +520,7 @@ def run_prepared(args):
         installer = plain_path(installer)
         if not installer.is_file():
             raise ValueError(f'supported skill installer is unavailable: {installer}')
-        command(sys.executable, str(installer), '--repo', 'mattpocock/skills', '--ref', pin,
+        command(python, str(installer), '--repo', 'mattpocock/skills', '--ref', pin,
                 '--dest', str(stage), '--path', *(path for _, path in packages))
         verify_upstream(stage, pin, packages)
         verified_stage = True
@@ -523,7 +531,7 @@ def run_prepared(args):
         candidate = stage / 'candidate-config.toml'
         build_candidate(source / 'machine/config.toml', config_target, candidate, config_scope,
                         previous_scope, tomlkit)
-        preflight = [sys.executable, str(source / 'machine/reconcile.py'), '--source', str(source),
+        preflight = [python, str(source / 'machine/reconcile.py'), '--source', str(source),
                      '--codex-home', str(home), '--skills-root', str(skills_root),
                      '--upstream-root', str(upstream_root), '--upstream-stage', str(stage)]
         if claude_root is not None:
@@ -558,7 +566,7 @@ def run_prepared(args):
 
 
 def cleanup_source(repository, source_root, source):
-    removal = subprocess.run(['git', 'worktree', 'remove', str(source)], cwd=repository,
+    removal = subprocess.run([str(command_path('git')), 'worktree', 'remove', str(source)], cwd=repository,
                              capture_output=True, text=True, encoding='utf-8')
     if removal.returncode:
         print(f'Prepared source retained for inspection: {source}', file=sys.stderr)
@@ -581,7 +589,7 @@ def run_bootstrap(args):
         helper = source / 'machine/prepare_reconciliation.py'
         if not helper.is_file():
             raise ValueError(f'selected revision lacks the canonical preparation script: {helper}')
-        child = [sys.executable, str(helper), '--prepared-source', str(source),
+        child = [str(executable_path(sys.executable)), str(helper), '--prepared-source', str(source),
                  '--timeout', str(args.timeout)]
         for name in ('codex_home', 'skills_root', 'upstream_root', 'staging_root', 'codex',
                      'claude', 'claude_config_root'):
