@@ -48,15 +48,13 @@ deduplicate, and order work autonomously within already approved scope, while
 preserving claims. Surface external blockers rather than absorbing them into an
 unrelated parent.
 
-Use proportional planning:
-
-- Put a small, understood, approved fix with clear acceptance criteria in a
-  suitable approved parent when its scope allows it. Do not manufacture a map or
-  new specification for that case.
-- Send a larger effort to `$to-spec` and `$to-tickets` for one specification
-  parent and an approved ticket batch.
-- Return substantive unresolved decisions to Wayfinder. Its entire map must be
-  resolved before associated implementation proceeds.
+Apply the global Planning before implementation rule. Reuse a resolved map and
+approved specification only when they cover the candidate, including small
+fixes. Otherwise begin or resume Wayfinder, then use `to-spec` and `to-tickets`
+for a proportionate parent and executable-child batch. Only an explicit scoped
+operator waiver changes that gate. Substantive unresolved design pauses
+associated execution; ordinary refinement within approved coverage does not
+reopen the map.
 
 Scope expansion and moving an issue between efforts require the user's explicit
 decision. Do not reparent another effort's issue or modify an existing claim.
@@ -71,12 +69,13 @@ prior admission or activation authorization when it covers the same parent and
 scope. When no parent is active, admission and activation may be approved together;
 specification approval alone supplies neither.
 
-For a prepared non-active parent, first show its objective, child scope, external
-blockers, and source links. Ask whether it should join the Ready Backlog. This
-admission needs explicit consent independent of any prior specification or ticket
-approval. After consent, create `implementation:ready` if necessary, apply it
-alongside `implementation:backlog`, and read the parent back. Do not alter the
-active pointer.
+For a prepared non-active parent, first show its objective, child scope,
+external blockers, and source links. Reuse a request that already authorizes
+admitting and implementing this same effort; otherwise ask whether it should
+join the Ready Backlog. Specification or ticket approval alone does not supply
+that authority. After consent, create `implementation:ready` if necessary, apply
+it alongside `implementation:backlog`, and read the parent back. Do not alter
+the active pointer.
 
 Offer activation only when there is no active parent. Name the selected Ready
 Backlog parent and obtain authorization to activate it. Recheck the saved pointer and parent state immediately before selection; if another
@@ -87,8 +86,9 @@ selection mechanism; do not duplicate its validation or offer to replace an acti
 parent during routine triage.
 
 Creating or admitting a Ready Backlog parent does not authorize implementation.
-Execution begins only through an explicitly authorized `$next-issue` or
-`$next-issue-loop` invocation after activation.
+Execution begins through `next-issue` or `next-issue-loop` after activation
+under the implementation request's authority; no extra slash command is
+required.
 
 ## Report
 

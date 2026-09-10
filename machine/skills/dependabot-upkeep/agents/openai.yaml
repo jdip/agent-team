@@ -1,4 +1,4 @@
 interface:
   display_name: "Dependabot Upkeep"
   short_description: "Configure Dependabot and advance dependency updates"
-  default_prompt: "Use $dependabot-upkeep to assess this repository and advance authorized dependency upkeep through its existing delivery workflow."
+  default_prompt: "Use $dependabot-upkeep to assess this repository and plan and advance authorized dependency upkeep through its existing implementation and delivery workflow."

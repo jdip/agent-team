@@ -5,20 +5,23 @@ description: Claim and implement one eligible issue from this repository's saved
 
 # Next Issue
 
-Use this for a request to implement the next backlog issue. Discussing or creating
-this skill does not authorize executing the backlog. Work one issue per invocation;
-`$next-issue-loop` overrides that boundary. Do not route ordinary implementation
-through Wayfinder or grilling by default. An authorized `whats-next` handoff
-can supply execution authority for the established Active Backlog; it does not
-waive this skill's scope, claims, or Design gate.
+Use this for a request to implement the next backlog issue. Discussing or
+creating this skill does not authorize executing the backlog. Work one issue per
+invocation; `$next-issue-loop` overrides that boundary. Apply the Design gate
+before edits; resume covered implementation without another planning interview.
+An authorized coordinator or named workflow handoff carries the request's
+execution authority for the target Active Backlog without waiving scope, claims
+or planning.
 
 ## Load the backlog and select work
 
 Resolve `git rev-parse --path-format=absolute --git-common-dir` and read its
-`codex-implementation-backlog` file. Require exactly one nonempty URL line. If it
-is missing or invalid, return the concrete pointer problem to `whats-next` when
-it is the caller; otherwise ask for `$set-backlog`. This executor does not guess
-a parent or search the issue pool for a replacement. Leave `codex-wayfinder-map` alone.
+`codex-implementation-backlog` file. Require exactly one nonempty URL line. If
+it is missing or invalid, return the concrete pointer problem to the invoking
+owner for resolution through `set-backlog`, carrying existing selection
+authority. In standalone use, resolve the missing selection with the user. This
+executor does not guess a parent or search the issue pool for a replacement.
+Leave `codex-wayfinder-map` alone.
 
 Read repository instructions, the saved parent, and relevant design/decision
 links. Verify the parent is an issue in this repository labelled
@@ -60,19 +63,24 @@ a continuation. Close the parent only when its full outcome is actually complete
 Identify the associated Wayfinder map from the specification's approved design
 links and the originating decision's parent relationship. Read that map's body,
 comments, and all children with pagination, including their resolutions and any
-remaining fog. Distinguish this effort's map from incidental historical references.
-Use the specification's sources, not `codex-wayfinder-map`, which may select an
-unrelated planning effort. A standalone resolved decision needs no new map;
-small understood fixes with approved acceptance criteria need no map either.
+remaining fog. Distinguish this effort's map from incidental historical
+references. Use the specification's sources, not `codex-wayfinder-map`, which
+may select an unrelated planning effort. Require a resolved map and approved
+specification that cover this child, unless the operator explicitly waived the
+missing planning requirement for this scope. Record and honor only that
+exception. Small fixes, standalone decisions and direct implementation requests
+do not self-exempt. Missing coverage returns to Wayfinder and `to-spec` through
+the invoking owner; continue read-only discovery and preserve claims while
+planning is unresolved.
 
-For mapped work, the entire map must be resolved: the map and every required
-decision are closed and no substantive decision remains unsettled. An open or
-reopened map pauses the whole associated backlog, including otherwise independent
+The entire associated map must be resolved: the map and every required decision
+are closed and no substantive decision remains unsettled. An open or reopened
+map pauses the whole associated backlog, including otherwise independent
 tickets. A closed map with open required decisions or unresolved fog is an
 inconsistency to investigate, not permission to execute. A standalone source
-decision that is reopened likewise needs resolution before associated work proceeds.
-Unavailable or ambiguous source state is unresolved; never infer clearance from a
-failed read.
+decision that is reopened likewise needs resolution before associated work
+proceeds. Unavailable or ambiguous source state is unresolved; never infer
+clearance from a failed read.
 
 Recheck the active pointer, parent state, and associated design state before a
 claim, when resuming after human input or interruption, before delivery or issue
@@ -111,7 +119,10 @@ perform the necessary review. Add no review ledger or attestation framework.
 
 The request to implement the issue includes its ordinary commits, push, PR to
 `test`, applicable gates, merge, and local test-environment verification under the
-approved backlog/runbook scope. Read `docs/workflows/pr-to-test.md`; use the shared
+approved backlog/runbook scope. When an approved child invokes a workflow with a
+more limited completion boundary, honor that owner: repository preparation ends
+at its verified local documentation handoff; separately scoped adoption/delivery
+work remains open. For test delivery, read `docs/workflows/pr-to-test.md`; use the shared
 `pr-to-test` skill when available and `scripts/pr-to-test.sh` as the canonical
 entry point. Use merge commits, preserving history. Local runbooks define actual
 application/deployment effects and completion evidence. An open PR, a successful
@@ -128,20 +139,24 @@ unless the user explicitly requests it as part of the current scope.
 ### Initial bootstrap
 
 If canonical delivery skills/scripts do not exist yet, inspect the approved
-backlog and repository guidance for a bootstrap delivery procedure. Use a concrete
-documented native Git/`gh` path when authorized; do not require later tooling to
-exist before its prerequisite issues can ship. If no such procedure exists,
-prepare one minimal proposal for the actual missing steps and batch the needed
-human decisions. Do not silently invent gates, bypass existing checks, scaffold
-a full release system, or declare an undelivered issue complete.
+backlog and current owning guidance for the missing delivery prerequisite.
+Assess inherited bootstrap procedures under the repository's adopted Repository
+Standard Guidance retirement outcome, where declared; an old plan or prior
+approval alone does not make one current authority. Use a concrete documented
+native Git/`gh` path only when currently authorized; do not require later
+tooling to exist before its prerequisite issues can ship. If no such procedure
+exists, prepare one minimal proposal for the actual missing steps and batch the
+needed human decisions. Do not silently invent gates, bypass existing checks,
+scaffold a full release system, or declare an undelivered issue complete.
 
 ## Recover, clean up, and resolve
 
 Investigate failures using actual state and partial effects. Recover routine
 problems within scope rather than blindly rerunning commands. Preserve user
-decisions and external approval gates. Missing access or a substantive unresolved
-design choice keeps the issue claimed and unresolved. Apply the Design gate for a substantive missing decision; ordinary
-implementation does not need a new planning map.
+decisions and external approval gates. Missing access or a substantive
+unresolved design choice keeps the issue claimed and unresolved. Apply the
+Design gate for a substantive missing decision; covered implementation reuses
+its existing map.
 
 Before pausing, complete independent work within the issue and ask ALL ready
 questions together in ordinary text, with concrete recommendations, and wait

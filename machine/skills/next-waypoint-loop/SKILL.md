@@ -7,11 +7,13 @@ description: Work successive frontier tickets from this repository's saved Wayfi
 
 This is the continuous version of `next-waypoint`. Its invocation authorizes
 continuing across ticket boundaries in the current conversation. It overrides
-Wayfinder's one-ticket-per-session limit and normal stop after a resolved ticket;
-all other Wayfinder rules, including the map's planning/execution boundary,
-remain in force. It does not authorize answering human decisions or bypassing
-approvals. An authorized `whats-next` handoff supplies this invocation for the
-established selected map; no additional slash command is needed.
+Wayfinder's one-ticket-per-session limit and normal stop after a resolved
+ticket; all other Wayfinder rules, including the map's planning/execution
+boundary, remain in force. It does not authorize answering human decisions or
+bypassing approvals. An authorized `whats-next` handoff supplies this invocation
+for the established selected map; an implementation request can likewise carry
+planning continuation authority through its owner. No additional slash command
+is needed.
 
 ## Load the saved map
 
@@ -22,9 +24,10 @@ git rev-parse --path-format=absolute --git-common-dir
 ```
 
 Read `codex-wayfinder-map` from that directory. A valid pointer is exactly one
-non-empty line. If it is absent or invalid, return the pointer problem to
-`whats-next` when it is the caller; otherwise ask the user to invoke `$set-map`
-with the map URL. This loop never infers or searches for a replacement selection.
+non-empty line. If it is absent or invalid, return the concrete pointer problem
+to the invoking owner for resolution through `set-map`, carrying existing selection
+authority. In standalone use, resolve the missing selection with the user; no extra
+slash command is required. This loop never infers a replacement map.
 
 Read the `wayfinder` skill completely and the repository's issue-tracker
 instructions. Use the saved URL with **Work through the map**, with no named
@@ -95,6 +98,13 @@ input means pause after preparing the ready round, not at the first uncertainty.
 
 Pause for required human input or approval. Otherwise continue until the map is
 complete, the user stops the run, or no actionable frontier remains.
+
+For a settled map with no decision children, complete Wayfinder's implementation
+handoff and resolution directly; do not create work just to populate the
+frontier. Once the map is resolved, carry an existing implementation request
+through the specification, publication and backlog owners, asking only for
+missing approval of the concrete draft. A planning-only request ends with its
+planning outcome.
 
 An empty frontier is not necessarily a complete map: distinguish completion
 from tickets blocked or claimed elsewhere, and from remaining fog. If a precise

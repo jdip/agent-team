@@ -10,10 +10,12 @@ dependency upkeep, hygiene, opted-in verification audits and Agent Team alignmen
 under its stable-baseline assessment rules; existing update PRs remain candidates
 for ordinary implementation delivery.
 
-Wayfinder records substantive decisions and their resolutions. Resolve the whole
-associated map before executing mapped work. Small understood fixes can enter a
-suitable approved parent with clear acceptance criteria; they need no manufactured
-map. A resolved standalone design decision also needs no map merely for this handoff.
+The [global planning rule](../../machine/AGENTS.md#planning-before-implementation)
+applies inside and outside this coordinator, including direct specialist requests.
+Wayfinder owns proportionate maps and decision resolution; the existing executor
+uses one specification parent and at least one executable child. Reuse covering
+plans and authority across these owners, preserving phase-specific completion
+boundaries. Planning records can precede completed implementation planning.
 
 Use `to-spec` to synthesize the approved design into one Implementation
 Specification parent and its outcome-based ticket proposal. Review the parent and
@@ -52,13 +54,16 @@ is separately requested, so source delivery does not claim a live installation.
 
 ## Prepare target guidance before adoption or upgrade
 
-When conflicting target guidance needs preparation, invoke
+When obsolete or conflicting target guidance needs preparation, invoke
 [prepare-repository](../../machine/skills/prepare-repository/SKILL.md) from Agent
 Team with the target path and intended Greenfield Initialization, Brownfield
 Adoption, or Standards Upgrade workflow. The skill resolves one exact Agent Team
-baseline, assesses target documents as review material, and makes authorized
-preparation edits. Its final pass invokes the full OpenAI `openai-docs` skill for
-the migration and instruction audit before combined review and verification.
+baseline and assesses target documents as review material. All four alignment
+workflows follow the selected standard's Target assessment and planning outcome:
+read-only assessment, target-owned Wayfinder map and approved spec, then execution
+against the target's state and workflow goals. Reuse covering plans and handoffs;
+preparation edits retain their documentation-only boundary. The preparation skill's final pass invokes
+the full OpenAI `openai-docs` skill for the migration and instruction audit before combined review and verification.
 
 The result is a committed local preparation branch and an evidence-based readiness
 handoff. Continue from that prepared branch's changes when separately authorized

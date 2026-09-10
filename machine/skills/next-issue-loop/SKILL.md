@@ -8,12 +8,14 @@ description: Work successive issues from the saved implementation backlog until 
 Read the `next-issue` skill completely and use it as the canonical execution
 workflow. If it is unavailable, report the missing dependency. This invocation
 authorizes continuing across issue boundaries in the current conversation; it
-overrides next-issue's one-issue stopping rule. An authorized `whats-next` handoff
-supplies the invocation and can select an eligible child under next-issue's
-coordinator-selection rule. Its backlog scope, claims,
-delivery requirements, Design gate, and approval boundaries remain in force.
-Bind the run to the initially selected parent URL. A changed saved pointer ends
-this run pending explicit user direction; it does not redirect the loop.
+overrides next-issue's one-issue stopping rule. An authorized `whats-next`
+handoff supplies the invocation and can select an eligible child under
+next-issue's coordinator-selection rule. Its backlog scope, claims, delivery
+requirements, Design gate, and approval boundaries remain in force. Missing
+map/spec coverage returns to the planning owner under the global rule; loop
+continuation and task size do not waive planning. Bind the run to the initially
+selected parent URL. A changed saved pointer ends this run pending explicit user
+direction; it does not redirect the loop.
 
 After resolving an issue, finish all tracker bookkeeping, refresh the saved
 parent's children/dependencies/claims, and recheck next-issue’s Design gate

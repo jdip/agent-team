@@ -11,13 +11,18 @@ dependency is in question; it owns justification, while this skill owns currency
 
 ## Establish the assignment
 
-Resolve the repository, requested outcome, branch and dirty state, local guidance,
-delivery rules, and task/issue/PR ownership. A bare invocation or assessment request
-produces a recommendation. A setup or update request authorizes the concrete scope
-it names through the existing delivery owner; reuse that approval across steps.
-Finish independent investigation before asking for missing decisions. Breaking
-upgrades, migrations, new runtimes, blanket auto-merge, main promotion, Machine
-Reconciliation, and separate background jobs require their own applicable authority.
+Resolve the repository, requested outcome, branch and dirty state, local
+guidance, delivery rules, and task/issue/PR ownership. A bare invocation or
+assessment request produces a recommendation. A setup or update request
+authorizes the concrete scope it names through the existing delivery owner;
+reuse that approval across steps. Apply the global Planning before
+implementation rule before configuration, hosted setting changes, update fixes
+or PR delivery. Reuse covering map/spec evidence from the alignment or
+implementation owner; direct setup/update requests and bot authorship do not
+waive planning. Finish independent investigation before missing decisions.
+Breaking upgrades, migrations, new runtimes, blanket auto-merge, main promotion,
+Machine Reconciliation, and separate background jobs require their own
+applicable authority.
 
 An authorized alignment handoff from Greenfield Initialization, Brownfield Adoption
 or Standards Upgrade includes the selected standard's dependency-protection outcome.

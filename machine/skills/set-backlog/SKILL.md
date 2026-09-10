@@ -12,15 +12,19 @@ and publishing an approved specification and breakdown.
 
 ## Select the existing parent
 
-A supplied parent may come from an explicitly approved `whats-next` selection
-proposal; the human need not repeat its URL.
+A supplied parent may come from the owning workflow under an implementation
+request covering its approved scope and selection; the human need not repeat its
+URL or issue a separate command. Preserve a competing effort unless switching is
+authorized.
 
-Read the supplied issue, comments, all native children (`sub_issues --paginate`),
-and its linked design. Verify it is an open implementation specification in this
-repository with an objective, approved scope and sources, completion boundary,
-and standing preferences. For mapped work, verify the entire associated map is
-resolved; a closed planning map is not an implementation parent. Show the parent's
-name, objective, and child scope. Preserve membership, blockers, and claims.
+Read the supplied issue, comments, all native children (`sub_issues
+--paginate`), and its linked design. Verify it is an open implementation
+specification in this repository with an objective, approved scope and sources,
+completion boundary, and standing preferences. Verify covering resolved map/spec
+evidence under the global Planning before implementation rule, or the explicit
+scoped planning waiver; a closed planning map is not an implementation parent.
+Show the parent's name, objective, and child scope. Preserve membership,
+blockers, and claims.
 
 An explicit request to select that parent is sufficient authorization, including
 replacing an existing selection. Add `implementation:backlog` if absent and the

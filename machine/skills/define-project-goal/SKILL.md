@@ -33,6 +33,11 @@ separate vision document, task checklist, or agent execution prompt.
 
 ## Record and return
 
+Purpose dialogue and draft wording may inform planning. Before shipping README
+edits, apply the global Planning before implementation rule; reuse the adoption
+or other invoking workflow's covering map/spec. A standalone wording approval
+does not waive that gate.
+
 After approval, preserve unrelated README content and place the purpose directly
 below the title, before setup and detailed sections. Keep root README variants
 consistent in meaning and appropriate to their language. If no root README exists,

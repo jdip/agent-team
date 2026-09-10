@@ -64,7 +64,8 @@ and report the delivery blocker instead of inventing an alternate flow.
 - Revision: <full adopted commit SHA>
 ```
 
-Keep existing useful instructions. Use the actual selected source revision and ship
+Retain only guidance justified by current needs after the selected standard's
+guidance-retirement assessment. Use the actual selected source revision and ship
 its declaration with the adoption/upgrade implementation. The source repository's
 scripts and runbooks are a small working example for its Tooling; adapt actual
 application gates and deployment effects locally rather than importing assumptions.
