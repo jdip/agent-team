@@ -165,10 +165,13 @@ def source_skill_names(source):
     return set(table(local)), {name for name, _ in re.findall(r'^\| ([\w-]+) \| (skills/[\w/-]+) \|$', upstream, re.M)}
 
 
-def probe_claude(timeout):
-    executable = shutil.which('claude')
+def probe_claude(timeout, requested=None):
+    executable = str(Path(requested).expanduser()) if requested else shutil.which('claude')
     if executable is None:
-        return None
+        launcher = Path.home() / '.local/bin/claude'
+        if not launcher.exists() and not launcher.is_symlink():
+            return None
+        executable = str(launcher)
     executable = Path(os.path.abspath(executable))
     if not executable.is_file() or not os.access(executable, os.X_OK):
         raise ValueError(f'Claude executable is unavailable: {executable}')
@@ -416,9 +419,13 @@ def run_prepared(args):
         if args.codex_home and home != plain_path(args.codex_home):
             raise ValueError(f'Codex app-server resolved a different CODEX_HOME: {home}')
         _, receipt = read_receipt(home / '.agent-team/reconciliation-receipts-v1.json')
-        claude_executable = probe_claude(args.timeout)
+        claude_executable = probe_claude(args.timeout, args.claude)
         if args.claude_config_root and claude_executable is None:
-            raise ValueError('explicit Claude configuration root requires a Claude executable on PATH')
+            raise ValueError('Claude executable was not discovered; supply --claude for the explicit configuration root')
+        if claude_executable is None:
+            print('Claude executable not discovered on PATH or at ~/.local/bin/claude; '
+                  'this does not establish absence. Supply --claude for another installation. '
+                  'Previously managed Claude scopes will be preserved.')
         claude_root = (resolve_claude_root(args.claude_config_root, initialized['platformOs'])
                        if claude_executable else None)
         anchored_claude_root, anchored_claude_targets = claude_receipt_root(receipt)
@@ -483,7 +490,7 @@ def run_prepared(args):
         print(json.dumps({'codex_home': str(home), 'skills_root': str(skills_root),
                           'upstream_root': str(upstream_root),
                           'claude_config_root': str(claude_root) if claude_root else None,
-                          'claude_available': claude_executable is not None,
+                          'claude_discovery': 'verified' if claude_executable else 'not-discovered',
                           'platform': initialized['platformOs'],
                           'result': 'reconciled and verified' if args.apply else 'prepared and preflighted; no managed writes'},
                          sort_keys=True))
@@ -524,7 +531,7 @@ def run_bootstrap(args):
         child = [sys.executable, str(helper), '--prepared-source', str(source),
                  '--timeout', str(args.timeout)]
         for name in ('codex_home', 'skills_root', 'upstream_root', 'staging_root', 'codex',
-                     'claude_config_root'):
+                     'claude', 'claude_config_root'):
             value = getattr(args, name)
             if value:
                 child.extend(['--' + name.replace('_', '-'), str(value)])
@@ -559,6 +566,7 @@ def main():
     parser.add_argument('--staging-root')
     parser.add_argument('--work-root')
     parser.add_argument('--codex')
+    parser.add_argument('--claude', help='explicit Claude executable path; otherwise search PATH and ~/.local/bin/claude')
     parser.add_argument('--claude-config-root')
     parser.add_argument('--resolve', action='append', type=parse_resolution, default=[],
                         metavar='TARGET=OBSERVED_SHA256_OR_absent')
