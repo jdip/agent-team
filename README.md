@@ -1,7 +1,7 @@
 # Agent Team
 
-Portable Codex configuration and repository working conventions for macOS desktop
-and headless Linux.
+Portable Codex configuration and repository working conventions for macOS desktop,
+headless Linux, native Windows, and WSL 2 Ubuntu.
 
 The [Machine Profile](machine/PROFILE.md) defines the configuration, agent roles,
 and skills installed on a machine. The [Repository Standard](standard/README.md)
@@ -11,8 +11,9 @@ machine changes or upgrade other repositories.
 
 ## Start on a machine
 
-1. Obtain official Codex and sign in on that machine: use the desktop app on macOS
-   or the standalone CLI on headless Linux. Start with the
+1. Obtain official Codex and sign in on that machine: use the desktop app on
+   macOS, the desktop app or standalone CLI on native Windows, or the standalone
+   CLI on headless Linux or WSL. Start with the
    [official quickstart](https://developers.openai.com/codex/quickstart/).
 2. Clone this repository with your own GitHub access, or open an existing checkout.
    See [development requirements](docs/development.md) for the local tools.

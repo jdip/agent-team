@@ -14,6 +14,26 @@ From the current Agent Team checkout, invoke the single preparation command:
 python3 machine/prepare_reconciliation.py --repository /actual/agent-team
 ```
 
+On native Windows, run the same Python helper from PowerShell with an installed
+native Python 3.11+ interpreter and the native checkout path:
+
+```powershell
+& $PythonExecutable machine/prepare_reconciliation.py --repository $RepositoryPath
+```
+
+Resolve those variables to actual local paths first. Do not use a Windows Store
+execution alias or WSL Python for this operation. The Codex app-server must report
+the same operating system as the interpreter. Native Windows paths remain separate
+from WSL roots; symlinks, junctions, and other reparse points stop preparation.
+
+In WSL 2 Ubuntu 24.04, use a separate checkout under the Linux home with its own
+Git common directory. Install and sign in to the Linux Codex CLI inside that
+distribution, then invoke the same Python preparation command there. Do not copy
+Windows authentication or receipts, use a mounted Windows checkout, or invoke a
+Windows executable through WSL interop. The path gate inspects the actual mount
+table so moving a Windows mount does not make it eligible for managed writes.
+Verify native Windows state remains unchanged after WSL reconciliation.
+
 It resolves the checkout's tracked branch and freshest published remote revision,
 uses a temporary detached worktree, discovers the actual Codex home and user-skill
 destinations through the native app-server and existing receipt, and checks the
@@ -45,7 +65,7 @@ prepares the candidate config, verifies declared model/effort availability, reru
 the filesystem gate, publishes, and verifies fresh Codex skill discovery. It manages
 only the Machine Profile's files, configuration, and skill directories. A successful
 Claude filesystem publication is not Claude session usability; record that evidence
-through the separate two-platform workflow. The managing agent maintains cleanup
+through the separate host verification workflow. The managing agent maintains cleanup
 schedules separately through the native tools and `cleanup_schedule.py`.
 
 ## Preparation details
@@ -59,7 +79,8 @@ Read every declared source there. An incomplete profile stops before live writes
 
 Machine Bootstrap ends with official Codex acquisition, authentication, obtaining
 this repository, and asking an agent to reconcile it: macOS uses the official
-desktop download; headless Linux uses the supported standalone CLI path. Update
+desktop download; headless Linux uses the supported standalone CLI path; native
+Windows uses the official Windows desktop or native CLI installation. Update
 Codex only when the profile requires a newer version. There is no custom bootstrap
 framework or background update.
 
@@ -70,9 +91,18 @@ resolve its root separately. An explicit `--claude-config-root`, `CLAUDE_CONFIG_
 settings environment override, and prior `rules/agent-team.md` receipt anchor must
 agree. Inspect only known local user settings and platform managed-settings
 files/fragments; unavailable server or MDM policy remains a reported limit. Do not
-print settings or environment values. A missing Claude executable
-preserves anchored Claude receipt scopes; a found executable whose version probe
-fails is an availability error, not an absence.
+print settings or environment values. A Claude executable that is not discovered
+leaves anchored Claude receipt scopes preserved; a found executable whose version
+probe fails is an availability error.
+
+Claude discovery checks PATH, then the native `~/.local/bin/claude` launcher.
+Use `--claude /actual/claude` for a verified installation elsewhere; the explicit
+path takes precedence and must pass the bounded version probe. No login hooks or
+shell-setting changes are needed. A `not-discovered` result is unresolved discovery,
+not proof Claude is absent: inspect the actual host before accepting preserved
+Claude scopes as the intended outcome. Invalid or broken discovered launchers stop
+reconciliation instead of falling back to an apparent absence.
+
 Verify every declared model and effort is supported. Preserve credentials, sessions,
 unrelated configuration, directories, plugins, and global overrides. An interfering
 AGENTS.override.md requires a concrete supervised decision, never automatic removal.
@@ -145,6 +175,14 @@ copy or fallback across filesystems is permitted. Directory retirement removes o
 the receipted scope. Unexpected ownership-kind changes or relocation of a retired
 shared config require investigation rather than deleting a shared file.
 
+On native Windows, publication preserves discretionary access restrictions and
+checks owner, group, and mandatory integrity labels before replacement. Existing
+files use the native replacement API; prepared directories receive the intended
+parent inheritance and existing per-path restrictions. A permission mismatch,
+locked file, or denied operation stops the run. Inspect any reported partial
+publication or retained replacement before recovery; never relax permissions to
+make reconciliation pass. POSIX file modes and publication remain unchanged.
+
 After each actual successful publication, the helper fingerprints the installed
 result and atomically writes the existing narrow receipt. A failed write before
 receipt publication fails closed on the next run. Printed writes are actual partial
@@ -158,7 +196,8 @@ relative file names and their byte hashes. TOML hashes sorted dotted fields with
 type and value or an absent marker; unrelated values never enter the fingerprint.
 The narrow schedule seam consists of `cleanup_schedule_fingerprint`,
 `cleanup_schedule_preflight`, and `cleanup_schedule_entry`. The schedule adapter
-supplies its exact `automation:<id>` or `cron:<id>` identity and only normalized owned
+supplies its exact `automation:<id>`, `cron:<id>`, or `task-scheduler:<name>`
+identity and only normalized owned
 configuration. It reobserves immediately before mutation and creates an entry only
 after observing its own successful write. Retirement removes its entry only after
 observed authorized removal. The filesystem runner preserves schedule receipt
@@ -171,4 +210,37 @@ Finish by checking actual usability, including fresh-session/restart requirement
 Report written changes separately from verified capabilities, unresolved differences,
 partial failures, and required human action. Clean only the staging and candidates
 proven associated with this run and safe to remove. A local syntax check alone never
-establishes successful use on both supported platforms.
+establishes successful use on each supported platform.
+
+## Windows and WSL support handoff
+
+The delivered implementation revision is
+`b1fa4662a4794ab85f0c539924cd653cb275b52e` (PR #37). Its sequence includes
+PRs #32/#34, #35, and #36. Reconciliation, WSL boundary, and scheduler evidence
+is recorded with [#27](https://github.com/jdip/agent-team/issues/27),
+[#28](https://github.com/jdip/agent-team/issues/28), and
+[#29](https://github.com/jdip/agent-team/issues/29); [#31](https://github.com/jdip/agent-team/issues/31#issuecomment-5611628172)
+records the owner confirmation.
+
+Native Windows and WSL each reconciled all 51 declared targets using independent
+homes, receipts, native tools, and checkouts; the WSL run left native Windows
+state unchanged. Desktop scheduling preserved uncertain work. The Windows CLI
+scheduler was created, updated, read back, run manually with exit 0, and retired.
+WSL cron invoked the installed native Linux runner; its cron exit was not captured,
+while the equivalent standalone run exited 0. Both preferred schedules are 09:00
+local time and use the fixed stable source revision `1c304e6`. Only the desktop
+automation remains installed for the Windows home; Task Scheduler is the
+CLI-only alternative, not a second Windows schedule.
+
+The operator reported no regressions on macOS or Linux after PR #37; this is a
+compatibility confirmation, not a record of detailed per-command checks. Optional
+Claude session usability was not verified. WSL runs remain skipped while its
+distribution or daemon is stopped. Missed scheduled runs are
+acceptable on Windows too; the owner removed delayed-run verification from
+acceptance in #38. No catch-up behavior is promised.
+
+For a future re-proof, focus on reconciliation update/no-op and conflict
+preservation; skill/config discovery with valid receipt preservation; canonical
+source and delivery; and preservation of existing desktop and cron schedules.
+These are suggested checks, not retrospective command claims or a requirement to
+rerun them now.

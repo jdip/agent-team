@@ -6,6 +6,8 @@ machines and repositories. There is no separate application, server, or deployab
 product runtime here. Classify future code by purpose rather than its language.
 
 Requirements: Git, authenticated `gh` for this repository, Bash, and Python 3.11+.
+Native Windows delivery uses Git Bash rather than Windows' WSL launcher; Linux
+and macOS use their `bash` as usual.
 Use `AGENT_TEAM_PYTHON=python3.13` when the host's `python3` is older. CI uses 3.12.
 
 Stage intended changes, then run `scripts/check.sh` for native Python/TOML/shell

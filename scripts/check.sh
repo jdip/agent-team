@@ -8,11 +8,11 @@ import subprocess
 import tomllib
 for root in ('machine', 'scripts'):
     for path in Path(root).rglob('*.toml'):
-        tomllib.loads(path.read_text())
+        tomllib.loads(path.read_text(encoding='utf-8'))
     for path in Path(root).rglob('*.py'):
-        ast.parse(path.read_text(), filename=str(path))
+        ast.parse(path.read_text(encoding='utf-8'), filename=str(path))
     for path in Path(root).rglob('*.sh'):
-        subprocess.run(['bash', '-n', str(path)], check=True)
+        subprocess.run(['bash', '-n', path.as_posix()], check=True)
 print('Source syntax checks passed. Operational evidence remains required.')
 PY
 

@@ -5,6 +5,12 @@ for outgoing source, metadata and evidence, including approved commit identity.
 The script verifies the merge author; inspect that result and the remaining
 platform-created metadata against the policy after delivery.
 
+The authenticated GitHub account must enable email privacy for its GitHub-provided
+no-reply address to be used for web merges. Repository-local Git author settings
+do not configure that account setting. If GitHub rejects the explicit merge email,
+preserve the open PR and resolve the account's email privacy setting before
+resuming; never fall back to a personal address.
+
 An implementation request includes preparation, intended commits, push, PR, checks,
 merge, and verified test delivery. Preserve unrelated work and use a clean committed
 task checkout. Read AGENTS.md and docs/development.md. Required tools are Git,

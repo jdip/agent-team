@@ -3,36 +3,37 @@
 from __future__ import annotations
 
 import argparse
+import copy
 import json
 import os
 from pathlib import Path
+import queue
 import re
-import select
 import shutil
 import subprocess
 import sys
 import tempfile
+import threading
 import time
-import copy
 import importlib
 import tomllib
 
 sys.dont_write_bytecode = True
 
+from reconcile import command_path, executable_path, path_within, plain_path, same_path
+
+
+def discovered_path(path):
+    return plain_path(path) if sys.platform == 'win32' else Path(path)
+
+
 def command(*args, cwd=None, env=None):
-    result = subprocess.run(args, cwd=cwd, env=env, capture_output=True, text=True)
+    result = subprocess.run(args, cwd=cwd, env=env, capture_output=True, text=True,
+                            encoding='utf-8')
     if result.returncode:
         detail = '\n'.join(part for part in (result.stdout.strip(), result.stderr.strip()) if part) or 'command failed'
         raise ValueError(f"{' '.join(args[:2])}: {detail}")
     return result.stdout.strip()
-
-
-def plain_path(path):
-    path = Path(os.path.abspath(path))
-    for part in (path, *path.parents):
-        if part.is_symlink():
-            raise ValueError(f'symlink requires investigation: {part}')
-    return path
 
 
 class AppServer:
@@ -48,6 +49,10 @@ class AppServer:
         self.timeout = timeout
         self.next_id = 1
         self.buffer = bytearray()
+        self.closed = threading.Event()
+        self.output = queue.Queue(maxsize=1)
+        self.reader = threading.Thread(target=self._read_output, daemon=True)
+        self.reader.start()
 
     def close(self):
         if self.process.poll() is None:
@@ -57,6 +62,22 @@ class AppServer:
             except subprocess.TimeoutExpired:
                 self.process.kill()
                 self.process.wait()
+        self.closed.set()
+        self.reader.join(timeout=2)
+
+    def _read_output(self):
+        while not self.closed.is_set():
+            chunk = self.process.stdout.read1(65536)
+            while not self.closed.is_set():
+                try:
+                    self.output.put(chunk, timeout=0.1)
+                    break
+                except queue.Full:
+                    continue
+            if self.closed.is_set():
+                return
+            if not chunk:
+                return
 
     def request(self, method, params):
         identifier = self.next_id
@@ -82,21 +103,27 @@ class AppServer:
     def _send(self, message):
         if self.process.poll() is not None:
             raise ValueError('Codex app-server exited before request')
-        self.process.stdin.write((json.dumps(message, separators=(',', ':')) + '\n').encode())
+        self.process.stdin.write((json.dumps(message, separators=(',', ':')) + '\n').encode('utf-8'))
         self.process.stdin.flush()
 
     def _read_message(self, method, remaining):
+        deadline = time.monotonic() + remaining
         while b'\n' not in self.buffer:
-            ready, _, _ = select.select([self.process.stdout.fileno()], [], [], remaining)
-            if not ready:
+            wait = deadline - time.monotonic()
+            if wait <= 0:
                 raise ValueError(f'Codex app-server timed out waiting for {method}')
-            chunk = os.read(self.process.stdout.fileno(), 65536)
+            try:
+                chunk = self.output.get(timeout=wait)
+            except queue.Empty as error:
+                if self.process.poll() is not None:
+                    raise ValueError(f'Codex app-server stopped while handling {method}') from error
+                raise ValueError(f'Codex app-server timed out waiting for {method}') from error
             if not chunk:
                 raise ValueError(f'Codex app-server stopped while handling {method}')
             self.buffer.extend(chunk)
         line, _, remaining_data = self.buffer.partition(b'\n')
         self.buffer = bytearray(remaining_data)
-        return json.loads(line.decode())
+        return json.loads(line.decode('utf-8'))
 
 
 def app_server_data(executable, requested_home, source, timeout):
@@ -107,8 +134,10 @@ def app_server_data(executable, requested_home, source, timeout):
             'capabilities': {'experimentalApi': True},
         })
         server.notify('initialized', {})
-        if initialized.get('platformOs') not in ('macos', 'linux'):
-            raise ValueError(f"unsupported reconciliation host: {initialized.get('platformOs')!r}")
+        expected_platform = {'darwin': 'macos', 'linux': 'linux', 'win32': 'windows'}.get(sys.platform)
+        if expected_platform is None or initialized.get('platformOs') != expected_platform:
+            raise ValueError(f"Codex app-server platform {initialized.get('platformOs')!r} "
+                             f"does not match Python platform {sys.platform!r}")
         skills = server.request('skills/list', {'cwds': [str(source)], 'forceReload': True})
         models = []
         cursor = None
@@ -127,21 +156,23 @@ def select_source(repository, work_root):
     repository = plain_path(repository)
     if not (repository / '.git').exists():
         raise ValueError(f'not a Git checkout: {repository}')
-    branch = command('git', 'symbolic-ref', '--quiet', '--short', 'HEAD', cwd=repository)
-    remote = command('git', 'config', '--get', f'branch.{branch}.remote', cwd=repository)
-    merge = command('git', 'config', '--get', f'branch.{branch}.merge', cwd=repository)
+    git = str(command_path('git'))
+    plain_path(command(git, 'rev-parse', '--path-format=absolute', '--git-common-dir', cwd=repository))
+    branch = command(git, 'symbolic-ref', '--quiet', '--short', 'HEAD', cwd=repository)
+    remote = command(git, 'config', '--get', f'branch.{branch}.remote', cwd=repository)
+    merge = command(git, 'config', '--get', f'branch.{branch}.merge', cwd=repository)
     if remote == '.' or not merge.startswith('refs/heads/'):
         raise ValueError(f'{branch}: upstream identity is ambiguous; inspect branch tracking')
     remote_branch = merge.removeprefix('refs/heads/')
-    fresh = command('git', 'ls-remote', '--exit-code', remote, f'refs/heads/{remote_branch}',
+    fresh = command(git, 'ls-remote', '--exit-code', remote, f'refs/heads/{remote_branch}',
                     cwd=repository).split()[0]
     if not re.fullmatch(r'[0-9a-f]{40}', fresh):
         raise ValueError(f'{branch}: remote returned an invalid revision')
-    command('git', 'fetch', '--no-tags', '--no-write-fetch-head', remote, fresh, cwd=repository)
-    head = command('git', 'rev-parse', 'HEAD', cwd=repository)
+    command(git, 'fetch', '--no-tags', '--no-write-fetch-head', remote, fresh, cwd=repository)
+    head = command(git, 'rev-parse', 'HEAD', cwd=repository)
     if head != fresh:
-        ahead = subprocess.run(['git', 'merge-base', '--is-ancestor', fresh, head], cwd=repository)
-        behind = subprocess.run(['git', 'merge-base', '--is-ancestor', head, fresh], cwd=repository)
+        ahead = subprocess.run([git, 'merge-base', '--is-ancestor', fresh, head], cwd=repository)
+        behind = subprocess.run([git, 'merge-base', '--is-ancestor', head, fresh], cwd=repository)
         if ahead.returncode == 0:
             raise ValueError(f'{branch}: local commits are unpublished; publish or select their authority explicitly')
         if behind.returncode != 0:
@@ -149,7 +180,7 @@ def select_source(repository, work_root):
     root = Path(tempfile.mkdtemp(prefix='agent-team-source-', dir=work_root))
     checkout = root / 'source'
     try:
-        command('git', 'worktree', 'add', '--detach', str(checkout), fresh, cwd=repository)
+        command(git, 'worktree', 'add', '--detach', str(checkout), fresh, cwd=repository)
     except Exception:
         root.rmdir()
         raise
@@ -159,22 +190,25 @@ def select_source(repository, work_root):
 def source_skill_names(source):
     from reconcile import table
 
-    profile = (source / 'machine/PROFILE.md').read_text()
+    profile = (source / 'machine/PROFILE.md').read_text(encoding='utf-8')
     local = profile.split('## Copied local packages\n')[1].split('## Upstream packages\n')[0]
     upstream = profile.split('## Upstream packages\n')[1].split('## Optional Claude Code configuration\n')[0]
     return set(table(local)), {name for name, _ in re.findall(r'^\| ([\w-]+) \| (skills/[\w/-]+) \|$', upstream, re.M)}
 
 
-def probe_claude(timeout):
-    executable = shutil.which('claude')
+def probe_claude(timeout, requested=None):
+    executable = str(Path(requested).expanduser()) if requested else shutil.which('claude')
     if executable is None:
-        return None
-    executable = Path(os.path.abspath(executable))
+        launcher = Path.home() / '.local/bin/claude' if sys.platform != 'win32' else None
+        if launcher is None or (not launcher.exists() and not launcher.is_symlink()):
+            return None
+        executable = str(launcher)
+    executable = executable_path(executable)
     if not executable.is_file() or not os.access(executable, os.X_OK):
         raise ValueError(f'Claude executable is unavailable: {executable}')
     try:
         result = subprocess.run([str(executable), '--version'], stdin=subprocess.DEVNULL,
-                                capture_output=True, text=True, timeout=timeout)
+                                capture_output=True, text=True, encoding='utf-8', timeout=timeout)
     except subprocess.TimeoutExpired as error:
         raise ValueError('Claude executable version probe timed out') from error
     if result.returncode:
@@ -184,29 +218,32 @@ def probe_claude(timeout):
 
 def verify_claude_settings_root(root, platform):
     default_root = plain_path(Path.home() / '.claude')
-    paths = {base / name for base in (default_root, root)
+    paths = {str(base / name) for base in (default_root, root)
              for name in ('settings.json', 'settings.local.json', 'managed-settings.json')}
     if platform == 'macos':
         managed = Path('/Library/Application Support/ClaudeCode')
     elif platform == 'linux':
         managed = Path('/etc/claude-code')
+    elif platform == 'windows':
+        managed = Path('C:/Program Files/ClaudeCode')
     else:
         raise ValueError(f'unsupported Claude settings platform: {platform!r}')
-    paths.add(managed / 'managed-settings.json')
+    paths.add(str(managed / 'managed-settings.json'))
     fragments = managed / 'managed-settings.d'
     if fragments.exists() or fragments.is_symlink():
         fragments = plain_path(fragments)
         if not fragments.is_dir():
             raise ValueError(f'Claude managed settings path is not a directory: {fragments}')
-        paths.update(path for path in fragments.glob('*.json') if not path.name.startswith('.'))
-    for path in sorted(paths):
+        paths.update(str(path) for path in fragments.glob('*.json') if not path.name.startswith('.'))
+    for value in sorted(paths):
+        path = Path(value)
         if not path.exists() and not path.is_symlink():
             continue
         path = plain_path(path)
         if not path.is_file():
             raise ValueError(f'Claude settings path is not an ordinary file: {path}')
         try:
-            settings = json.loads(path.read_text())
+            settings = json.loads(path.read_text(encoding='utf-8'))
         except json.JSONDecodeError as error:
             raise ValueError('Claude settings cannot establish a configuration root') from error
         if not isinstance(settings, dict):
@@ -223,7 +260,7 @@ def verify_claude_settings_root(root, platform):
                 settings_root = plain_path(configured_root)
             except (ValueError, OSError) as error:
                 raise ValueError('Claude settings configuration root requires investigation') from error
-            if settings_root != root:
+            if not same_path(settings_root, root):
                 raise ValueError('Claude settings configuration root disagrees with the effective Claude root')
 
 
@@ -234,7 +271,7 @@ def resolve_claude_root(explicit, platform):
     environment_root = plain_path(environment) if environment is not None else None
     explicit_root = plain_path(explicit) if explicit else None
     effective_root = environment_root or plain_path(Path.home() / '.claude')
-    if explicit_root is not None and explicit_root != effective_root:
+    if explicit_root is not None and not same_path(explicit_root, effective_root):
         raise ValueError('explicit Claude configuration root disagrees with the effective Claude root')
     root = effective_root
     verify_claude_settings_root(root, platform)
@@ -254,15 +291,15 @@ def resolve_root(label, explicit, names, receipt, discovered):
     roots = set()
     for target, entry in receipt.items():
         if entry['scope'].get('kind') == 'directory' and Path(target).name in names:
-            roots.add(str(Path(target).parent))
+            roots.add(str(discovered_path(Path(target).parent)))
     for group in discovered.get('data', []):
         for skill in group.get('skills', []):
             path = skill.get('path')
             if skill.get('scope') == 'user' and skill.get('name') in names and path:
-                skill_file = Path(path)
+                skill_file = discovered_path(path)
                 if skill_file.name != 'SKILL.md':
                     raise ValueError(f'native skill discovery returned an unsupported path: {skill_file}')
-                roots.add(str(skill_file.parent.parent))
+                roots.add(str(discovered_path(skill_file.parent.parent)))
     if explicit:
         requested = str(plain_path(explicit))
         if roots and roots != {requested}:
@@ -275,12 +312,12 @@ def resolve_root(label, explicit, names, receipt, discovered):
 
 
 def models_for_profile(source):
-    config = tomllib.loads((source / 'machine/config.toml').read_text())
+    config = tomllib.loads((source / 'machine/config.toml').read_text(encoding='utf-8'))
     required = {(config['model'], config['model_reasoning_effort']),
                 (config['agents']['default_subagent_model'],
                  config['agents']['default_subagent_reasoning_effort'])}
     for path in (source / 'machine/agents').glob('*.toml'):
-        role = tomllib.loads(path.read_text())
+        role = tomllib.loads(path.read_text(encoding='utf-8'))
         required.add((role['model'], role['model_reasoning_effort']))
     return required
 
@@ -298,21 +335,23 @@ def verify_models(required, advertised):
 
 def provision_tomlkit(stage):
     requirements = Path(__file__).with_name('requirements.txt')
-    pin = re.fullmatch(r'tomlkit==([0-9]+(?:\.[0-9]+)*)', requirements.read_text().strip())
+    pin = re.fullmatch(r'tomlkit==([0-9]+(?:\.[0-9]+)*)', requirements.read_text(encoding='utf-8').strip())
     if pin is None:
         raise ValueError('candidate requirements must contain one exact tomlkit release pin')
     expected_version = pin.group(1)
     dependency_root = stage / 'candidate-dependencies'
-    pip = subprocess.run([sys.executable, '-m', 'pip', '--version'], capture_output=True, text=True)
+    python = str(executable_path(sys.executable))
+    pip = subprocess.run([python, '-m', 'pip', '--version'], capture_output=True, text=True,
+                         encoding='utf-8')
     if pip.returncode == 0:
-        install = [sys.executable, '-m', 'pip', 'install', '--disable-pip-version-check']
+        install = [python, '-m', 'pip', 'install', '--disable-pip-version-check']
     else:
         candidates = [shutil.which('uv'), Path.home() / '.local/bin/uv']
-        uv = next((Path(candidate) for candidate in candidates
+        uv = next((executable_path(candidate) for candidate in candidates
                    if candidate and Path(candidate).is_file() and os.access(candidate, os.X_OK)), None)
         if uv is None:
             raise ValueError('neither Python pip nor uv is available for isolated TOML candidate preparation')
-        install = [str(uv), 'pip', 'install', '--python', sys.executable]
+        install = [str(uv), 'pip', 'install', '--python', python]
     try:
         command(*install, '--index-url', 'https://pypi.org/simple', '--target', str(dependency_root), '--no-deps',
                 '--requirement', str(requirements))
@@ -373,7 +412,15 @@ def build_candidate(source, actual, output, scope, prior_scope, tomlkit):
         if path[-1] not in table:
             replacement.trivia.trail = newline
         table[path[-1]] = replacement
-    output.write_bytes(tomlkit.dumps(document).encode('utf-8'))
+    candidate_bytes = tomlkit.dumps(document).encode('utf-8')
+    if sys.platform == 'win32':
+        from windows_security import create_file
+
+        stream = os.fdopen(create_file(output, actual), 'wb') if actual.exists() else output.open('xb')
+        with stream:
+            stream.write(candidate_bytes)
+    else:
+        output.write_bytes(candidate_bytes)
     verify_candidate_config(output, source, actual, scope, prior_scope)
 
 
@@ -381,9 +428,9 @@ def verify_installed(source, skills_root, upstream_root, executable, home, timeo
     _, discovered, models = app_server_data(executable, home, source, timeout)
     verify_models(models_for_profile(source), models)
     local, upstream = source_skill_names(source)
-    expected = {name: skills_root / name / 'SKILL.md' for name in local}
-    expected.update({name: upstream_root / name / 'SKILL.md' for name in upstream})
-    visible = {(skill['name'], Path(skill['path'])): skill
+    expected = {name: str(skills_root / name / 'SKILL.md') for name in local}
+    expected.update({name: str(upstream_root / name / 'SKILL.md') for name in upstream})
+    visible = {(skill['name'], str(discovered_path(skill['path']))): skill
                for group in discovered['data'] for skill in group['skills']
                if skill['scope'] == 'user'}
     missing = [name for name, path in expected.items() if (name, path) not in visible]
@@ -402,27 +449,47 @@ def run_prepared(args):
     from reconcile import claude_receipt_root, inventory, read_receipt, verify_upstream
 
     source = plain_path(args.prepared_source)
-    executable = Path(args.codex) if args.codex else shutil.which('codex')
+    executable = args.codex if args.codex else shutil.which('codex')
     if not executable:
         raise ValueError('Codex executable is unavailable; supply --codex')
-    executable = Path(executable)
+    executable = executable_path(executable)
     if not executable.is_file() or not os.access(executable, os.X_OK):
         raise ValueError(f'Codex executable is unavailable: {executable}')
+    requested_home = args.codex_home
+    python = str(executable_path(sys.executable))
+    expected_home = None
+    if sys.platform == 'win32':
+        requested_home = requested_home or os.environ.get('CODEX_HOME')
+        requested_home = plain_path(requested_home) if requested_home else None
+    elif sys.platform == 'linux' and 'microsoft' in os.uname().release.casefold():
+        requested_home = requested_home or os.environ.get('CODEX_HOME')
+        expected_home = plain_path(Path(requested_home).expanduser()
+                                   if requested_home else Path.home() / '.codex')
+        if requested_home:
+            requested_home = expected_home
     stage = None
     verified_stage = False
     try:
-        initialized, discovered, models = app_server_data(executable, args.codex_home, source, args.timeout)
+        initialized, discovered, models = app_server_data(executable, requested_home, source, args.timeout)
         home = plain_path(initialized['codexHome'])
-        if args.codex_home and home != plain_path(args.codex_home):
+        if requested_home and not same_path(home, plain_path(requested_home)):
+            raise ValueError(f'Codex app-server resolved a different CODEX_HOME: {home}')
+        if expected_home and not same_path(home, expected_home):
             raise ValueError(f'Codex app-server resolved a different CODEX_HOME: {home}')
         _, receipt = read_receipt(home / '.agent-team/reconciliation-receipts-v1.json')
-        claude_executable = probe_claude(args.timeout)
+        claude_executable = probe_claude(args.timeout, args.claude)
         if args.claude_config_root and claude_executable is None:
-            raise ValueError('explicit Claude configuration root requires a Claude executable on PATH')
+            raise ValueError('Claude executable was not discovered; supply --claude for the explicit configuration root')
+        if claude_executable is None:
+            launcher = 'PATH' if sys.platform == 'win32' else 'PATH or at ~/.local/bin/claude'
+            print(f'Claude executable not discovered on {launcher}; '
+                  'this does not establish absence. Supply --claude for another installation. '
+                  'Previously managed Claude scopes will be preserved.')
         claude_root = (resolve_claude_root(args.claude_config_root, initialized['platformOs'])
                        if claude_executable else None)
         anchored_claude_root, anchored_claude_targets = claude_receipt_root(receipt)
-        if claude_root is not None and anchored_claude_root is not None and claude_root != anchored_claude_root:
+        if (claude_root is not None and anchored_claude_root is not None
+                and not same_path(claude_root, anchored_claude_root)):
             raise ValueError('Claude configuration root disagrees with the receipt anchor; investigate before writes')
         codex_receipt = {target: entry for target, entry in receipt.items()
                          if target not in anchored_claude_targets}
@@ -442,28 +509,29 @@ def run_prepared(args):
         for root in staging_roots:
             if stage_parent.stat().st_dev != existing_ancestor(root).stat().st_dev:
                 raise ValueError(f'staging root is not on the destination filesystem: {root}')
-        discovery_roots = [skills_root, upstream_root, home / 'skills']
+        discovery_roots = [skills_root, upstream_root, plain_path(home / 'skills')]
         if claude_root is not None:
-            discovery_roots.append(claude_root / 'skills')
-        if any(stage_parent == root or root in stage_parent.parents for root in discovery_roots):
+            discovery_roots.append(plain_path(claude_root / 'skills'))
+        if any(same_path(stage_parent, root) or path_within(stage_parent, root)
+               for root in discovery_roots):
             raise ValueError('staging root is inside a skill discovery root')
         stage = Path(tempfile.mkdtemp(prefix='agent-team-upstream-', dir=stage_parent))
         installer = home / 'skills/.system/skill-installer/scripts/install-skill-from-github.py'
         installer = plain_path(installer)
         if not installer.is_file():
             raise ValueError(f'supported skill installer is unavailable: {installer}')
-        command(sys.executable, str(installer), '--repo', 'mattpocock/skills', '--ref', pin,
+        command(python, str(installer), '--repo', 'mattpocock/skills', '--ref', pin,
                 '--dest', str(stage), '--path', *(path for _, path in packages))
         verify_upstream(stage, pin, packages)
         verified_stage = True
         tomlkit = provision_tomlkit(stage)
-        config_target = home / 'config.toml'
+        config_target = plain_path(home / 'config.toml')
         config_scope = rows[0][2]
         previous_scope = receipt.get(str(config_target), {}).get('scope', {}).get('fields', [])
         candidate = stage / 'candidate-config.toml'
         build_candidate(source / 'machine/config.toml', config_target, candidate, config_scope,
                         previous_scope, tomlkit)
-        preflight = [sys.executable, str(source / 'machine/reconcile.py'), '--source', str(source),
+        preflight = [python, str(source / 'machine/reconcile.py'), '--source', str(source),
                      '--codex-home', str(home), '--skills-root', str(skills_root),
                      '--upstream-root', str(upstream_root), '--upstream-stage', str(stage)]
         if claude_root is not None:
@@ -483,7 +551,7 @@ def run_prepared(args):
         print(json.dumps({'codex_home': str(home), 'skills_root': str(skills_root),
                           'upstream_root': str(upstream_root),
                           'claude_config_root': str(claude_root) if claude_root else None,
-                          'claude_available': claude_executable is not None,
+                          'claude_discovery': 'verified' if claude_executable else 'not-discovered',
                           'platform': initialized['platformOs'],
                           'result': 'reconciled and verified' if args.apply else 'prepared and preflighted; no managed writes'},
                          sort_keys=True))
@@ -498,8 +566,8 @@ def run_prepared(args):
 
 
 def cleanup_source(repository, source_root, source):
-    removal = subprocess.run(['git', 'worktree', 'remove', str(source)], cwd=repository,
-                             capture_output=True, text=True)
+    removal = subprocess.run([str(command_path('git')), 'worktree', 'remove', str(source)], cwd=repository,
+                             capture_output=True, text=True, encoding='utf-8')
     if removal.returncode:
         print(f'Prepared source retained for inspection: {source}', file=sys.stderr)
         return
@@ -521,10 +589,10 @@ def run_bootstrap(args):
         helper = source / 'machine/prepare_reconciliation.py'
         if not helper.is_file():
             raise ValueError(f'selected revision lacks the canonical preparation script: {helper}')
-        child = [sys.executable, str(helper), '--prepared-source', str(source),
+        child = [str(executable_path(sys.executable)), str(helper), '--prepared-source', str(source),
                  '--timeout', str(args.timeout)]
         for name in ('codex_home', 'skills_root', 'upstream_root', 'staging_root', 'codex',
-                     'claude_config_root'):
+                     'claude', 'claude_config_root'):
             value = getattr(args, name)
             if value:
                 child.extend(['--' + name.replace('_', '-'), str(value)])
@@ -559,6 +627,7 @@ def main():
     parser.add_argument('--staging-root')
     parser.add_argument('--work-root')
     parser.add_argument('--codex')
+    parser.add_argument('--claude', help='explicit Claude executable path; otherwise search PATH and, outside native Windows, ~/.local/bin/claude')
     parser.add_argument('--claude-config-root')
     parser.add_argument('--resolve', action='append', type=parse_resolution, default=[],
                         metavar='TARGET=OBSERVED_SHA256_OR_absent')

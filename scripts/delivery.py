@@ -2,6 +2,7 @@
 """Agent Team's linear GitHub delivery path; local effects live in the runbooks."""
 import argparse
 import json
+import shutil
 from pathlib import Path
 import re
 import subprocess
@@ -9,10 +10,28 @@ import sys
 import tempfile
 import time
 
+sys.dont_write_bytecode = True
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'machine'))
+
+from reconcile import command_path, executable_path, plain_path
+
 
 def call(*args, capture=True):
-    result = subprocess.run(args, check=True, text=True, stdout=subprocess.PIPE if capture else None)
+    result = subprocess.run([str(command_path(args[0])), *args[1:]], check=True, text=True, encoding='utf-8',
+                            stdout=subprocess.PIPE if capture else None)
     return result.stdout.strip() if capture else None
+
+
+def bash():
+    if sys.platform != 'win32':
+        return str(command_path('bash'))
+    git = shutil.which('git')
+    if git:
+        for root in Path(git).resolve().parents:
+            candidate = root / 'bin' / 'bash.exe'
+            if candidate.is_file():
+                return str(candidate)
+    raise ValueError('Git Bash is required for native Windows delivery')
 
 
 def github(*args):
@@ -24,11 +43,14 @@ def sha(ref):
 
 
 def verify(revision):
-    root = Path(tempfile.mkdtemp(prefix='agent-team-delivery-'))
+    temporary_root = Path(tempfile.gettempdir())
+    if sys.platform != 'win32':
+        temporary_root = temporary_root.resolve()
+    root = Path(tempfile.mkdtemp(prefix='agent-team-delivery-', dir=plain_path(temporary_root)))
     checkout = root / 'checkout'
     call('git', 'worktree', 'add', '--detach', str(checkout), revision, capture=False)
     try:
-        subprocess.run(['bash', 'scripts/check.sh'], cwd=checkout, check=True)
+        subprocess.run([bash(), 'scripts/check.sh'], cwd=checkout, check=True)
     except Exception:
         print(f'Verification checkout retained for investigation: {checkout}', flush=True)
         raise
@@ -73,7 +95,7 @@ def merge(number, expected_head, expected_base):
         remaining = deadline - time.monotonic()
         if remaining <= 0:
             raise ValueError(f'PR {number} did not become ready within 15 minutes; inspect required checks and branch policy')
-        subprocess.run(['gh', 'pr', 'checks', number, '--watch', '--fail-fast', '--interval', '10'],
+        subprocess.run([str(command_path('gh')), 'pr', 'checks', number, '--watch', '--fail-fast', '--interval', '10'],
                        check=True, timeout=remaining)
         fresh = github('pr', 'view', number, '--json',
                        'state,headRefOid,baseRefOid,mergeStateStatus,reviewDecision,isDraft')
@@ -99,7 +121,8 @@ def merge(number, expected_head, expected_base):
     print(f'Merged PR {number} as {revision}', flush=True)
     call('git', 'fetch', 'origin', capture=False)
     author = call('git', 'show', '-s', '--format=%an%n%ae', revision).splitlines()
-    if author != [account['login'], author_email]:
+    if (len(author) != 2 or author[1] != author_email
+            or author[0] not in (account['login'], account.get('name'))):
         raise ValueError(f'PR {number} merge author differs from the approved account/no-reply identity; keep the repository private and investigate')
     parents = call('git', 'show', '-s', '--format=%P', revision).split()
     if parents != [expected_base, expected_head]:
@@ -145,6 +168,9 @@ def main():
     parser.add_argument('--body-file')
     parser.add_argument('--semver', choices=['major', 'minor', 'patch', 'none'], default='none')
     args = parser.parse_args()
+    executable_path(sys.executable)
+    plain_path(Path.cwd())
+    plain_path(call('git', 'rev-parse', '--path-format=absolute', '--git-common-dir'))
     if call('git', 'status', '--porcelain'):
         raise ValueError('use a clean committed checkout; preserve unrelated work elsewhere')
     call('git', 'fetch', '--no-tags', 'origin', capture=False)
@@ -156,7 +182,7 @@ def main():
             tags_current = False
             print('Tag refresh incomplete; inspect version metadata separately from delivery gates.', flush=True)
     repository = github('repo', 'view', '--json', 'nameWithOwner')['nameWithOwner']
-    call('bash', 'scripts/check.sh', capture=False)
+    call(bash(), 'scripts/check.sh', capture=False)
     if args.flow == 'pr-to-test':
         branch = call('git', 'branch', '--show-current')
         if not branch or branch in ('main', 'test'):
