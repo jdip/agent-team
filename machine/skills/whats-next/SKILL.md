@@ -15,11 +15,18 @@ choices, and resume after the human answers.
 
 Start with a lightweight overview: root README purpose, Git/worktree and dirty
 state, saved map/backlog selections, issue/PR status and labels, native dependencies,
-available task ownership evidence, dependency automation/alerts/update PRs, and
-recent hygiene, adopted-verification and alignment assessment evidence.
+available task ownership evidence, current dependency alerts and existing
+remediation, and recent hygiene, adopted-verification and alignment assessment
+evidence.
 Use the host's supported task tools when available. Inspect detailed requirements,
 checks, reviews, and code only for promising candidates and their necessary
 eligibility checks.
+
+On each ordinary discovery pass, read current open Dependabot alerts with
+pagination through [dependency upkeep](maintenance.md#dependency-upkeep), even
+while code work is active. Reuse a successful read within that pass; refresh at the
+next pass and after relevant remediation. Report disabled or inaccessible alert
+coverage separately from zero alerts. This read does not start maintenance edits.
 
 Use the existing pointer owners to interpret and change saved selections. A closed
 historical selection permits discovering alternatives without replacing the pointer.
@@ -85,7 +92,7 @@ of a combined proposal and carry it forward across ordinary skill boundaries.
 | Selected Wayfinder map | Continue `next-waypoint-loop`; research facts and present human decisions. A different map needs an approved select-and-start proposal through `set-map`. |
 | New planning destination | Begin Wayfinder dialogue from the change request; once concrete, chart or reuse its map, then use `set-map` and `next-waypoint-loop` under existing authority. Ask only for missing decisions or competing selection authority. |
 | Entire map resolved | Use `to-spec` to draft the parent and complete ticket breakdown automatically. Present the batch and missing publication/admission/activation/execution approvals together; use `to-tickets` and selection/execution owners for the approved portion. Reuse the effort's implementation follow-up. |
-| Missing/stale dependency automation, actionable alerts or update PRs | Follow [dependency upkeep](maintenance.md#dependency-upkeep) for the stable-baseline gate and update-PR eligibility, then hand the concrete scope and existing approval to `dependabot-upkeep`. Return after the coherent step. |
+| Alert-protection gaps, actionable dependency alerts or existing remediation | Follow [dependency upkeep](maintenance.md#dependency-upkeep), then hand the selected repository-owned remediation or protection scope and existing approval to `dependabot-upkeep`. Return after the coherent step. |
 | Hygiene, adopted repository verification or Agent Team alignment | Follow [maintenance and alignment](maintenance.md) once the relevant baseline is stable. |
 | Missing or unclear project purpose | Use `define-project-goal` with the human operator when direction is needed; reuse an existing clear root README purpose. Agree missing invocation authority with a concrete offer, then carry approved wording through its owning documentation workflow. |
 

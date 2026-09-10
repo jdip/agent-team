@@ -41,8 +41,9 @@ authored-code cleanup while inspecting its integration when relevant.
 - **Dependencies:** use `$dependency-review` for the scoped inventory, including
   packages actively used by the code. Establish whether their capabilities justify
   their ongoing cost; an unused-dependency report alone cannot answer this.
-  For version currency, Dependabot setup or pending update PRs, hand the concrete
-  candidate to `dependabot-upkeep` under the existing assessment/edit authority.
+  For requested version currency, current dependency alerts or protection settings,
+  hand the concrete candidate to `dependabot-upkeep` under the existing
+  assessment/edit authority.
 - **Module structure:** use available `$codebase-design` guidance for depth and
   locality. Trace callers and responsibilities. Look for changes that consolidate
   one business rule, remove an unnecessary layer, or separate unrelated reasons to

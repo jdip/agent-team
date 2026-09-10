@@ -55,10 +55,12 @@ separate operations.
 
 ## Use it in a repository
 
-Authorized repository adoption and upgrades establish supported dependency graph,
-Dependabot alerts, security updates and native version-update coverage as part of
-alignment. Existing policy exceptions and unavailable capabilities are reported
-explicitly; see the [dependency upkeep standard](standard/README.md#dependency-upkeep).
+Authorized repository adoption and upgrades establish supported dependency graph
+and Dependabot alerts while disabling GitHub-generated security and version update
+pull requests. `whats-next` discovers alerts and each repository remediates them
+through its own planning and delivery conventions. Existing policy exceptions and
+unavailable capabilities are reported explicitly; see the [dependency upkeep
+standard](standard/README.md#dependency-upkeep).
 
 Choose the workflow for the target and give Codex its path:
 
@@ -87,8 +89,9 @@ when you have one, such as “Prioritize finishing the current backlog.”
 You do not need to remember their invocation order:
 
 1. **Get oriented.** The agent checks project purpose, selected planning map and
-   implementation backlog, issues, PRs, local changes, and other tasks' ownership.
-   It favors prerequisites and work close to completion, preserving active work.
+   implementation backlog, issues, PRs, local changes, other tasks' ownership, and
+   current dependency alerts. It favors prerequisites and work close to completion,
+   preserving active work.
 2. **Choose the next useful step.** Already-approved work can continue after its
    gates are checked. When paths compete or approval is missing, the agent offers
    concrete options, rough effort, and a recommendation. Reply with your choice
@@ -204,7 +207,7 @@ a coordinating workflow does not bypass them.
 | [reflect](machine/skills/reflect/SKILL.md) | Captures reusable lessons as actionable issues. | Runs when a brief reflection check finds an improvement, or when you ask to reflect; uses current-task evidence. |
 | [repository-verification](machine/skills/repository-verification/SKILL.md) | Assesses suitability and creates or audits optional repository verification instructions. | Adoption/upgrade recommends include, omit or defer. Explicitly opt in for setup; `whats-next` considers useful audits for adopters using existing UI or non-UI controls. |
 | [dependency-review](machine/skills/dependency-review/SKILL.md) | Assesses whether a dependency earns its maintenance cost. | Name a dependency or scoped inventory; keeping it is a valid result. |
-| [dependabot-upkeep](machine/skills/dependabot-upkeep/SKILL.md) | Assesses/configures Dependabot and advances version or security update PRs. | Supply a setup or update scope; `whats-next` also considers dependency upkeep alongside other work. |
+| [dependabot-upkeep](machine/skills/dependabot-upkeep/SKILL.md) | Configures dependency-alert protection and routes alerts through the repository's delivery workflow. | Supply a setup or alert scope; `whats-next` discovers current alerts alongside other work. |
 | [code-simplification](machine/skills/code-simplification/SKILL.md) | Simplifies a bounded area while preserving its contract. | Supply an approved cleanup target and the behavior that must remain intact. |
 | [codebase-design](https://github.com/mattpocock/skills/blob/3cca18b368ae95cdbdebbff572ccafa662551015/skills/engineering/codebase-design/SKILL.md) | Supplies vocabulary and principles for deep modules. | Use when discussing interfaces, responsibility placement, or testability. |
 | [domain-modeling](https://github.com/mattpocock/skills/blob/3cca18b368ae95cdbdebbff572ccafa662551015/skills/engineering/domain-modeling/SKILL.md) | Sharpens domain terminology and records modeling decisions. | Use while resolving domain concepts, CONTEXT.md content, or an ADR. |

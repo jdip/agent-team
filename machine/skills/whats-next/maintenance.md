@@ -29,27 +29,31 @@ not make an in-flux codebase ready for hygiene.
 
 ## Dependency upkeep
 
-Include missing/stale Dependabot setup, actionable dependency alerts, and pending
-update PRs in the ordinary candidate comparison. Inspect enough existing evidence
-to distinguish a setup gap, a failing update and an almost-delivered PR. Preserve claims, native
-dependencies, completion-first ranking and the user's keep/defer decisions.
+Use [dependabot-upkeep](../dependabot-upkeep/SKILL.md#read-and-assess-alerts) to
+read current open alerts with pagination during ordinary discovery. This lightweight
+read precedes the stable-baseline gate; active code work does not hide alert intake.
+Distinguish a successful empty result from disabled features, missing access or
+unsupported coverage. Reuse current-pass evidence and refresh on the next pass.
 
-Apply the stable-baseline gate above before changing dependency automation or
-starting broad upkeep. An existing update PR is implementation work: assess its
-ownership and actual conflicts alongside other PRs rather than waiting for itself
-to finish before it becomes eligible. An urgent alert can justify proposing a
-priority change; it does not authorize taking over another task's work.
+Compare actionable alerts and protection gaps with ordinary work candidates.
+Deduplicate against existing issues and PRs, respecting claims, native dependencies,
+completion-first ranking and keep/defer decisions. Existing dependency PRs are work
+to assess, not an expected output of GitHub automation. An urgent alert can justify
+proposing a priority change; it does not authorize taking over another task.
 
-Use `dependabot-upkeep` for the selected setup or update scope. Pass the repository,
-configuration/PR/alert evidence, delivery target and existing authorization. A
-discovery request can produce a recommendation; setup and update execution need
-approval covering the concrete work. That owner handles current GitHub behavior,
-breaking-update decisions, failed checks and review/delivery handoffs. Keep
-dependency justification with `dependency-review`, reached when relevant.
+Apply the stable-baseline gate before protection configuration changes or broad
+upkeep. Existing remediation is implementation work: assess its ownership and actual
+conflicts alongside other PRs instead of requiring it to finish before eligibility.
 
-After a verified upkeep step, return to ordinary selection with the observed
-remaining work. Reuse unchanged assessments and defer decisions; revisit them when
-dependency surfaces, automation, alerts, update PRs or relevant failures change.
+Hand the selected scope, alert/configuration/issue/PR evidence, delivery target and
+existing authorization to `dependabot-upkeep`. It owns alert-only protection and
+remediation through the repository's planning, dependency tooling, PR conventions,
+review and delivery. Assessment is read-only; selected changes require covering
+approval and plans. Keep dependency justification with `dependency-review`.
+
+After the coherent upkeep step, return to ordinary selection with actual verification,
+remaining alerts and pending default-branch delivery. Preserve existing deferrals
+unless new evidence changes them; a quiet PR queue does not establish alert health.
 
 ## Hygiene
 
