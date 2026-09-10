@@ -95,7 +95,7 @@ Only the listed package identities are approved; neighbors are not managed.
 | define-project-goal | Original human–AI project purpose and root README workflow |
 | codebase-hygiene | Original maintenance survey and authorized cleanup coordination |
 | dependency-review | Original dependency justification and replacement assessment |
-| dependabot-upkeep | Original dependency currency, Dependabot setup and update delivery workflow |
+| dependabot-upkeep | Original dependency-alert protection and repository-owned remediation workflow |
 | code-simplification | Original behavior-preserving simplification workflow |
 | research | Adapted primary-source research and assigned artifact ownership |
 | reflect | Original focused lesson capture and actionable issue follow-through |
@@ -186,7 +186,7 @@ is separate from native Claude session usability.
 | define-project-goal | Original human–AI project purpose and root README workflow |
 | codebase-hygiene | Original maintenance survey and authorized cleanup coordination |
 | dependency-review | Original dependency justification and replacement assessment |
-| dependabot-upkeep | Original dependency currency, Dependabot setup and update delivery workflow |
+| dependabot-upkeep | Original dependency-alert protection and repository-owned remediation workflow |
 | code-simplification | Original behavior-preserving simplification workflow |
 | research | Adapted primary-source research and assigned artifact ownership |
 | reflect | Original focused lesson capture and actionable issue follow-through |

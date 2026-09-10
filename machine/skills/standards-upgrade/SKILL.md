@@ -51,11 +51,11 @@ Reuse a clear existing blurb; include approved purpose edits at the top of every
 root README in this workflow's own change and delivery. The skill owns the
 conversation and wording; return here afterward to complete the upgrade.
 
-Use `dependabot-upkeep` to establish the selected standard's dependency-protection
+Use `dependabot-upkeep` to establish the selected standard's alert-only protection
 outcome on the actual target. Pass the alignment setup authority, repository,
-dependency surfaces and delivery rules; preserve compatible automation and explicit
-exceptions. Verify enabled settings and active coverage, or report the exact
-unresolved capability. Return here for upgrade delivery.
+dependency surfaces and delivery rules. Verify settings, active alert coverage and
+remaining PR-generation behavior, or report the exact unresolved capability.
+Return here for upgrade delivery.
 
 Use `repository-verification` for its suitability assessment during normal
 inspection. Report its include/omit/defer recommendation with the other ready
