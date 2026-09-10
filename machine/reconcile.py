@@ -56,11 +56,49 @@ def cleanup_schedule_entry(identity, observed_after_write):
             'algorithm': 'sha256', 'fingerprint': cleanup_schedule_fingerprint(observed_after_write)}
 
 def plain_path(path):
+    if os.name == 'nt':
+        value = os.fspath(path)
+        # Accept the ordinary extended-length local spelling, but never a
+        # network, device, drive-relative, or other environment's root.
+        if value.startswith('\\\\?\\') and re.match(r'^[A-Za-z]:[\\/]', value[4:]):
+            value = value[4:]
+        candidate = Path(value)
+        if ((candidate.drive and not re.fullmatch(r'[A-Za-z]:', candidate.drive))
+                or bool(candidate.drive) != bool(candidate.root)):
+            raise ValueError(f'expected a local Windows path with an unambiguous root: {path}')
+        path = candidate
     path = Path(os.path.abspath(path))
+    if os.name == 'nt':
+        import ctypes
+        from ctypes import wintypes
+
+        drive_type = ctypes.WinDLL('kernel32', use_last_error=True).GetDriveTypeW
+        drive_type.argtypes = [wintypes.LPCWSTR]
+        drive_type.restype = wintypes.UINT
+        if drive_type(path.anchor) not in (2, 3, 5, 6):
+            raise ValueError(f'path is not on an established local drive: {path}')
     for part in (path, *path.parents):
         if part.is_symlink():
             raise ValueError(f'symlink requires investigation: {part}')
-    return path
+        if os.name == 'nt':
+            try:
+                attributes = part.lstat().st_file_attributes
+            except FileNotFoundError:
+                continue
+            if attributes & stat.FILE_ATTRIBUTE_REPARSE_POINT:
+                raise ValueError(f'reparse point requires investigation: {part}')
+    # Resolve existing Windows spelling/aliases only after rejecting redirection.
+    # Keep POSIX spelling unchanged so existing receipt identities stay valid.
+    return path.resolve(strict=False) if os.name == 'nt' else path
+
+
+def same_path(left, right):
+    """Compare canonical paths without WindowsPath's unconditional case folding."""
+    return str(left) == str(right)
+
+
+def path_within(path, parent):
+    return any(same_path(ancestor, parent) for ancestor in path.parents)
 
 
 def files(path):
@@ -87,7 +125,7 @@ def flatten(value, prefix=()):
 
 
 def projection(path, fields):
-    data = flatten(tomllib.loads(path.read_text())) if path.exists() else {}
+    data = flatten(tomllib.loads(path.read_text(encoding='utf-8'))) if path.exists() else {}
     # Types matter: true, 1, and "1" must not compare equal.
     return {key: [type(data[tuple(key.split('.'))]).__name__, repr(data[tuple(key.split('.'))])]
             if tuple(key.split('.')) in data else ['absent'] for key in sorted(fields)}
@@ -114,16 +152,41 @@ def fingerprint(path, scope):
 
 def atomic_file(path, data, mode=0o600):
     path.parent.mkdir(parents=True, exist_ok=True)
-    fd, temporary = tempfile.mkstemp(prefix='.reconcile-', dir=path.parent)
+    secured_reference = os.name == 'nt' and path.exists()
+    if secured_reference:
+        temporary = path.parent / f'.reconcile-{os.urandom(16).hex()}'
+        fd = None
+    else:
+        fd, temporary = tempfile.mkstemp(prefix='.reconcile-', dir=path.parent)
+    created_temporary = not secured_reference
+    retain_temporary = False
     try:
+        if secured_reference:
+            from windows_security import create_file
+
+            fd = create_file(temporary, path)
+            created_temporary = True
         with os.fdopen(fd, 'wb') as stream:
             stream.write(data)
             stream.flush()
             os.fsync(stream.fileno())
-        os.chmod(temporary, mode)
-        os.replace(temporary, path)
+        if os.name == 'nt' and path.exists():
+            from windows_security import replace_file
+
+            # ReplaceFileW can report partial effects. Retain any surviving
+            # replacement on failure so the supervisor can inspect actual state.
+            retain_temporary = True
+            replace_file(Path(temporary), path)
+            retain_temporary = False
+        else:
+            if os.name != 'nt':
+                os.chmod(temporary, mode)
+            os.replace(temporary, path)
     finally:
-        Path(temporary).unlink(missing_ok=True)
+        if created_temporary and not retain_temporary:
+            Path(temporary).unlink(missing_ok=True)
+        elif retain_temporary and Path(temporary).exists():
+            print(f'File replacement retained for investigation: {temporary}', flush=True)
 
 
 def table(section):
@@ -138,23 +201,34 @@ def claude_packages(profile):
 
 
 def claude_receipt_root(entries):
-    anchors = [target for target, entry in entries.items()
-               if entry['scope'] == {'kind': 'file'}
-               and Path(target).name == 'agent-team.md' and Path(target).parent.name == 'rules']
+    anchors = []
+    for target, entry in entries.items():
+        if entry['scope'] != {'kind': 'file'}:
+            continue
+        path = Path(target)
+        if path.name == 'agent-team.md' and path.parent.name == 'rules':
+            anchors.append(target)
+        elif (os.name == 'nt' and path.name.casefold() == 'agent-team.md'
+              and path.parent.name.casefold() == 'rules'):
+            expected = plain_path(path.parent.parent / 'rules/agent-team.md')
+            if not same_path(path, expected):
+                raise ValueError('ambiguous Claude receipt anchor spelling; preserve and investigate')
+            anchors.append(target)
     if not anchors:
         return None, set()
     if len(anchors) != 1:
         raise ValueError('multiple Claude receipt anchors require investigation')
     anchor = anchors[0]
     root = plain_path(Path(anchor).parent.parent)
-    skills = root / 'skills'
+    skills = plain_path(root / 'skills')
+    rule = plain_path(root / 'rules/agent-team.md')
     targets = set()
     for target, entry in entries.items():
         path = Path(target)
-        if root not in path.parents:
+        if not path_within(path, root):
             continue
-        valid = (path == root / 'rules/agent-team.md' and entry['scope'] == {'kind': 'file'}) or (
-            path.parent == skills and entry['scope'] == {'kind': 'directory'})
+        valid = (same_path(path, rule) and entry['scope'] == {'kind': 'file'}) or (
+            same_path(path.parent, skills) and entry['scope'] == {'kind': 'directory'})
         if not valid:
             raise ValueError(f'{target}: unexpected receipted target under Claude configuration root')
         targets.add(target)
@@ -164,9 +238,9 @@ def claude_receipt_root(entries):
 
 
 def inventory(source, home, skills, upstream, upstream_root=None, claude_root=None):
-    profile = (source / 'machine/PROFILE.md').read_text()
+    profile = (source / 'machine/PROFILE.md').read_text(encoding='utf-8')
     config = source / 'machine/config.toml'
-    fields = sorted('.'.join(key) for key in flatten(tomllib.loads(config.read_text())))
+    fields = sorted('.'.join(key) for key in flatten(tomllib.loads(config.read_text(encoding='utf-8'))))
     rows = [(config, home / 'config.toml', {'kind': 'toml', 'fields': fields})]
     section = profile.split('## Shared configuration and whole files\n')[1].split('## Copied local packages\n')[0]
     for name in table(section):
@@ -247,8 +321,8 @@ def unmanaged_projection(data, managed, retired):
 
 def verify_candidate_config(candidate, source, original, scope, previous_scope=()):
     """Prove a complete candidate changes only the owned configuration fields."""
-    candidate_data = flatten(tomllib.loads(candidate.read_text()))
-    original_data = flatten(tomllib.loads(original.read_text())) if original.exists() else {}
+    candidate_data = flatten(tomllib.loads(candidate.read_text(encoding='utf-8')))
+    original_data = flatten(tomllib.loads(original.read_text(encoding='utf-8'))) if original.exists() else {}
     managed = set(scope['fields'])
     retired = set(previous_scope) - managed
     if any(tuple(key.split('.')) in candidate_data for key in retired):
@@ -266,10 +340,10 @@ def run(args):
     upstream_root = plain_path(args.upstream_root) if args.upstream_root else skills
     stage = plain_path(args.upstream_stage) if args.upstream_stage else None
     claude_root = plain_path(args.claude_config_root) if args.claude_config_root else None
-    receipt_path = home / '.agent-team/reconciliation-receipts-v1.json'
+    receipt_path = plain_path(home / '.agent-team/reconciliation-receipts-v1.json')
     raw_receipt, entries = read_receipt(receipt_path)
     anchored_claude_root, preserved_claude_targets = claude_receipt_root(entries)
-    if claude_root is not None and anchored_claude_root is not None and claude_root != anchored_claude_root:
+    if claude_root is not None and anchored_claude_root is not None and not same_path(claude_root, anchored_claude_root):
         raise ValueError('Claude configuration root disagrees with the receipt anchor; investigate before writes')
     if claude_root is not None:
         preserved_claude_targets = set()
@@ -312,9 +386,9 @@ def run(args):
         if target not in desired and scope['kind'] == 'toml':
             errors.append(f'{target}: retired config target requires supervised relocation; no writes')
     targets = [Path(target) for target in observed]
-    if any(a != b and a in b.parents for a in targets for b in targets):
+    if any(not same_path(a, b) and path_within(b, a) for a in targets for b in targets):
         errors.append('overlapping current or retired scopes require investigation')
-    if any(receipt_path == path or path in receipt_path.parents for path in targets):
+    if any(same_path(receipt_path, path) or path_within(receipt_path, path) for path in targets):
         errors.append('receipt metadata overlaps a managed target')
     unknown = approvals.keys() - observed.keys()
     if unknown:
@@ -331,13 +405,14 @@ def run(args):
         raise ValueError('supervisor must verify target model/effort availability before applying')
     if stage is None:
         raise ValueError('verified upstream staging is required')
-    discovery_roots = [skills, upstream_root, home / 'skills']
+    discovery_roots = [skills, upstream_root, plain_path(home / 'skills')]
     if claude_root is not None:
-        discovery_roots.append(claude_root / 'skills')
-    if any(stage == root or root in stage.parents or stage.parent == root for root in discovery_roots):
+        discovery_roots.append(plain_path(claude_root / 'skills'))
+    if any(same_path(stage, root) or path_within(stage, root) or same_path(stage.parent, root)
+           for root in discovery_roots):
         raise ValueError('upstream staging must be outside skill discovery')
     verify_upstream(stage, pin, packages)
-    config_target = str(home / 'config.toml')
+    config_target = str(plain_path(home / 'config.toml'))
     candidate_config = plain_path(args.candidate_config) if args.candidate_config else None
     if candidate_config is None:
         raise ValueError('supply the supervisor-prepared complete candidate config')
@@ -355,10 +430,12 @@ def run(args):
     prepared_files = {target: candidate.read_bytes() for target, (candidate, scope) in desired.items()
                       if scope['kind'] != 'directory'}
     prepared = {}
+    directory_security = {}
+    completed = False
     try:
         # Prepare complete copies off discovery before any live target is touched.
         for target, (candidate, scope) in desired.items():
-            if candidate == Path(target) or Path(target) in candidate.parents:
+            if same_path(candidate, Path(target)) or path_within(candidate, Path(target)):
                 raise ValueError(f'candidate overlaps live target: {target}')
             if scope['kind'] == 'directory':
                 root = stage.parent
@@ -369,7 +446,14 @@ def run(args):
                     raise ValueError(f'staging is not on destination filesystem: {target}')
                 temporary = Path(tempfile.mkdtemp(prefix='.agent-team-publish-', dir=root))
                 prepared[target] = temporary / 'package'
+                if os.name == 'nt':
+                    from windows_security import prepare_directory_start, prepare_directory_finish
+
+                    directory_security[target] = prepare_directory_start(temporary, Path(target))
                 shutil.copytree(candidate, prepared[target], symlinks=False)
+                if os.name == 'nt':
+                    directory_security[target] = prepare_directory_finish(
+                        prepared[target], Path(target), directory_security[target])
                 if fingerprint(prepared[target], scope) != fingerprint(candidate, scope):
                     raise ValueError(f'prepared copy mismatch: {target}')
         for target in observed:
@@ -378,9 +462,9 @@ def run(args):
                 raise ValueError(f'target changed after preflight: {target}')
         def publication_order(target):
             path = Path(target)
-            if claude_root is not None and path == claude_root / 'rules/agent-team.md':
+            if claude_root is not None and same_path(path, plain_path(claude_root / 'rules/agent-team.md')):
                 return 0, target
-            if claude_root is not None and claude_root / 'skills' in path.parents:
+            if claude_root is not None and path_within(path, plain_path(claude_root / 'skills')):
                 return 2, target
             return 1, target
 
@@ -409,11 +493,17 @@ def run(args):
                 candidate, new_scope = desired[target]
                 if new_scope['kind'] == 'directory':
                     path.parent.mkdir(parents=True, exist_ok=True)
+                    if os.name == 'nt':
+                        from windows_security import verify_directory, finish_directory
+
+                        verify_directory(path, directory_security[target])
                     if path.exists():
                         shutil.rmtree(path)
                         print(f'Removed old directory {target}; replacement and receipt pending', flush=True)
                     os.rename(prepared[target], path)
                     print(f'Published directory {target}; verification and receipt pending', flush=True)
+                    if os.name == 'nt':
+                        finish_directory(path, directory_security[target])
                 else:
                     mode = stat.S_IMODE(path.stat().st_mode) if path.exists() else 0o600
                     atomic_file(path, prepared_files[target], mode)
@@ -426,9 +516,13 @@ def run(args):
                 print(f'Wrote {target}', flush=True)
             atomic_file(receipt_path, encoded({'version': 1, 'entries': list(entries.values())}) + b'\n')
             raw_receipt = receipt_path.read_bytes()
+        completed = True
     finally:
         for path in prepared.values():
-            shutil.rmtree(path.parent)
+            if os.name == 'nt' and not completed and path.exists():
+                print(f'Directory preparation retained for investigation: {path.parent}', flush=True)
+            else:
+                shutil.rmtree(path.parent)
 
 
 def main():
