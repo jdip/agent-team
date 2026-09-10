@@ -150,6 +150,14 @@ def _boolean(children, name):
     return value == "true"
 
 
+def _boolean_default(children, name, default):
+    return default if name not in children else _boolean(children, name)
+
+
+def _text_default(children, name, default):
+    return default if name not in children else _required(children, name)
+
+
 def _action(action):
     if set(action) != _ACTION_FIELDS or not all(isinstance(action[key], str) and action[key]
                                                 for key in _ACTION_FIELDS):
@@ -204,6 +212,7 @@ def _expected(action, hour, minute, start_boundary):
         "priority": 7,
         "idle_stop_on_end": False,
         "idle_restart": False,
+        "use_unified_scheduling_engine": True,
         "registration_description": True,
         "registration_uri": True,
         "action_context": True,
@@ -233,7 +242,7 @@ def _parse(name, raw):
     if len(trigger_nodes) != 1 or _tag(trigger_nodes[0]) != "CalendarTrigger":
         raise ValueError("Task Scheduler task must have exactly one daily trigger")
     trigger = _children(trigger_nodes[0], {"StartBoundary", "Enabled", "ScheduleByDay"})
-    if set(trigger) != {"StartBoundary", "Enabled", "ScheduleByDay"}:
+    if not {"StartBoundary", "ScheduleByDay"} <= set(trigger):
         raise ValueError("Task Scheduler daily trigger has unsupported topology")
     schedule = _children(trigger["ScheduleByDay"], {"DaysInterval"})
     if set(schedule) != {"DaysInterval"}:
@@ -251,7 +260,7 @@ def _parse(name, raw):
     if principal_node.attrib != {"id": "Author"}:
         raise ValueError("Task Scheduler principal identity is unsupported")
     principal = _children(principal_node, {"UserId", "LogonType", "RunLevel"})
-    if set(principal) != {"UserId", "LogonType", "RunLevel"}:
+    if not {"UserId", "LogonType"} <= set(principal):
         raise ValueError("Task Scheduler principal has unsupported topology")
 
     settings = _children(top["Settings"], {
@@ -259,14 +268,12 @@ def _parse(name, raw):
         "StopIfGoingOnBatteries", "AllowHardTerminate", "StartWhenAvailable",
         "RunOnlyIfNetworkAvailable", "IdleSettings", "AllowStartOnDemand",
         "Enabled", "Hidden", "RunOnlyIfIdle", "WakeToRun",
-        "ExecutionTimeLimit", "Priority"})
-    expected_settings = {
+        "ExecutionTimeLimit", "Priority", "UseUnifiedSchedulingEngine"})
+    required_settings = {
         "MultipleInstancesPolicy", "DisallowStartIfOnBatteries",
-        "StopIfGoingOnBatteries", "AllowHardTerminate", "StartWhenAvailable",
-        "RunOnlyIfNetworkAvailable", "IdleSettings", "AllowStartOnDemand",
-        "Enabled", "Hidden", "RunOnlyIfIdle", "WakeToRun",
-        "ExecutionTimeLimit", "Priority"}
-    if set(settings) != expected_settings:
+        "StopIfGoingOnBatteries", "StartWhenAvailable", "IdleSettings",
+        "ExecutionTimeLimit", "UseUnifiedSchedulingEngine"}
+    if not required_settings <= set(settings):
         raise ValueError("Task Scheduler settings have unsupported topology")
     idle = _children(settings["IdleSettings"], {"StopOnIdleEnd", "RestartOnIdle"})
     if set(idle) != {"StopOnIdleEnd", "RestartOnIdle"}:
@@ -295,25 +302,27 @@ def _parse(name, raw):
         "second": start.second,
         "start_boundary": start.isoformat(),
         "start_boundary_zone": "local" if start.tzinfo is None else "fixed-offset",
-        "trigger_enabled": _boolean(trigger, "Enabled"),
+        "trigger_enabled": _boolean_default(trigger, "Enabled", True),
         "principal": "current-user" if user_id == _current_user_sid() else "other-user",
         "logon_type": _required(principal, "LogonType"),
-        "run_level": _required(principal, "RunLevel"),
+        "run_level": _text_default(principal, "RunLevel", "LeastPrivilege"),
         "multiple_instances": _required(settings, "MultipleInstancesPolicy"),
         "disallow_start_on_batteries": _boolean(settings, "DisallowStartIfOnBatteries"),
         "stop_if_going_on_batteries": _boolean(settings, "StopIfGoingOnBatteries"),
-        "allow_hard_terminate": _boolean(settings, "AllowHardTerminate"),
+        "allow_hard_terminate": _boolean_default(settings, "AllowHardTerminate", True),
         "start_when_available": _boolean(settings, "StartWhenAvailable"),
-        "run_only_if_network_available": _boolean(settings, "RunOnlyIfNetworkAvailable"),
-        "allow_start_on_demand": _boolean(settings, "AllowStartOnDemand"),
-        "enabled": _boolean(settings, "Enabled"),
-        "hidden": _boolean(settings, "Hidden"),
-        "run_only_if_idle": _boolean(settings, "RunOnlyIfIdle"),
-        "wake_to_run": _boolean(settings, "WakeToRun"),
+        "run_only_if_network_available": _boolean_default(
+            settings, "RunOnlyIfNetworkAvailable", False),
+        "allow_start_on_demand": _boolean_default(settings, "AllowStartOnDemand", True),
+        "enabled": _boolean_default(settings, "Enabled", True),
+        "hidden": _boolean_default(settings, "Hidden", False),
+        "run_only_if_idle": _boolean_default(settings, "RunOnlyIfIdle", False),
+        "wake_to_run": _boolean_default(settings, "WakeToRun", False),
         "execution_time_limit": _required(settings, "ExecutionTimeLimit"),
-        "priority": int(_required(settings, "Priority")),
+        "priority": int(_text_default(settings, "Priority", "7")),
         "idle_stop_on_end": _boolean(idle, "StopOnIdleEnd"),
         "idle_restart": _boolean(idle, "RestartOnIdle"),
+        "use_unified_scheduling_engine": _boolean(settings, "UseUnifiedSchedulingEngine"),
         "registration_description": description is not None and description.text == _DESCRIPTION,
         "registration_uri": uri is not None and uri.text == name,
         "action_context": True,
@@ -365,6 +374,7 @@ def _document(home, action, start_boundary):
     idle = _element(settings, "IdleSettings")
     _element(idle, "StopOnIdleEnd", "false")
     _element(idle, "RestartOnIdle", "false")
+    _element(settings, "UseUnifiedSchedulingEngine", "true")
     for key, value in (
             ("AllowStartOnDemand", "true"),
             ("Enabled", "true"),
