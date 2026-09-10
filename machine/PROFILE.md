@@ -269,8 +269,8 @@ separate native operation; filesystem reconciliation preserves its receipt entry
 without requiring or observing the schedule. There is no scheduled reconciliation
 or update.
 Windows CLI jobs run only as the logged-in user, without elevation, stored account
-passwords, or machine wake. Native delayed-run support handles eligible missed
-triggers. WSL cron requires the distribution and daemon to be running; missed
+passwords, or machine wake. Missed runs are acceptable; native delayed-run
+settings do not promise catch-up execution. WSL cron requires the distribution and daemon to be running; missed
 stopped-distribution runs are skipped. No Windows job starts WSL for cleanup.
 Cleanup participation requires verified Agent Team adoption in each project's root
 AGENTS.md; participation never replaces association and removal-safety evidence.

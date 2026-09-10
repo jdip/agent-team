@@ -153,9 +153,9 @@ investigation as other schedule state. Preserve unrelated tasks and task folders
 The task uses the current user's interactive token and least privilege, with no
 stored password or machine wake. It runs daily in the target's local timezone,
 allows native delayed execution when eligible, and suppresses overlapping runs.
-The user must be logged in. A delayed trigger is not a guarantee that every missed
-run will be replayed. Verify actual trigger behavior on the target separately from
-a successful on-demand run.
+The user must be logged in. Missed runs are acceptable; delayed execution is not
+an acceptance requirement or a catch-up guarantee. A successful on-demand run
+proves only that invocation, not scheduled or delayed execution.
 
 Its action invokes the existing Python helper and native Codex executable from a
 stable native checkout, setting CODEX_HOME only for that process. Use explicit
