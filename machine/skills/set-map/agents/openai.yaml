@@ -2,5 +2,3 @@ interface:
   display_name: "Set Wayfinder Map"
   short_description: "Save this repository’s active Wayfinder map"
   default_prompt: "Use $set-map to save this Wayfinder map URL for the current repository."
-policy:
-  allow_implicit_invocation: false

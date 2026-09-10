@@ -10,10 +10,12 @@ dependency upkeep, hygiene, opted-in verification audits and Agent Team alignmen
 under its stable-baseline assessment rules; existing update PRs remain candidates
 for ordinary implementation delivery.
 
-Wayfinder records substantive decisions and their resolutions. Resolve the whole
-associated map before executing mapped work. Small understood fixes can enter a
-suitable approved parent with clear acceptance criteria; they need no manufactured
-map. A resolved standalone design decision also needs no map merely for this handoff.
+The [global planning rule](../../machine/AGENTS.md#planning-before-implementation)
+applies inside and outside this coordinator, including direct specialist requests.
+Wayfinder owns proportionate maps and decision resolution; the existing executor
+uses one specification parent and at least one executable child. Reuse covering
+plans and authority across these owners, preserving phase-specific completion
+boundaries. Planning records can precede completed implementation planning.
 
 Use `to-spec` to synthesize the approved design into one Implementation
 Specification parent and its outcome-based ticket proposal. Review the parent and

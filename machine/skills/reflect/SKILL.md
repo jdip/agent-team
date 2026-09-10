@@ -37,8 +37,10 @@ criterion. Report the issue link; use the existing task issue when it already
 covers the lesson.
 Keep credentials and private transcript content out of tracker records.
 
-Apply an in-scope fix through existing review and delivery authority; record its
-result in the issue. Leave deferred work open. Filing does not admit or activate a
+Apply an in-scope fix through the global Planning before implementation rule and
+existing review/delivery authority, reusing coverage; record its result in the
+issue. Analysis and lesson filing can inform that planning before
+implementation. Leave deferred work open. Filing does not admit or activate a
 backlog, expand the current fix, or authorize shared guidance changes. Batch any
 missing approval with concrete proposed changes; reuse consent already supplied.
 

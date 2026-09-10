@@ -5,11 +5,14 @@ description: Assess suitability for optional repository verification during adop
 
 # Repository Verification
 
-Give the next agent a reusable way to exercise important real behavior and inspect
-its result. This capability can serve UI, CLI, API, service or library consumers.
-Use the requested assessment, setup or audit scope; discovery of a possible need
-alone does
-not authorize adoption. Reuse established consent and ordinary delivery authority.
+Give the next agent a reusable way to exercise important real behavior and
+inspect its result. This capability can serve UI, CLI, API, service or library
+consumers. Use the requested assessment, setup or audit scope; discovery of a
+possible need alone does not authorize adoption. Reuse established consent and
+ordinary delivery authority. Apply the global Planning before implementation
+rule before setup or drift edits; reuse the invoking workflow's map/spec.
+Read-only assessment and already authorized real-use checks can inform planning
+without creating another plan for those checks.
 
 ## Resolve the target
 

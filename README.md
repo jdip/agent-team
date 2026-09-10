@@ -93,13 +93,13 @@ You do not need to remember their invocation order:
    gates are checked. When paths compete or approval is missing, the agent offers
    concrete options, rough effort, and a recommendation. Reply with your choice
    and the scope you authorize.
-3. **Resolve decisions, then approve implementation.** For an uncertain effort,
-   Wayfinder records a map of research, prototypes, and human decisions. Once the
-   associated map is resolved, the agent drafts an implementation specification
-   and ticket breakdown. Review the batch together; publication, backlog
-   admission/selection, and execution need the relevant approval and can be
-   approved together when the proposal is concrete. Small understood fixes can
-   follow their existing workflow without creating a planning map.
+3. **Plan proportionately, then approve the spec.** Change conversations naturally
+   enter Wayfinder when no covering map exists. Every implementation needs a resolved
+   map and approved specification unless you explicitly waive planning. Small work
+   keeps those records brief and reuses existing coverage; settled maps need no
+   invented decisions. Review the spec and executable ticket breakdown together.
+   An implementation request carries through publication, selection and delivery;
+   the agent asks only for missing decisions or approvals of concrete scope.
 4. **Let the approved work run.** The implementation owner claims eligible work,
    makes the change, verifies it, obtains review, and completes the repository's
    PR-to-test workflow. Existing approval carries across skill handoffs; you do
@@ -114,10 +114,11 @@ You do not need to remember their invocation order:
    An empty queue is not proof that every desired outcome has been achieved.
 
 For example, after an assessment proposes two small fixes, **“Proceed with both
-fixes through reviewed delivery to test”** authorizes that concrete batch. A request
-to assess alone produces recommendations. If you return in a later session, invoke
-whats-next again to rediscover current selections, ownership, and remaining work.
-It does not create a background schedule.
+fixes through reviewed delivery to test”** authorizes carrying that concrete
+batch through planning and delivery; it does not waive a map or spec. A request
+to assess alone produces recommendations. If you return in a later session,
+invoke whats-next again to rediscover current selections, ownership, and
+remaining work. It does not create a background schedule.
 
 [GitHub Issues](https://github.com/jdip/agent-team/issues) holds this repository's
 work queue. The [implementation workflow](docs/workflows/implementation.md) explains
@@ -137,7 +138,10 @@ Verified test delivery completes ordinary implementation;
 Ask the agent to use a skill by name and supply the target and intended outcome,
 for example **“Use dependency-review for this repository's TOML editor.”** Use
 whats-next for coordination; invoke a specialist directly when you already know
-the work you want. Each linked skill owns its detailed behavior and approval rules.
+the work you want. Direct calls follow the same [global planning
+rule](machine/AGENTS.md#planning-before-implementation) for implementation,
+including documentation and maintenance. Each linked skill owns its detailed
+behavior and approval rules.
 
 This guide covers every skill in the [Machine Profile](machine/PROFILE.md), which
 remains the authoritative installation inventory. Links below point to Agent
@@ -165,7 +169,7 @@ a coordinating workflow does not bypass them.
 | --- | --- | --- |
 | [whats-next](machine/skills/whats-next/SKILL.md) | Chooses and advances the next useful repository work. | Start here for ongoing progress; supply priorities and answer concrete decisions. |
 | [define-project-goal](machine/skills/define-project-goal/SKILL.md) | Agrees project purpose and records it in root READMEs. | Use when direction is missing, unclear, or changing; discuss the intended outcome. |
-| [wayfinder](machine/skills/wayfinder/SKILL.md) | Charts unresolved decisions and their dependencies. | Supply a destination or larger uncertain effort to plan before implementation. |
+| [wayfinder](machine/skills/wayfinder/SKILL.md) | Builds or resumes a proportionate map before implementation. | Discuss a desired change; reuse covering design or resolve a compact map and any real decisions. |
 | [set-map](machine/skills/set-map/SKILL.md) | Saves the repository's selected planning map. | Supply the open map URL when explicitly choosing the effort to continue. |
 | [next-waypoint](machine/skills/next-waypoint/SKILL.md) | Advances one eligible planning ticket. | Use with a selected map when you want one decision/research step handled. |
 | [next-waypoint-loop](machine/skills/next-waypoint-loop/SKILL.md) | Continues planning across eligible tickets. | Use with a selected map to progress until human input or a blocker is needed. |
