@@ -14,6 +14,18 @@ From the current Agent Team checkout, invoke the single preparation command:
 python3 machine/prepare_reconciliation.py --repository /actual/agent-team
 ```
 
+On native Windows, run the same Python helper from PowerShell with an installed
+native Python 3.11+ interpreter and the native checkout path:
+
+```powershell
+& $PythonExecutable machine/prepare_reconciliation.py --repository $RepositoryPath
+```
+
+Resolve those variables to actual local paths first. Do not use a Windows Store
+execution alias or WSL Python for this operation. The Codex app-server must report
+the same operating system as the interpreter. Native Windows paths remain separate
+from WSL roots; symlinks, junctions, and other reparse points stop preparation.
+
 It resolves the checkout's tracked branch and freshest published remote revision,
 uses a temporary detached worktree, discovers the actual Codex home and user-skill
 destinations through the native app-server and existing receipt, and checks the
@@ -45,7 +57,7 @@ prepares the candidate config, verifies declared model/effort availability, reru
 the filesystem gate, publishes, and verifies fresh Codex skill discovery. It manages
 only the Machine Profile's files, configuration, and skill directories. A successful
 Claude filesystem publication is not Claude session usability; record that evidence
-through the separate two-platform workflow. The managing agent maintains cleanup
+through the separate host verification workflow. The managing agent maintains cleanup
 schedules separately through the native tools and `cleanup_schedule.py`.
 
 ## Preparation details
@@ -59,7 +71,8 @@ Read every declared source there. An incomplete profile stops before live writes
 
 Machine Bootstrap ends with official Codex acquisition, authentication, obtaining
 this repository, and asking an agent to reconcile it: macOS uses the official
-desktop download; headless Linux uses the supported standalone CLI path. Update
+desktop download; headless Linux uses the supported standalone CLI path; native
+Windows uses the official Windows desktop or native CLI installation. Update
 Codex only when the profile requires a newer version. There is no custom bootstrap
 framework or background update.
 
@@ -154,6 +167,14 @@ copy or fallback across filesystems is permitted. Directory retirement removes o
 the receipted scope. Unexpected ownership-kind changes or relocation of a retired
 shared config require investigation rather than deleting a shared file.
 
+On native Windows, publication preserves discretionary access restrictions and
+checks owner, group, and mandatory integrity labels before replacement. Existing
+files use the native replacement API; prepared directories receive the intended
+parent inheritance and existing per-path restrictions. A permission mismatch,
+locked file, or denied operation stops the run. Inspect any reported partial
+publication or retained replacement before recovery; never relax permissions to
+make reconciliation pass. POSIX file modes and publication remain unchanged.
+
 After each actual successful publication, the helper fingerprints the installed
 result and atomically writes the existing narrow receipt. A failed write before
 receipt publication fails closed on the next run. Printed writes are actual partial
@@ -180,4 +201,4 @@ Finish by checking actual usability, including fresh-session/restart requirement
 Report written changes separately from verified capabilities, unresolved differences,
 partial failures, and required human action. Clean only the staging and candidates
 proven associated with this run and safe to remove. A local syntax check alone never
-establishes successful use on both supported platforms.
+establishes successful use on each supported platform.

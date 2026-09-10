@@ -13,13 +13,22 @@ unpublished, ambiguous, divergent, or unavailable source; do not silently switch
 branches or fall back to stale content. There is no separate manifest, lockfile,
 generator, or profile version.
 
-The Codex inventory applies to macOS desktop and headless Linux. Windows and
-desktop Linux are out of scope. Resolve CODEX_HOME and supported skill destinations
+The Codex inventory applies to macOS desktop, headless Linux, and native Windows
+11 x64 desktop/CLI. Desktop Linux remains out of scope. Windows uses native
+Python 3.11+ and native Codex; do not cross into WSL to reconcile a Windows home.
+Each environment owns its configuration, skills, credentials, and receipts.
+Resolve CODEX_HOME and supported skill destinations
 on the actual host. The copied user-skill destination reviewed during planning is
 `$HOME/.agents/skills`; verify it on the target. Supported installer storage may use
 a different root. Do not normalize roots with symlinks or own their containing
 directories. A headless host still receives browser_verifier; ability to execute a
 browser task depends on actual host capabilities.
+
+Native Windows targets use local filesystem paths. UNC/network/device paths,
+drive-relative roots, symlinks, junctions, and other reparse points require
+investigation before writes. Supported custom roots must be discovered in the
+same environment. Use separate writable repository checkouts and Git common
+directories for native Windows and WSL; cross-environment paths are read-only.
 
 ## Shared configuration and whole files
 
@@ -212,7 +221,7 @@ manual-invocation settings.
 Use the narrow Machine Reconciliation Receipt at
 `$CODEX_HOME/.agent-team/reconciliation-receipts-v1.json`. Preflight all current
 targets and receipted retirement candidates before any managed write. Existing
-unreceipted content, changed or missing targets, symlinks, unsupported models, and
+unreceipted content, changed or missing targets, symlinks/reparse points, unsupported models, and
 unavailable declared sources require investigation before proceeding. Do not enroll
 unexplained bytes as evidence simply to bypass a stop.
 
