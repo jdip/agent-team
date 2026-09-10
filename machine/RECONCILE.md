@@ -196,7 +196,8 @@ relative file names and their byte hashes. TOML hashes sorted dotted fields with
 type and value or an absent marker; unrelated values never enter the fingerprint.
 The narrow schedule seam consists of `cleanup_schedule_fingerprint`,
 `cleanup_schedule_preflight`, and `cleanup_schedule_entry`. The schedule adapter
-supplies its exact `automation:<id>` or `cron:<id>` identity and only normalized owned
+supplies its exact `automation:<id>`, `cron:<id>`, or `task-scheduler:<name>`
+identity and only normalized owned
 configuration. It reobserves immediately before mutation and creates an entry only
 after observing its own successful write. Retirement removes its entry only after
 observed authorized removal. The filesystem runner preserves schedule receipt

@@ -2,7 +2,7 @@
 
 Use one roughly daily target-appropriate schedule under an authorized installation
 or reconciliation request. The shared cleanup-task-artifacts skill is the policy;
-neither scheduler expands cleanup authority. Keep its source checkout stable and
+no scheduler expands cleanup authority. Keep its source checkout stable and
 outside task cleanup. Select one verified source revision; do not fetch or update
 it during scheduled sweeps. A native job may start in a saved stable project while
 reading the shared policy from a separate stable source checkout.
@@ -33,7 +33,7 @@ the rest of the Machine Profile is reconciled. After a failure inspect actual
 API/crontab and receipt state; successful writes can precede receipt publication.
 There is no recovery journal or rollback.
 
-## macOS desktop
+## macOS and Windows desktop
 
 Use the supported Codex automation tool for creation, updates, views, and deletion.
 Inspect the supported automation configuration inventory and existing receipt first;
@@ -88,7 +88,7 @@ project/model/prompt/schedule. A normalized receipt was recorded after that obse
 creation and read back successfully. This is configuration evidence, not a claim
 that a scheduled wake already ran or that headless cron was exercised.
 
-## Headless Linux
+## Headless Linux and WSL
 
 Use the actual target user's crontab and Codex executable, with working authentication
 and a stable source checkout. Inspect `crontab -l`; lack of permission or an unexpected
@@ -101,13 +101,29 @@ python3 machine/cleanup_schedule.py install-cron --codex-home /actual/codex-home
   --stable-checkout /actual/stable-source --codex /actual/bin/codex --hour 9 --minute 45
 ```
 
-Hour and minute use the target's local cron timezone; defaults are 09:00. Resolve
-the supported Codex launcher's symlinks to its actual installed executable before
-passing `--codex`; inspect that target rather than bypassing the helper's path gate.
+Add repeatable `--project-root /actual/project` arguments when supplying explicit
+roots. For supervised execution verification, `--output-last-message` can retain
+Codex's final response in the private `cleanup-last-message.txt` file under the target
+Codex home's `.agent-team` directory. This is ordinary optional output, not receipt
+or lifecycle evidence. Do not publish its contents without privacy review.
+
+Hour and minute use the target's local cron timezone; defaults are 09:00. The
+supported Codex launcher may be a symlink within the Linux filesystem. The helper
+validates its resolved executable as well as the supplied launcher.
+
+For WSL, use Linux-native tools, a Linux-filesystem source checkout, and the
+distribution's independent Codex home and authentication. Mounted Windows paths
+are not writable scheduler targets. Cron runs only while the distribution and
+daemon are running; it skips runs missed while stopped. Do not install a Windows
+startup job or a catch-up wrapper. Verify the daemon and target timezone on the
+actual distribution; a service alone does not keep WSL running.
 
 It preflights receipt and exact current entry, builds the dedicated line invoking
-`codex exec -C` with the shared cleanup instructions and command-local resolved
-CODEX_HOME/PATH (never global crontab environment edits), rechecks the complete current
+the stable Python helper's `run-cleanup` operation, which launches `codex exec -C`
+with the shared cleanup instructions. Command-local CODEX_HOME/PATH never become
+global crontab environment edits. WSL excludes Windows-mounted PATH entries;
+other Linux PATH entries are preserved. The entry must fit cron's command limit.
+The helper rechecks the complete current
 crontab to avoid dropping concurrent unrelated edits, writes through `crontab -`,
 reads back the exact result, and only then updates the narrow receipt. Pass
 `--approve observed-hash` (or absent) only for a specifically approved conflict.
@@ -120,3 +136,51 @@ established, skip affected discovery, archival, and removal. Do not scrape inter
 Codex stores. Verify actual Codex startup, authentication, the real cron entry, and
 safe sweep behavior on the supported Linux target. A local syntax check is not
 headless execution evidence.
+
+## Windows CLI-only
+
+Use the native Windows Task Scheduler adapter when desktop automation is not the
+selected scheduler for this Codex home. Inspect the home's receipt and desktop
+automation inventory first. A receipted schedule in another scheduler must be
+retired through its owner and verified absent before installing this one. Separate
+Windows and WSL homes may each have their own schedule.
+
+The adapter derives an exact root task name from the resolved Codex home. It owns
+only that task, with its normalized principal, trigger, settings, and action.
+An existing unreceipted or changed task requires the same observed-conflict
+investigation as other schedule state. Preserve unrelated tasks and task folders.
+
+The task uses the current user's interactive token and least privilege, with no
+stored password or machine wake. It runs daily in the target's local timezone,
+allows native delayed execution when eligible, and suppresses overlapping runs.
+The user must be logged in. A delayed trigger is not a guarantee that every missed
+run will be replayed. Verify actual trigger behavior on the target separately from
+a successful on-demand run.
+
+Its action invokes the existing Python helper and native Codex executable from a
+stable native checkout, setting CODEX_HOME only for that process. Use explicit
+project roots for headless cleanup when supported project inventory is unavailable.
+Missing task lifecycle evidence still preserves affected checkouts and tasks.
+
+Using the actual native Python executable in `$python`, run from the selected
+source checkout (replace the illustrative paths with verified local paths):
+
+```powershell
+& $python machine/cleanup_schedule.py inspect --codex-home 'C:/actual/codex-home'
+& $python machine/cleanup_schedule.py install-windows --codex-home 'C:/actual/codex-home' `
+  --stable-checkout 'C:/actual/stable-source' --codex 'C:/actual/bin/codex.exe' `
+  --project-root 'C:/actual/project' --hour 9 --minute 0
+& $python machine/cleanup_schedule.py retire-windows --codex-home 'C:/actual/codex-home'
+```
+
+On native Windows, these commands infer the exact Task Scheduler identity from the
+home when `--identity` is omitted. Desktop operations still pass their explicit
+`automation:<id>`. Linux's default remains the dedicated cron identity. The optional
+private `--output-last-message` described above also applies to Windows CLI jobs.
+
+Installation rechecks the exact task and receipt immediately before the native
+write, reads back the task definition, and records only the observed successful
+result. Updates follow the same checks. Retirement requires receipt ownership,
+matching observed configuration, and a non-running task; it verifies deletion
+before removing the receipt. Investigate partial effects rather than retrying or
+switching schedulers after an ambiguous result.
