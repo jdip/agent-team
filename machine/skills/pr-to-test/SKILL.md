@@ -19,6 +19,14 @@ canonical entry point. Investigate missing or contradictory interfaces before
 acting; do not invent a competing release process or copy Agent Team's own runtime
 assumptions into another repository.
 
+For implementation changes, confirm covering resolved map/spec evidence under
+the global Planning before implementation rule, or the operator's explicit scoped
+exception. Pure planning records and research artifacts may be delivered under
+that rule's planning-work boundary while a map remains open; this does not admit
+implementation changes alongside them. A pre-existing
+PR or delivery request does not waive it; return missing coverage to Wayfinder
+through the originating owner. Reuse coverage without restarting settled design.
+
 Prepare and commit the intended changes, preserving unrelated work in a suitable
 checkout. Review every submitted change. Reuse completed review only when evidence
 clearly covers all changes and findings are resolved or explicitly accepted; doubt

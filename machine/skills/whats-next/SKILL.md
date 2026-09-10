@@ -41,6 +41,27 @@ handoff before assuming ownership. An assignee, inactivity, or a finished turn
 alone is not permission. If task status is unavailable, preserve uncertain claims
 and continue work whose ownership is established.
 
+## Plan the selected change
+
+Apply the global Planning before implementation rule to every implementation
+candidate, including an existing PR and direct maintenance or alignment work.
+Reuse a resolved map and approved spec covering the actual change. If coverage
+is missing, begin or resume Wayfinder from the inspected target and desired
+outcome; smallness or a delivery request does not supply a planning waiver.
+Read-only assessment may continue while planning remains open.
+
+Once the destination is concrete, carry the request's planning authority through
+`wayfinder`, `set-map` and `next-waypoint-loop`; resolve their repository
+context against the target. A compact settled map may have no decision children.
+Select a new map while it is open, before resolution/closure; reusing resolved
+coverage needs no new map selection. Then use `to-spec` and `to-tickets` for the
+approved specification parent and
+executable children, and the existing selection/execution owners. Preserve
+another effort's selection and ownership. Ask about a competing selection only
+when existing authority does not settle it. Missing capabilities leave a
+concrete planning blocker; continue independent discovery without silently
+implementing.
+
 ## Carry authority through the owner
 
 Read the skill that owns the selected operation and supply the concrete repository,
@@ -58,11 +79,11 @@ of a combined proposal and carry it forward across ordinary skill boundaries.
 
 | Selected work | Owning handoff |
 | --- | --- |
-| Almost-delivered code/PR | Establish requirements, ownership, and delivery authority; use `code-review` when needed and `pr-to-test` for verified test delivery. Ask about finishing that specific PR if delivery consent is missing. |
+| Almost-delivered code/PR | Establish map/spec coverage, requirements, ownership, and delivery authority; use `code-review` when needed and `pr-to-test` for verified test delivery. Ask about finishing that specific PR if delivery consent is missing. |
 | Approved Active Backlog | Use `next-issue-loop`, supplying the eligible selection when completion-first ranking changes ordinary order. Preserve the associated map's Design gate and existing claim/delivery rules. |
 | Prepared inactive backlog | Use `triage` for necessary intake/admission and `set-backlog` for approved selection. Present only missing admission, activation, and execution approvals together, then start `next-issue-loop` to the extent approved. |
 | Selected Wayfinder map | Continue `next-waypoint-loop`; research facts and present human decisions. A different map needs an approved select-and-start proposal through `set-map`. |
-| New planning destination | Propose the concrete destination with charting, selection, and continuation; obtain the missing authority. Use `wayfinder`, then `set-map` and `next-waypoint-loop` for the approved portion. |
+| New planning destination | Begin Wayfinder dialogue from the change request; once concrete, chart or reuse its map, then use `set-map` and `next-waypoint-loop` under existing authority. Ask only for missing decisions or competing selection authority. |
 | Entire map resolved | Use `to-spec` to draft the parent and complete ticket breakdown automatically. Present the batch and missing publication/admission/activation/execution approvals together; use `to-tickets` and selection/execution owners for the approved portion. Reuse the effort's implementation follow-up. |
 | Missing/stale dependency automation, actionable alerts or update PRs | Follow [dependency upkeep](maintenance.md#dependency-upkeep) for the stable-baseline gate and update-PR eligibility, then hand the concrete scope and existing approval to `dependabot-upkeep`. Return after the coherent step. |
 | Hygiene, adopted repository verification or Agent Team alignment | Follow [maintenance and alignment](maintenance.md) once the relevant baseline is stable. |
@@ -99,11 +120,12 @@ instead of treating the wording as settled. Support any fulfillment conclusion w
 observed outcomes and state what remains unassessed. An empty queue establishes only
 that tracked work is complete.
 
-For an evidenced gap, propose a concrete Wayfinder focus and obtain missing charting
-authority, reusing existing maps. When maintenance has been considered and no useful
-candidate is established, ask which desired outcome should guide the next session;
-there is no need to claim the purpose is fully served. Preserve the agreed purpose
-rather than inventing a deficiency or rewriting it to justify more work.
+For an evidenced gap within the requested scope, begin Wayfinder dialogue and
+reuse covering maps; propose a changed destination when it would expand that
+scope. When maintenance has been considered and no useful candidate is
+established, ask which desired outcome should guide the next session; there is
+no need to claim the purpose is fully served. Preserve the agreed purpose rather
+than inventing a deficiency or rewriting it to justify more work.
 
 Continue until the human stops, a real decision is pending, or external work or
 missing capability leaves no authorized progress. State delivered outcomes and the

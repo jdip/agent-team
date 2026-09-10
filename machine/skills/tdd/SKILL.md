@@ -17,6 +17,10 @@ See [tests.md](tests.md) for examples and [mocking.md](mocking.md) for mocking g
 
 ## Seams: where tests go
 
+Apply the global Planning before implementation rule before tests or code
+intended to ship. Reuse the implementing workflow's covering map/spec; a direct
+test-first request enters planning when coverage is missing.
+
 A **seam** is the public boundary you test at: the interface where you observe behavior without reaching inside. Tests live at seams, never against internals.
 
 Select seams from the approved behavior, supplied acceptance criteria, and established public interfaces. State the boundary under test and proceed within that scope; prior approval does not need a second seam-confirmation round. Ask only when choosing a boundary would settle an unresolved interface or scope decision. Complete independent inspection before presenting that decision.

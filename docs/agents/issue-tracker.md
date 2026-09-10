@@ -74,7 +74,12 @@ Run `gh issue view <number> --comments`.
 
 ## Wayfinding operations
 
-Used by `/wayfinder`. The **map** is a single issue with **child** issues as tickets.
+Used by `wayfinder`. The **map** is a single issue; real decision tickets are
+native children. A compact settled map records the agreed direction directly and
+needs no invented children. Keep it open through handoff bookkeeping, then
+record resolution and close it before executable ticket publication. Use the
+existing `set-map` owner for selection; retain completed pointers until an
+authorized selection replaces them.
 
 - **Map**: a single issue labelled `wayfinder:map`, holding the Notes / Decisions-so-far / Fog body. `gh issue create --label wayfinder:map`.
 - **Child ticket**: an issue linked to the map as a GitHub sub-issue (`gh api` on the sub-issues endpoint). Where sub-issues aren't enabled, add the child to a task list in the map body and put `Part of #<map>` at the top of the child body. Labels: `wayfinder:<type>` (`research`/`prototype`/`grilling`/`task`). Once claimed, the ticket is assigned to the driving dev.
@@ -108,9 +113,10 @@ reporting completion. Publication alone does not select or execute a backlog.
 - **Membership**: use the same native sub-issue operations described above. Inspect
   `GET repos/<owner>/<repo>/issues/<child>/parent` before attaching existing work.
   Do not silently reparent issues from another effort. Preserve dependencies.
-- **Design gate**: before taking or continuing implementation, follow next-issue’s
-  Design gate against the specification’s associated map, not the saved planning
-  pointer. An open/reopened map pauses the whole backlog until resolved. Routine
+- **Design gate**: before taking or continuing implementation, require covering
+  resolved map and approved specification evidence, or an explicit scoped operator
+  planning waiver. Follow next-issue’s Design gate against the specification’s
+  associated map, not the saved planning pointer. An open/reopened map pauses the whole backlog until resolved. Routine
   implementation choices do not reopen maps. A substantive missing decision is
   recorded in the reopened map and linked from the claimed, open implementation
   issue. A closed map with unsettled required decisions is not clearance.
@@ -141,11 +147,13 @@ Exclude pull requests. Read children, claims, and native dependencies separately
 blocked children still belong to the approved scope. For other incoming work,
 paginate the relevant open issues without filtering out blocked or claimed work.
 
-Triage refines, deduplicates, and orders within approved scope, preserving claims
-and dependencies. Group approved small fixes in a suitable approved parent without
-manufacturing a map or a new specification. Expanding scope, moving work between
-efforts, and admitting prepared parents to the Ready Backlog require a human
-decision. Current scope and acceptance live in issue bodies; comments hold evidence.
+Triage refines, deduplicates, and orders within approved scope, preserving
+claims and dependencies. Group approved small fixes only where the existing
+resolved map and approved spec cover them. Otherwise use Wayfinder and the
+spec/ticket owners for a compact plan; only an explicit scoped operator waiver
+changes the planning gate. Expanding scope, moving work between efforts, and
+admitting prepared parents to the Ready Backlog require a human decision.
+Current scope and acceptance live in issue bodies; comments hold evidence.
 
 Triage reads and validates the saved pointer before offering activation. An absent
 pointer or a verified closed selected parent means no active parent. An invalid,

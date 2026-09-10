@@ -1,9 +1,14 @@
 ---
 name: wayfinder
-description: Plan a huge chunk of work (more than one agent session can hold) as a shared map of decision tickets on your issue tracker, and resolve them one at a time until the way to the destination is clear.
+description: Plan repository changes before implementation, from compact settled work to large uncertain efforts. Start or resume a shared map when change conversations lack covering design, and resolve its decisions before specification and delivery.
 ---
 
-A loose idea has arrived, too big for one agent session, and wrapped in fog: the way from here to the **destination** isn't visible yet. Wayfinding is about finding that way, not charging at the destination. This skill charts the way as a **shared map** on the repo's issue tracker, then works its **decision tickets** (questions whose resolution is a decision, not slices of a build to execute) one at a time until the route is clear.
+Begin from the desired **destination** and the actual repository. This skill
+charts or resumes a **shared map** before implementation. For uncertain work,
+its **decision tickets** resolve questions rather than slice up the build. For
+settled small work, record a compact map with the agreed direction and no
+invented decision children. Reuse covering maps instead of restarting planning
+for routine implementation choices.
 
 The destination varies per effort, and naming it is the first act of charting: it shapes every ticket. It might be a spec to hand off and iterate on, a decision to lock before planning starts, or a change made in place like a data-structure migration. The map is domain-agnostic: engineering work, course content, whatever fits the shape.
 
@@ -19,9 +24,19 @@ Every map and ticket is an issue, so it has a **name**: its title. In everything
 
 The map is a single issue on this repo's issue tracker, labelled `wayfinder:map`, the canonical artifact. Its tickets are child issues of the map.
 
-The map is an **index**, not a store. It lists the decisions made and points at the tickets that hold their detail; a decision lives in exactly one place, its ticket, so the map never restates it, only gists it and links.
+The map indexes decision tickets and links their resolutions without copying
+them. When the conversation has already settled a compact design with no
+decision tickets, record that agreed direction directly in Decisions so far. Do
+not invent children just to hold an answer already established in the same
+planning exchange.
 
-**Where the map, its child tickets, blocking, and frontier queries physically live is tracker-specific.** The issue tracker should have been provided to you. If not, tell the user to run `/setup-matt-pocock-skills`. Consult the tracker doc's "Wayfinding operations" section for how _this_ repo expresses them. If no tracker has been provided, default to the local-markdown tracker.
+The target repository owns the map and specification, including cross-repository
+preparation. Consult its tracker guidance for map, child, dependency and
+frontier operations. If tracker access or a required planning capability is
+unavailable, continue conversational planning and resolve the durable
+target-owned artifact location before implementation. Report the concrete
+limitation; do not invent a local tracker, bootstrap framework or setup command.
+Follow publication policy for planning records.
 
 ### The map body
 
@@ -76,7 +91,10 @@ Every ticket is either **HITL** (human in the loop, worked _with_ a human who sp
 - **Research** (AFK): Reading documentation, third-party APIs, or local resources like knowledge bases to surface a fact a decision waits on. Use the `research` skill; an assigned researcher investigates directly and returns cited evidence within its write authority. Use when knowledge outside the current working directory is required.
 - **Prototype** (HITL): Raise the fidelity of the discussion by making a cheap, rough, concrete artifact to react to (an outline, a rough take, a stub, or UI/logic code) using the `prototype` skill. Links the prototype as an asset. Use when "how should it look" or "how should it behave" is the key question.
 - **Grilling** (HITL): Conversation. The default case. Read and apply the `grilling` and `domain-modeling` skills.
-- **Task** (HITL or AFK): Manual work that must happen before a _decision_ can be made: nothing to decide, prototype, or research, but the discussion is blocked until it's done. Signing up for a service so its API can be judged, provisioning access, moving data so its shape can be seen. This is the one type that _does_ rather than decides, and it earns its place by unblocking a decision, not by delivering the destination. The agent drives it alone where it can (AFK); otherwise it hands the human a precise checklist (HITL). Resolved when the work is done; the answer records what was done and any resulting facts (credentials location, new URLs, row counts) later tickets depend on.
+- **Task** (HITL or AFK): Manual work that must happen before a _decision_ can be made: nothing to decide, prototype, or research, but the discussion is blocked until it's done. Signing up for a service so its API can be judged, provisioning access, moving data so its shape can be seen. This is the one type that _does_ rather than decides, and it earns its place by unblocking a decision, not by delivering the destination. Keep it limited to unblocking a decision within existing action authority;
+  repository implementation changes intended to ship follow the global planning
+  gate. The agent drives authorized work alone where it can (AFK); otherwise it
+  hands the human a precise checklist (HITL). Resolved when the work is done; the answer records what was done and any resulting facts (credentials location, new URLs, row counts) later tickets depend on.
 
 ## Fog of war
 
@@ -105,24 +123,37 @@ Two modes. Either way, **never resolve more than one ticket per session**, with 
 
 ### Chart the map
 
-The user supplies a loose idea, directly or through an approved `whats-next`
-charting proposal with a concrete destination. Reuse that established direction.
+A change conversation or implementation request can begin this planning session,
+directly or through `whats-next` or another owning workflow. Start dialogue
+without a separate invocation approval; create or reuse tracker artifacts once
+the destination is concrete. Reuse established direction and the global Planning
+before implementation rule, including its explicit-waiver and planning-work
+boundaries.
 
 1. **Name the destination.** Read and apply `grilling` and `domain-modeling` to pin down what this map is finding its way to: the spec, decision, or change. The destination fixes the scope, so it's settled first.
-2. **Map the frontier.** Grill again, **breadth-first** this time: fan out across the whole space rather than deep on any one thread, surfacing the open decisions and the first steps takeable now. **If this surfaces no fog** (the way to the destination is already clear, the whole journey small enough for one session), you don't need a map. Report that no map is needed. Continue an already authorized next step within scope; if this was planning-only, hand off the resolved outcome without starting implementation.
-3. **Create the map** (label `wayfinder:map`): Destination and Notes filled in, Decisions-so-far empty, the fog sketched into **Not yet specified**.
+2. **Map the frontier.** Inspect the whole destination for actual open decisions,
+   using `grilling` where human judgment is unresolved. Reuse supplied answers.
+   If the route is already clear, keep the map compact with the agreed direction;
+   it still precedes the spec unless the operator explicitly waived planning.
+3. **Create or reuse the map** (label `wayfinder:map`): record Destination, Notes, settled direction and only real remaining fog. Keep it open until its resolution and implementation handoff are recorded.
 4. **Create the tickets you can specify now** as child issues of the map, then wire blocking edges in a **second pass** (issues need ids before they can reference each other). Wiring sorts them into the frontier and the blocked; everything you can't yet specify stays in the fog: the **Not yet specified** section.
-5. **Fire the research subagents.** Use the `research` skill to assign independent research with bounded questions and evidence requirements. On Codex, assign canonical `explorer` agents. On Claude Code, use its native available subagents without an Agent Team role or model override. Prepare artifacts in a separate worktree on a `codex/research-<name>` branch from fresh `origin/test`, following the target repository's checkout and delivery rules. Each assigned researcher investigates directly and returns cited findings; the primary owns any repository artifact and tracker resolution. Link the retained findings from the ticket. The primary serializes shared Git mutations and resolves the research tickets from the returned evidence.
-6. Charting completes without resolving tickets. In standalone use, stop here.
-   Under an approved `whats-next` chart-and-continue handoff, return the map for
-   selection through `set-map` and continuation through `next-waypoint-loop`.
+5. **Research actual open questions.** When research tickets exist, use the `research` skill to assign independent research with bounded questions and evidence requirements. On Codex, assign canonical `explorer` agents. On Claude Code, use its native available subagents without an Agent Team role or model override. Prepare artifacts in a separate worktree on a `codex/research-<name>` branch from fresh `origin/test`, following the target repository's checkout and delivery rules. Each assigned researcher investigates directly and returns cited findings; the primary owns any repository artifact and tracker resolution. Link the retained findings from the ticket. The primary serializes shared Git mutations and resolves the research tickets from the returned evidence.
+6. For a chart-only request, return the map. When the request includes continuation
+   or implementation, select the open map through `set-map` before closure, then
+   use `next-waypoint-loop` under that authority. Reusing an already resolved map
+   needs no new selection; retain its source links and existing pointer.
+   An already settled compact map proceeds directly to the Implementation handoff:
+   prepare its specification and executable breakdown, record resolution and close
+   the map after verifying that no decision remains. No dummy frontier is needed.
 
 ### Work through the map
 
 User invokes with a map (URL or number). A ticket is **optional**: without one, you pick the next decision, not the user.
 
 1. Load the **map**: the low-res view, not every ticket body.
-2. Choose the ticket. If the user named one, use it. Otherwise take the first frontier ticket in order. **Claim it**: assign it to yourself before any work.
+2. If no open decisions or fog remain, complete the Implementation handoff and
+   map resolution directly, including for a compact map with no children.
+   Otherwise choose the ticket. If the user named one, use it. Otherwise take the first frontier ticket in order. **Claim it**: assign it to yourself before any work.
 3. Resolve it. **Zoom as needed**: fetch the full body of any related or closed ticket on demand; read and apply whichever skills the `## Notes` block names. Use `grilling` and `domain-modeling` when an unresolved human decision requires them; reuse settled answers.
 4. Record the resolution: post the answer as a **resolution comment**, satisfy the **Implementation handoff** below, **close** the issue, and **append a context pointer** to the map's Decisions-so-far when it has a map parent.
 5. Add newly-surfaced tickets (create-then-wire); graduate any fog the answer has made specifiable, clearing each graduated patch from **Not yet specified** so it lives only as its new ticket. If the answer reveals that a ticket (this one or another) sits beyond the destination, **rule it out of scope** rather than resolving it on the route. If the decision invalidates other parts of the map, update or delete those tickets.
@@ -131,7 +162,17 @@ User invokes with a map (URL or number). A ticket is **optional**: without one, 
 
 Resolve the entire map before its associated implementation proceeds. If implementation exposes a substantive missing decision, reopen the map and pause the whole associated backlog until it is resolved again. Routine implementation choices remain with the implementing agent. Ask ready human questions together in ordinary text and wait for answers.
 
-Before closing a resolved design ticket or completed map that leaves implementation work, find or create an open implementation follow-up and link it both ways. Reuse an existing follow-up for the same effort; one shared follow-up may cover several decisions. Record its intended outcome and references to the approved decisions. For a fully resolved map, use `to-spec` and `to-tickets` to prepare one specification/backlog parent and its approved executable children; while design remains unsettled, keep the follow-up explicitly awaiting planning rather than inventing executable scope.
+Before closing a resolved design ticket or completed map that leaves
+implementation work, find or create an open implementation follow-up and link it
+both ways. Reuse an existing follow-up for the same effort; one shared follow-up
+may cover several decisions. Record its intended outcome and references to the
+approved decisions. Once every decision is settled, use `to-spec` to draft one
+specification/backlog parent and its executable breakdown. For a settled compact
+map, record its agreed direction in the map's resolution comment. Record
+resolution and close the map once its open follow-up is verified; `to-tickets`
+publishes the approved batch after the map closes. While design remains
+unsettled, keep the follow-up explicitly awaiting planning rather than inventing
+executable scope.
 
 Verify the follow-up is open and discoverable through the repository's implementation intake. Creating it does not activate a backlog, claim implementation, or start development. If the user explicitly chooses to defer tracking or abandon implementation, record that disposition instead; do not infer it merely from "later" or from a closed design. A decision with no remaining implementation needs no follow-up. Include the follow-up link or explicit disposition in the resolution and final handoff.
 

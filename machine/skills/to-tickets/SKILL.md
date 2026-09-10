@@ -17,9 +17,11 @@ backlog nor authorizes implementation.
 
 Resolve the current repository with `gh repo view`, then read its tracker
 instructions, the approved specification, its comments, and linked design and
-decision sources. When the source is a Wayfinder effort, confirm that the entire
-map is resolved before publishing. Use issue bodies for the current approved scope
-and acceptance criteria; comments supply decision history and evidence. Update a
+decision sources. Require a covering resolved Wayfinder map unless the operator
+explicitly waived that requirement; missing coverage returns to Wayfinder and
+`to-spec`. Confirm the whole map is closed and resolved before publishing
+executable children. Use issue bodies for the current approved scope and
+acceptance criteria; comments supply decision history and evidence. Update a
 body to incorporate an approved amendment before it becomes the published
 contract.
 
@@ -58,9 +60,10 @@ requires successful real use and focused source checks. Prefer clean replacement
 that remove superseded callers and configuration. Use expand--contract only when a
 concrete blast radius requires temporary coexistence.
 
-Create children without assignees. A ticket being prepared is not execution
-authorization; an explicitly authorized `$next-issue` or `$next-issue-loop`
-selects and claims work later.
+Create children without assignees. Publication alone supplies no execution
+authorization. Carry an existing implementation request through selection and
+`$next-issue` or `$next-issue-loop` when it covers this approved scope; those
+owners select and claim work.
 
 For GitHub, use native sub-issues for membership. Before attaching an existing
 issue, inspect `GET repos/<owner>/<repo>/issues/<child>/parent`. Attach a detached

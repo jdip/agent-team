@@ -1,12 +1,16 @@
 # Maintenance and alignment
 
 Use this branch when dependency upkeep, hygiene, adopted repository verification
-or Agent Team alignment is a plausible next action.
-Consider missing assessment history, relevant changes since earlier evidence, and
-visible friction. Inspect enough to make a useful proposal with rough effort;
-compare it with other candidates instead of performing a full audit to rank them.
-Age, missing history, and a newer standard revision are signals, not proof of a
-defect. Reuse existing findings and keep/defer decisions unless evidence changes.
+or Agent Team alignment is a plausible next action. Before any implementation,
+apply the coordinator's Plan the selected change step; assessment consent and a
+small cleanup batch do not waive map/spec coverage. Pass covering plans to the
+named owner, using the existing executor for approved child claims and
+resolution. Consider missing assessment history, relevant changes since earlier
+evidence, and visible friction. Inspect enough to make a useful proposal with
+rough effort; compare it with other candidates instead of performing a full
+audit to rank them. Age, missing history, and a newer standard revision are
+signals, not proof of a defect. Reuse existing findings and keep/defer decisions
+unless evidence changes.
 
 ## Establish a stable baseline
 

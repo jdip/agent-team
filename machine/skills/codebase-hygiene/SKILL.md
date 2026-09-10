@@ -17,13 +17,13 @@ and existing work. Read relevant decisions and prior findings before proposing t
 same change again; reopen a rejected recommendation only with material new evidence.
 
 An assessment or bare invocation surveys and recommends. A request to clean up
-authorizes cohesive behavior-preserving improvements within its scope, including
-routine verification. Use `pr-to-test` for delivery when the request or local
-workflow authorizes it. Carry forward any approved
-batch and constraints without asking again for each edit. Substantial architectural
-refactoring needs explicit scope approval; prepare its concrete design decision
-while completing independent authorized work. Scheduling and Machine Reconciliation
-remain separate requests.
+authorizes carrying cohesive behavior-preserving improvements through the global
+Planning before implementation rule and routine verification. Use `pr-to-test`
+for delivery when the request or local workflow authorizes it. Carry forward any
+approved batch and constraints without asking again for each edit. Substantial
+architectural refactoring needs explicit scope approval; prepare its concrete
+design decision while completing independent authorized work. Scheduling and
+Machine Reconciliation remain separate requests.
 
 ## Survey and investigate
 
@@ -68,11 +68,12 @@ effort. Explain why a recommendation earns its place; skip aesthetic churn and
 speculative abstractions. Record important keep/defer decisions with their rationale
 in the existing task or decision location, without creating a separate ledger.
 
-Use the repository's tracker guidance for deduplication and actionable remediation
-findings. Recommendations and issue filing do not change the Active Backlog or
-authorize implementation. A large approved effort can use available `$to-spec` and
-`$to-tickets`; preserve their approval rules. Small understood work needs no new
-planning framework. Batch only unresolved decisions with concrete recommendations.
+Use the repository's tracker guidance for deduplication and actionable
+remediation findings. Recommendations and issue filing do not change the Active
+Backlog or authorize implementation. Before cleanup edits, reuse covering
+resolved map/spec work or use Wayfinder, `to-spec` and `to-tickets` under the
+global planning rule. Keep small plans brief; batch only unresolved decisions
+with concrete recommendations.
 
 ## Execute and finish
 

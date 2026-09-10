@@ -1,5 +1,4 @@
 interface:
   display_name: "Wayfinder"
-  short_description: "Map a large effort as decision tickets"
-policy:
-  allow_implicit_invocation: false
+  short_description: "Plan changes with proportionate maps and decisions"
+  default_prompt: "Use $wayfinder to assess this change and resolve a covering map before specification and implementation."

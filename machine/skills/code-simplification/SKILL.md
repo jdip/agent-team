@@ -11,6 +11,11 @@ concrete maintenance benefit does not justify a change.
 
 ## Establish the behavior
 
+Before implementation, including characterization tests intended to ship, apply
+the global Planning before implementation rule. Reuse the invoking workflow's
+covering map/spec; direct invocation carries planning authority without waiving
+it.
+
 Read applicable repository guidance, domain documentation, and design decisions.
 Inspect dirty state, the selected implementation, its callers, its requirements,
 and relevant history. Establish the current compatibility contract from actual

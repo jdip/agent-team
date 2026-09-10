@@ -5,8 +5,10 @@ description: Save a Wayfinder map URL for this repository so later sessions can 
 
 # Set Map
 
-Use the map URL supplied by the user or established in an explicitly approved
-`whats-next` select-and-start proposal. Then run this skill's script exactly once:
+Use the map URL supplied by the user or established by the owning workflow under
+an authorized planning or implementation request. Preserve competing selections
+unless that authority covers switching. The human need not repeat the URL or
+invoke another command. Then run this skill's script exactly once:
 
 ```bash
 scripts/set-map.sh <map-url>

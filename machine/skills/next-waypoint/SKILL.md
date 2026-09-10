@@ -12,10 +12,10 @@ git rev-parse --path-format=absolute --git-common-dir
 ```
 
 Read `codex-wayfinder-map` from that directory. A valid pointer is exactly one
-non-empty line. If it is absent or invalid under `whats-next`, return the concrete pointer problem
-to that coordinator for investigation and an approved selection. In standalone use,
-stop and ask the user to invoke
-`$set-map` with the map URL; the saved map is never inferred or searched for.
+non-empty line. If it is absent or invalid, return the concrete pointer problem
+to the invoking owner for resolution through `set-map`, carrying existing selection
+authority. In standalone use, resolve the missing selection with the user; no extra
+slash command is required. This entrypoint never infers a replacement map.
 
 For a valid pointer, read the `wayfinder` skill completely and follow its
 **Work through the map** workflow with the saved URL and no named ticket.
