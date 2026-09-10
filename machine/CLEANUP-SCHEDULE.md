@@ -119,8 +119,11 @@ startup job or a catch-up wrapper. Verify the daemon and target timezone on the
 actual distribution; a service alone does not keep WSL running.
 
 It preflights receipt and exact current entry, builds the dedicated line invoking
-`codex exec -C` with the shared cleanup instructions and command-local resolved
-CODEX_HOME/PATH (never global crontab environment edits), rechecks the complete current
+the stable Python helper's `run-cleanup` operation, which launches `codex exec -C`
+with the shared cleanup instructions. Command-local CODEX_HOME/PATH never become
+global crontab environment edits. WSL excludes Windows-mounted PATH entries;
+other Linux PATH entries are preserved. The entry must fit cron's command limit.
+The helper rechecks the complete current
 crontab to avoid dropping concurrent unrelated edits, writes through `crontab -`,
 reads back the exact result, and only then updates the narrow receipt. Pass
 `--approve observed-hash` (or absent) only for a specifically approved conflict.

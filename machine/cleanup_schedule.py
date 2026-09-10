@@ -18,6 +18,7 @@ DESKTOP_FIELDS = ('kind', 'name', 'prompt', 'status', 'rrule', 'model',
                   'reasoning_effort', 'execution_environment', 'target', 'cwds')
 CRON_ID = 'cron:agent-team-cleanup'
 CRON_MARKER = ' # agent-team-cleanup'
+CRON_MAX_LINE_BYTES = 1000
 
 
 def receipt_hash(raw):
@@ -132,6 +133,8 @@ def cleanup_output_path(home, path):
 
 def cleanup_command(home, stable, executable, project_roots=(), output_last_message=None):
     home, stable, executable = plain_path(home), plain_path(stable), executable_path(executable)
+    if not executable.is_file() or not os.access(executable, os.X_OK):
+        raise ValueError('Codex executable is unavailable')
     command = [str(executable), 'exec']
     output = cleanup_output_path(home, output_last_message)
     if output is not None:
@@ -140,14 +143,8 @@ def cleanup_command(home, stable, executable, project_roots=(), output_last_mess
     return command
 
 
-def run_cleanup(home, stable, executable, project_roots=(), output_last_message=None):
-    command = cleanup_command(home, stable, executable, project_roots, output_last_message)
-    subprocess.run(command, cwd=stable, check=True, env={**os.environ, 'CODEX_HOME': str(home)})
-
-
-def windows_action(home, stable, executable, project_roots=(), output_last_message=None):
-    home, stable = plain_path(home), stable_source(stable)
-    executable = executable_path(executable)
+def cleanup_runner_arguments(home, stable, executable, project_roots=(), output_last_message=None):
+    home, stable, executable = plain_path(home), stable_source(stable), executable_path(executable)
     cleanup_command(home, stable, executable, project_roots, output_last_message)
     helper = plain_path(stable / 'machine/cleanup_schedule.py')
     if not helper.is_file():
@@ -159,6 +156,42 @@ def windows_action(home, stable, executable, project_roots=(), output_last_messa
     output = cleanup_output_path(home, output_last_message)
     if output is not None:
         arguments.extend(['--output-last-message', str(output)])
+    return arguments
+
+
+def cron_path():
+    path = os.environ.get('PATH', '/usr/bin:/bin')
+    if sys.platform != 'linux' or 'microsoft' not in os.uname().release.casefold():
+        return path
+    native = []
+    for entry in path.split(':'):
+        try:
+            executable_path(entry)
+        except ValueError as error:
+            if 'Windows-mounted DrvFS volume' not in str(error):
+                raise
+            continue
+        native.append(entry)
+    if not native:
+        raise ValueError('WSL PATH contains no native executable directories')
+    return ':'.join(native)
+
+
+def cron_command(home, stable, executable, project_roots=(), output_last_message=None):
+    runner = [str(executable_path(sys.executable)),
+              *cleanup_runner_arguments(home, stable, executable, project_roots, output_last_message)]
+    return (f'CODEX_HOME={shlex.quote(str(home))} PATH={shlex.quote(cron_path())} '
+            + shlex.join(runner))
+
+
+def run_cleanup(home, stable, executable, project_roots=(), output_last_message=None):
+    command = cleanup_command(home, stable, executable, project_roots, output_last_message)
+    subprocess.run(command, cwd=stable, check=True, env={**os.environ, 'CODEX_HOME': str(home)})
+
+
+def windows_action(home, stable, executable, project_roots=(), output_last_message=None):
+    home, stable = plain_path(home), stable_source(stable)
+    arguments = cleanup_runner_arguments(home, stable, executable, project_roots, output_last_message)
     return {'command': str(executable_path(sys.executable)),
             'arguments': subprocess.list2cmdline(arguments),
             'working_directory': str(stable)}
@@ -269,13 +302,13 @@ def main():
         stable, executable = stable_source(args.stable_checkout), executable_path(args.codex)
         if not os.access(executable, os.X_OK):
             raise ValueError('stable cleanup source or Codex executable is unavailable')
-        command = cleanup_command(home, stable, executable, args.project_root, args.output_last_message)
-        command = (f'CODEX_HOME={shlex.quote(str(home))} '
-                   f'PATH={shlex.quote(os.environ.get("PATH", "/usr/bin:/bin"))} '
-                   + shlex.join(command))
+        command = cron_command(home, stable, executable, args.project_root, args.output_last_message)
         if any(char in command for char in ('\n', '\r', '%')):
             raise ValueError('cron command needs supervised escaping before installation')
         line = f'{args.minute} {args.hour} * * * {command}{CRON_MARKER}\n'
+        if len(line.encode('utf-8')) > CRON_MAX_LINE_BYTES:
+            raise ValueError(f'generated cron line is too long ({len(line.encode("utf-8"))} bytes; '
+                             f'limit {CRON_MAX_LINE_BYTES})')
         if lines and not lines[-1].endswith('\n'):
             raise ValueError('existing crontab lacks final newline; investigate without altering unrelated bytes')
         lines.append(line)
