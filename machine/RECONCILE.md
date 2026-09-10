@@ -211,3 +211,36 @@ Report written changes separately from verified capabilities, unresolved differe
 partial failures, and required human action. Clean only the staging and candidates
 proven associated with this run and safe to remove. A local syntax check alone never
 establishes successful use on each supported platform.
+
+## Windows and WSL support handoff
+
+The delivered implementation revision is
+`b1fa4662a4794ab85f0c539924cd653cb275b52e` (PR #37). Its sequence includes
+PRs #32/#34, #35, and #36. Reconciliation, WSL boundary, and scheduler evidence
+is recorded with [#27](https://github.com/jdip/agent-team/issues/27),
+[#28](https://github.com/jdip/agent-team/issues/28), and
+[#29](https://github.com/jdip/agent-team/issues/29); [#31](https://github.com/jdip/agent-team/issues/31#issuecomment-5611628172)
+records the owner confirmation.
+
+Native Windows and WSL each reconciled all 51 declared targets using independent
+homes, receipts, native tools, and checkouts; the WSL run left native Windows
+state unchanged. Desktop scheduling preserved uncertain work. The Windows CLI
+scheduler was created, updated, read back, run manually with exit 0, and retired.
+WSL cron invoked the installed native Linux runner; its cron exit was not captured,
+while the equivalent standalone run exited 0. Both preferred schedules are 09:00
+local time and use the fixed stable source revision `1c304e6`. Only the desktop
+automation remains installed for the Windows home; Task Scheduler is the
+CLI-only alternative, not a second Windows schedule.
+
+The operator reported no regressions on macOS or Linux after PR #37; this is a
+compatibility confirmation, not a record of detailed per-command checks. Optional
+Claude session usability was not verified. WSL runs remain skipped while its
+distribution or daemon is stopped. Missed scheduled runs are
+acceptable on Windows too; the owner removed delayed-run verification from
+acceptance in #38. No catch-up behavior is promised.
+
+For a future re-proof, focus on reconciliation update/no-op and conflict
+preservation; skill/config discovery with valid receipt preservation; canonical
+source and delivery; and preservation of existing desktop and cron schedules.
+These are suggested checks, not retrospective command claims or a requirement to
+rerun them now.
