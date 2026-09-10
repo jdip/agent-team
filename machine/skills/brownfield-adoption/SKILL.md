@@ -10,10 +10,11 @@ source baseline, and authorized scope. Reuse that consent; assessment alone does
 not authorize this workflow's edits. Return its verified outcome or unresolved
 decision to the coordinator after following this workflow's own gates.
 
-Establish the selected standard's visibility and public-work outcome before any
+Begin with read-only assessment; implementation follows the target-specific plan
+below. Assess the selected standard's visibility and public-work requirements before any
 GitHub writes in this workflow, including tracker updates. Verify current visibility,
-preserve licensing and owner decisions, and connect the target's applicable policy
-to root guidance, tracker, review and delivery owners. Resolve required decisions
+preserve licensing and owner decisions, and reuse applicable policy for planning
+publication. Plan required policy changes with the other outcomes. Resolve required decisions
 before dependent publication; continue independent local work. Report actual policy
 use and unexercised paths with the delivery evidence.
 
@@ -38,13 +39,20 @@ https://github.com/jdip/agent-team. Use a user-specified revision when supplied;
 otherwise resolve the source default branch. Investigate unavailable or ambiguous
 source rather than silently switching branches or using stale content.
 
+Apply the selected standard's Target assessment and planning and Guidance retirement
+outcomes before implementation. Assess actual mechanisms, obsolete process and gaps
+against the workflow's goals; use that evidence in the target-owned Wayfinder map.
+Resolve the plan and approved specification, reusing covering preparation evidence
+and settled decisions. Plan what to retain/remove, prerequisites, deferred machinery
+issues and actual test-delivery evidence. Recheck state and plan coverage at execution.
+
 Use the selected standard's checkout requirements to prepare the adoption feature
 worktree. Establish its checkout and delivery outcomes in the actual repository
 and root guidance, including missing prerequisites within adoption scope. Preserve
 active work and report unresolved checkout conflicts rather than bypassing the standard.
 
-Assess the required surface against what actually exists. Preserve useful compatible
-implementations and customizations. For an intentional replacement, migrate callers
+Execute the approved target plan. Retain implementations and customizations justified
+by current needs under the standard's guidance-retirement outcome. For an intentional replacement, migrate callers
 and guidance and remove obsolete implementation/configuration within that scope.
 Do not keep abandoned mechanisms behind shims or duplicate paths. Thin canonical
 shell entry points around a deliberately retained implementation are valid.
@@ -54,9 +62,10 @@ Application Code/Tooling mapping, development commands, fixed delivery scripts, 
 local runbooks. Use rigorous application lint/type/validation and meaningful high
 coverage. Tooling requires successful real use, without fake infrastructure or
 recursive tooling tests. Document each identified application coverage deficiency
-and tooling coverage/tests to remove in scoped tracker issues after duplicate checks.
-Do not hide deficiencies, weaken real gates, or require those remediation fixes to
-finish adoption.
+in scoped tracker issues after duplicate checks. Remove obsolete Tooling-suite
+requirements from guidance now and file later machinery retirement separately.
+Report gaps and current executable constraints without reinstating the old policy
+or making those follow-ups a prerequisite to guidance alignment.
 
 Use `define-project-goal` to establish the project purpose with the human operator.
 Reuse a clear existing blurb; include approved purpose edits at the top of every

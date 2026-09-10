@@ -69,7 +69,9 @@ Choose the workflow for the target and give Codex its path:
 - [Standards Upgrade](machine/skills/standards-upgrade/SKILL.md) updates an already
   adopted repository by the relevant source delta.
 
-If target guidance conflicts with the intended workflow, first invoke
+Each workflow assesses the target first, then resolves a target-owned Wayfinder
+plan and specification against its goals before implementation. Reuse covering
+plans and preparation evidence. For obsolete or conflicting guidance, invoke
 [prepare-repository](machine/skills/prepare-repository/SKILL.md) from Agent Team.
 It leaves a verified local preparation branch and a tracker handoff with concrete
 Codex app continuation steps. Preparation and subsequent adoption are separately
@@ -152,7 +154,7 @@ a coordinating workflow does not bypass them.
 
 | Skill | What it does | When and how to use it |
 | --- | --- | --- |
-| [prepare-repository](machine/skills/prepare-repository/SKILL.md) | Prepares conflicting target guidance for adoption or upgrade. | Invoke from Agent Team with the target path and intended workflow; continue from its local branch handoff. |
+| [prepare-repository](machine/skills/prepare-repository/SKILL.md) | Assesses, plans and retires obsolete target guidance before adoption or upgrade. | Invoke from Agent Team with the target path and intended workflow; continue from its local branch handoff. |
 | [greenfield-init](machine/skills/greenfield-init/SKILL.md) | Establishes the standard in a new repository. | Supply the new repository, its agreed purpose, and any explicitly authorized language or environment choices. |
 | [brownfield-adoption](machine/skills/brownfield-adoption/SKILL.md) | Adopts the standard around existing useful mechanisms. | Supply an established repository that has not adopted it. |
 | [standards-upgrade](machine/skills/standards-upgrade/SKILL.md) | Applies relevant changes from the recorded standard source. | Supply an already-adopted repository when you want its guidance and workflows upgraded. |

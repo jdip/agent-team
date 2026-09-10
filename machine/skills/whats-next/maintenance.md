@@ -86,13 +86,20 @@ Route by actual state:
 - No declaration with established product behavior/workflows: `brownfield-adoption`.
 - Valid declaration: `standards-upgrade` for relevant alignment changes.
 
-Read the selected owner and resolve one exact source baseline under its rules.
+Use the selected owner first for read-only target assessment and resolve one exact
+source baseline under its rules.
 Honor an explicit revision; ordinary upgrades use the recorded source's default
 branch, not the current Agent Team working branch. Compare relevant changes and
 actual repository outcomes; a declaration in an undelivered branch is only an
 intended target. A current, aligned repository needs no change.
 
-Before invoking a workflow that edits, establish authorization for the concrete
+Before implementation, conduct or resume the target-owned Wayfinder session using
+the assessment and the selected workflow's goals. Follow the selected standard's
+Target assessment and planning outcome through a resolved map and approved spec.
+Reuse covering plans; if the target tracker is unavailable, continue conversational
+planning and resolve artifact location before implementation.
+
+Carry established authorization into the concrete
 proposed alignment work: target, selected baseline, changes, benefit, rough effort,
 and material risks. An assessment request alone is insufficient. Carry existing
 approval through the appropriate owner, including `define-project-goal` for concise
@@ -100,7 +107,7 @@ root README purpose. Preserve local constraints and separately required environm
 choices. The adoption/upgrade owner performs review and verified delivery, after
 which the coordinator refreshes.
 
-If conflicting guidance requires `prepare-repository`, resolve its explicit target
+If obsolete or conflicting guidance requires `prepare-repository`, resolve its explicit target
 and preparation scope first. That owner edits guidance and ends at a local branch
 handoff; it is not a read-only scan or adoption itself. Complete independent work
 before presenting needed preparation and subsequent adoption/upgrade approvals,

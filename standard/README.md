@@ -23,6 +23,10 @@ copying an entire scaffolding tree.
   real terms or decisions emerge, never as empty scaffolding.
 - Actual development and verification instructions, with a local classification
   of Application Code and Tooling by purpose.
+- Guidance retirement under the outcome below, including inherited process that
+  adds unjustified complexity without directly contradicting another rule.
+- A target-specific plan under Target assessment and planning below, resolved
+  before implementing preparation, adoption or upgrade changes.
 - A root language/environment declaration for each existing component, following
   the policy below; component classification alone does not select its stack.
 - Dependency protection and native update coverage under the
@@ -48,6 +52,94 @@ Unmarked repos
 need Repository Adoption; ordinary upgrades use the recorded source's default
 branch unless the user requests a revision. Select one concrete revision and apply
 its relevant delta, preserving unrelated work.
+
+## Target assessment and planning
+
+Preparation, Greenfield Initialization, Brownfield Adoption and Standards Upgrade
+begin with a proportionate read-only assessment of the actual target. Establish
+its identity and starting state, purpose, chosen workflow and exact source baseline;
+inspect relevant code, guidance, current mechanisms, constraints, capabilities and
+existing preparation/map/spec evidence against that workflow's required outcomes.
+An empty-looking repository or a source revision delta does not replace assessment.
+
+Conduct or resume Wayfinder with that evidence to resolve how this target should
+reach the workflow's goals. The target owns the map and specification, including
+when preparation is driven from Agent Team. Reuse covering plans and settled
+decisions; one plan may cover preparation and subsequent adoption/upgrade while
+preserving each phase's authorization and completion boundary. If the target
+tracker is unavailable, continue conversational planning and resolve the artifact
+location before implementation. Follow publication policy for planning writes.
+
+Before implementation, resolve the map and approve the specification and executable
+breakdown through the existing planning owners, unless the operator explicitly
+waives planning. A workflow invocation carries its normal authorized outcome; it
+does not waive planning. Keep small plans brief. Plan actual changes, prerequisites,
+deferred work and evidence for the target's completion boundary, rather than create
+a universal bootstrap program. Research and planning records may precede approval;
+target guidance/configuration changes and adoption setup follow the approved plan.
+Use the existing backlog selection and `next-issue` owners for child claims and
+resolution in the target tracker. Resolve their pointer and execution context from
+the target checkout, even when this session starts elsewhere. A direct workflow
+invocation hands its target, approved child and authority to that executor before
+edits; within an already claimed child, execute the named skill without recursive
+handoff. The skill supplies implementation and its completion boundary, then returns
+evidence for child resolution. Preparation completes its documentation child at the
+verified local handoff; separately scoped adoption/delivery children remain open.
+
+At execution and handoff, verify that the target state, baseline and scope still
+match the plan. Refresh affected evidence; substantive changes return to Wayfinder,
+while routine covered choices remain with the implementer. Include map/spec links
+and the assessed target/baseline in the existing handoff or delivery evidence.
+Missing capabilities or unresolved decisions remain explicit rather than becoming
+silent implementation.
+
+## Guidance retirement
+
+Preparation, adoption and upgrades assess repository-owned guidance by purpose and
+effect. Inspect the repository broadly, including unlinked documents, embedded
+instructions, hidden agent/editor rules, skills and templates; follow references
+and copied rules into their current owners. Names and keywords are discovery clues,
+not a scope checklist. Report exclusions and inaccessible surfaces; preserve
+separately owned content and Unmanaged Local State.
+
+Treat inherited development manifestos, bootstrap programs, process decision
+compilations, milestone machinery and enforcement roadmaps as highly suspect.
+Judge what they make agents do against the selected standard's minimalist intent:
+each retained obligation must serve a concrete current need with proportionate
+complexity. Compatibility, prior adoption, historical labels, incoming links and
+existing enforcement alone do not justify retention. Challenge unnecessary ceremony,
+speculative infrastructure, duplicated principles and accumulated exceptions even
+when no pair of sentences directly conflicts. Apply the same test to the Agent Team
+baseline itself. If a source requirement fails it, record the concrete mismatch
+with the source owner and resolve the intended change through Wayfinder rather than
+silently importing the requirement or creating a local policy fork.
+
+Favor complete removal of obsolete process artifacts, including records and
+tombstones. Extract only indispensable current facts or still-valid decisions into
+their existing owners; remove dubious process from otherwise useful documents.
+Git history normally supplies the archive. A disclaimer, renamed file or relocated
+rule does not retire an obligation. Preserve current product requirements,
+necessary safety controls and justified repository constraints; resolve substantive
+unsettled decisions with the operator rather than infer them from old plans.
+
+Remove obsolete requirements from guidance during authorized alignment, retaining
+successful real-use verification. Trace affected callers and enforcement; file
+deduplicated issues for later removal of permanent Tooling tests, validation suites,
+fake environments and their supporting machinery. Those follow-ups do not block
+guidance alignment. Describe surviving enforcement as pending retirement, not as
+endorsed development policy. Prose edits do not bypass executable controls.
+Classify by purpose: application tests remain application tests when invoked by
+tooling. Preserve necessary application/security checks and the canonical delivery
+route. Preparation retains its documentation-only local-branch handoff boundary.
+
+Reassess the final guidance across the discovered scope for surviving obsolete
+obligations and inbound references, including content migrated into another owner.
+Report removals, justified retention and unresolved mismatches in the existing
+handoff or delivery evidence, without a new inventory framework. Complete independent
+authorized guidance cleanup before batching decisions. Distinguish unresolved
+guidance or actual delivery blockers from deferred machinery removal; filing a
+follow-up does not justify retaining the obsolete rule. Preparation readiness
+covers its documentation outcome and identifies remaining adoption/upgrade work.
 
 ## Visibility and public work
 
@@ -184,11 +276,10 @@ checks through a shell wrapper does not turn those checks into prohibited Toolin
 
 Greenfield Initialization establishes only the needed organization, guidance, tracker
 conventions, and minimal shell entry points. Application tooling grows with actual
-application development. Brownfield Adoption preserves useful compatible mechanisms;
-replace incompatible mechanisms cleanly, removing old callers and configuration.
-Track application coverage gaps and tooling coverage/tests to remove as scoped,
-deduplicated issues. Those remediation issues remain visible and do not block
-adoption; actual delivery prerequisites still do.
+application development. Preserve mechanisms justified by current needs and retire
+obsolete guidance and enforcement under the guidance-retirement outcome above.
+Track application coverage gaps as scoped, deduplicated issues; those gaps remain
+visible without blocking adoption. Actual delivery prerequisites still apply.
 
 ## Checkouts and delivery
 
