@@ -113,7 +113,8 @@ def merge(number, expected_head, expected_base):
     print(f'Merged PR {number} as {revision}', flush=True)
     call('git', 'fetch', 'origin', capture=False)
     author = call('git', 'show', '-s', '--format=%an%n%ae', revision).splitlines()
-    if author != [account['login'], author_email]:
+    if (len(author) != 2 or author[1] != author_email
+            or author[0] not in (account['login'], account.get('name'))):
         raise ValueError(f'PR {number} merge author differs from the approved account/no-reply identity; keep the repository private and investigate')
     parents = call('git', 'show', '-s', '--format=%P', revision).split()
     if parents != [expected_base, expected_head]:
