@@ -29,7 +29,7 @@ copying an entire scaffolding tree.
   before implementing preparation, adoption or upgrade changes.
 - A root language/environment declaration for each existing component, following
   the policy below; component classification alone does not select its stack.
-- Dependency protection and native update coverage under the
+- Dependency-alert protection and repository-owned remediation under the
   [dependency upkeep](#dependency-upkeep) outcome below.
 - Discoverable current repository visibility, with licensing and publication
   safeguards under [visibility and public work](#visibility-and-public-work).
@@ -184,30 +184,33 @@ unresolved decisions without claiming publication approval.
 
 Authorized Greenfield Initialization, Brownfield Adoption and Standards Upgrade
 include establishing supported dependency protection through `dependabot-upkeep`.
-For GitHub targets, enable the dependency graph, Dependabot alerts and Dependabot
-security updates where available, and configure version updates for the actual
-supported dependency surfaces. This is part of alignment, not a separate optional
-assessment. Preserve working configuration, compatible existing update automation
-and deliberate owner-approved exceptions; resolve conflicting policy with the
-owner instead of silently disabling or replacing it.
+For GitHub targets, enable the dependency graph and Dependabot alerts where
+available, while disabling automated Dependabot security updates and scheduled
+version updates. This keeps alerts available without having GitHub create update
+pull requests. `whats-next` reads current alerts during ordinary discovery and
+routes actionable findings through the repository's own planning, dependency
+edits, pull-request conventions, review and delivery. This is part of alignment,
+not a separate optional assessment. Preserve deliberate owner-approved exceptions;
+resolve conflicting policy with the owner.
 
 Use manifests consumed by the real build or install path. A dependency hidden in
 an installation command is a coverage gap to assess, not automatically exempt;
 prefer exposing the existing pin through that installer's native manifest without
-duplicating its owner. Report unsupported sources such as manually reviewed external
-Git revisions through their existing update owner.
+duplicating its owner. Preserve deliberate manual pins and report unsupported
+sources such as manually reviewed external Git revisions through their existing
+update owner.
 
-Verify actual hosted settings and distinguish delivered configuration from active
-service. Record coverage, justified exceptions and exact blocked capabilities in
-the existing alignment evidence. Missing permissions or unavailable hosting features
-leave protection explicitly incomplete; continue independent alignment work.
-Configuration awaiting separately authorized default-branch delivery can finish
-verified test delivery with activation reported as pending. Do not claim active
-coverage or require promotion merely to complete source delivery.
+Verify the actual hosted graph and alert settings, and that automatic security and
+version pull-request creation is disabled. Distinguish delivered configuration
+from active service. Record coverage, justified exceptions and exact blocked
+capabilities in the existing alignment evidence. Missing permissions or unavailable
+hosting features leave protection explicitly incomplete; continue independent
+alignment work. Configuration awaiting separately authorized default-branch
+delivery can finish verified test delivery with activation reported as pending. Do
+not claim active coverage or require promotion merely to complete source delivery.
 Additional credentials, paid features, visibility changes and separately required
 main promotion retain their own approval boundaries. Do not widen permissions,
-change hosting or invent a new updater to claim completion. Alignment does not
-authorize merging future dependency PRs.
+change hosting or invent a new updater to claim completion.
 
 ## Optional repository verification
 

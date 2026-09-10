@@ -5,10 +5,12 @@ current-repository work through these owners. It carries established approval
 across handoffs and reassesses at completed planning/implementation boundaries.
 It may supply a completion-first eligible child; dependencies, explicit user
 order, claims, and the Design gate still apply. Missing selection/execution
-authority remains a concrete human decision. The coordinator also considers
-dependency upkeep, hygiene, opted-in verification audits and Agent Team alignment
-under its stable-baseline assessment rules; existing update PRs remain candidates
-for ordinary implementation delivery.
+authority remains a concrete human decision. The coordinator reads current
+dependency alerts during ordinary discovery, independently of stable-baseline
+maintenance assessment, and routes actionable findings through the repository's
+planning, pull-request conventions, review and delivery. It also considers hygiene,
+opted-in verification audits and Agent Team alignment under its stable-baseline
+assessment rules.
 
 The [global planning rule](../../machine/AGENTS.md#planning-before-implementation)
 applies inside and outside this coordinator, including direct specialist requests.
