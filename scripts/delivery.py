@@ -2,6 +2,7 @@
 """Agent Team's linear GitHub delivery path; local effects live in the runbooks."""
 import argparse
 import json
+import shutil
 from pathlib import Path
 import re
 import subprocess
@@ -11,8 +12,21 @@ import time
 
 
 def call(*args, capture=True):
-    result = subprocess.run(args, check=True, text=True, stdout=subprocess.PIPE if capture else None)
+    result = subprocess.run(args, check=True, text=True, encoding='utf-8',
+                            stdout=subprocess.PIPE if capture else None)
     return result.stdout.strip() if capture else None
+
+
+def bash():
+    if sys.platform != 'win32':
+        return 'bash'
+    git = shutil.which('git')
+    if git:
+        for root in Path(git).resolve().parents:
+            candidate = root / 'bin' / 'bash.exe'
+            if candidate.is_file():
+                return str(candidate)
+    raise ValueError('Git Bash is required for native Windows delivery')
 
 
 def github(*args):
@@ -28,7 +42,7 @@ def verify(revision):
     checkout = root / 'checkout'
     call('git', 'worktree', 'add', '--detach', str(checkout), revision, capture=False)
     try:
-        subprocess.run(['bash', 'scripts/check.sh'], cwd=checkout, check=True)
+        subprocess.run([bash(), 'scripts/check.sh'], cwd=checkout, check=True)
     except Exception:
         print(f'Verification checkout retained for investigation: {checkout}', flush=True)
         raise
@@ -156,7 +170,7 @@ def main():
             tags_current = False
             print('Tag refresh incomplete; inspect version metadata separately from delivery gates.', flush=True)
     repository = github('repo', 'view', '--json', 'nameWithOwner')['nameWithOwner']
-    call('bash', 'scripts/check.sh', capture=False)
+    call(bash(), 'scripts/check.sh', capture=False)
     if args.flow == 'pr-to-test':
         branch = call('git', 'branch', '--show-current')
         if not branch or branch in ('main', 'test'):

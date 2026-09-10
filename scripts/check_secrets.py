@@ -13,6 +13,7 @@ PATTERNS = {
     'Slack token': rb'\bxox[baprs]-[A-Za-z0-9-]{20,}\b',
     'AWS access key': rb'\bAKIA[A-Z0-9]{16}\b',
     'absolute home path': rb'/(?:Users|home)/[A-Za-z0-9][A-Za-z0-9._-]*(?:/|\b)',
+    'Windows home path': rb'(?i:[a-z]:[\\/]+(?:Users|Documents and Settings)[\\/]+[A-Za-z0-9][A-Za-z0-9._-]*(?:[\\/]|\b))',
     'private key': rb'-----BEGIN (?:[A-Z0-9]+ )*PRIVATE KEY-----',
 }
 
