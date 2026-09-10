@@ -10,16 +10,21 @@ import sys
 import tempfile
 import time
 
+sys.dont_write_bytecode = True
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'machine'))
+
+from reconcile import command_path, executable_path, plain_path
+
 
 def call(*args, capture=True):
-    result = subprocess.run(args, check=True, text=True, encoding='utf-8',
+    result = subprocess.run([str(command_path(args[0])), *args[1:]], check=True, text=True, encoding='utf-8',
                             stdout=subprocess.PIPE if capture else None)
     return result.stdout.strip() if capture else None
 
 
 def bash():
     if sys.platform != 'win32':
-        return 'bash'
+        return str(command_path('bash'))
     git = shutil.which('git')
     if git:
         for root in Path(git).resolve().parents:
@@ -38,7 +43,10 @@ def sha(ref):
 
 
 def verify(revision):
-    root = Path(tempfile.mkdtemp(prefix='agent-team-delivery-'))
+    temporary_root = Path(tempfile.gettempdir())
+    if sys.platform != 'win32':
+        temporary_root = temporary_root.resolve()
+    root = Path(tempfile.mkdtemp(prefix='agent-team-delivery-', dir=plain_path(temporary_root)))
     checkout = root / 'checkout'
     call('git', 'worktree', 'add', '--detach', str(checkout), revision, capture=False)
     try:
@@ -87,7 +95,7 @@ def merge(number, expected_head, expected_base):
         remaining = deadline - time.monotonic()
         if remaining <= 0:
             raise ValueError(f'PR {number} did not become ready within 15 minutes; inspect required checks and branch policy')
-        subprocess.run(['gh', 'pr', 'checks', number, '--watch', '--fail-fast', '--interval', '10'],
+        subprocess.run([str(command_path('gh')), 'pr', 'checks', number, '--watch', '--fail-fast', '--interval', '10'],
                        check=True, timeout=remaining)
         fresh = github('pr', 'view', number, '--json',
                        'state,headRefOid,baseRefOid,mergeStateStatus,reviewDecision,isDraft')
@@ -160,6 +168,9 @@ def main():
     parser.add_argument('--body-file')
     parser.add_argument('--semver', choices=['major', 'minor', 'patch', 'none'], default='none')
     args = parser.parse_args()
+    executable_path(sys.executable)
+    plain_path(Path.cwd())
+    plain_path(call('git', 'rev-parse', '--path-format=absolute', '--git-common-dir'))
     if call('git', 'status', '--porcelain'):
         raise ValueError('use a clean committed checkout; preserve unrelated work elsewhere')
     call('git', 'fetch', '--no-tags', 'origin', capture=False)

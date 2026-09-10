@@ -13,8 +13,9 @@ unpublished, ambiguous, divergent, or unavailable source; do not silently switch
 branches or fall back to stale content. There is no separate manifest, lockfile,
 generator, or profile version.
 
-The Codex inventory applies to macOS desktop, headless Linux, and native Windows
-11 x64 desktop/CLI. Desktop Linux remains out of scope. Windows uses native
+The Codex inventory applies to macOS desktop, headless Linux, native Windows
+11 x64 desktop/CLI, and WSL 2 Ubuntu 24.04 LTS x64 with Linux Codex CLI.
+Desktop Linux remains out of scope. Windows uses native
 Python 3.11+ and native Codex; do not cross into WSL to reconcile a Windows home.
 Each environment owns its configuration, skills, credentials, and receipts.
 Resolve CODEX_HOME and supported skill destinations
@@ -29,6 +30,13 @@ drive-relative roots, symlinks, junctions, and other reparse points require
 investigation before writes. Supported custom roots must be discovered in the
 same environment. Use separate writable repository checkouts and Git common
 directories for native Windows and WSL; cross-environment paths are read-only.
+
+WSL uses its Linux filesystem for writable checkouts, configuration, skills,
+staging, and receipts. Mounted Windows storage is not a supported writable target,
+including DrvFS mounted outside the usual `/mnt` locations. Use Linux-native
+Python, Git, gh, Bash, and Codex inside the distribution. A launcher symlink may
+resolve within Linux storage, but must not redirect execution onto Windows storage.
+Authentication is established independently inside each environment.
 
 ## Shared configuration and whole files
 

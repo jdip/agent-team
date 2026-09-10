@@ -26,6 +26,14 @@ execution alias or WSL Python for this operation. The Codex app-server must repo
 the same operating system as the interpreter. Native Windows paths remain separate
 from WSL roots; symlinks, junctions, and other reparse points stop preparation.
 
+In WSL 2 Ubuntu 24.04, use a separate checkout under the Linux home with its own
+Git common directory. Install and sign in to the Linux Codex CLI inside that
+distribution, then invoke the same Python preparation command there. Do not copy
+Windows authentication or receipts, use a mounted Windows checkout, or invoke a
+Windows executable through WSL interop. The path gate inspects the actual mount
+table so moving a Windows mount does not make it eligible for managed writes.
+Verify native Windows state remains unchanged after WSL reconciliation.
+
 It resolves the checkout's tracked branch and freshest published remote revision,
 uses a temporary detached worktree, discovers the actual Codex home and user-skill
 destinations through the native app-server and existing receipt, and checks the
