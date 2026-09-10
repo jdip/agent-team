@@ -11,7 +11,7 @@ It preserves unrelated configuration and credentials; a successful reconciliatio
 does not establish that repository content is safe to publish.
 
 The local `scripts/check.sh` gate checks the Git index for credential filenames,
-recognizable token/private-key patterns, and literal macOS/Linux home paths.
+recognizable token/private-key patterns, and literal macOS/Linux/Windows home paths.
 Use `~`, environment variables, or descriptive placeholders in portable examples. Stage intended changes before running it;
 CI checks the committed tree through the same entry point. The check reports a
 path and category, never matched values. It reads Git blobs, not live machine
