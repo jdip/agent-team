@@ -70,9 +70,18 @@ resolve its root separately. An explicit `--claude-config-root`, `CLAUDE_CONFIG_
 settings environment override, and prior `rules/agent-team.md` receipt anchor must
 agree. Inspect only known local user settings and platform managed-settings
 files/fragments; unavailable server or MDM policy remains a reported limit. Do not
-print settings or environment values. A missing Claude executable
-preserves anchored Claude receipt scopes; a found executable whose version probe
-fails is an availability error, not an absence.
+print settings or environment values. A Claude executable that is not discovered
+leaves anchored Claude receipt scopes preserved; a found executable whose version
+probe fails is an availability error.
+
+Claude discovery checks PATH, then the native `~/.local/bin/claude` launcher.
+Use `--claude /actual/claude` for a verified installation elsewhere; the explicit
+path takes precedence and must pass the bounded version probe. No login hooks or
+shell-setting changes are needed. A `not-discovered` result is unresolved discovery,
+not proof Claude is absent: inspect the actual host before accepting preserved
+Claude scopes as the intended outcome. Invalid or broken discovered launchers stop
+reconciliation instead of falling back to an apparent absence.
+
 Verify every declared model and effort is supported. Preserve credentials, sessions,
 unrelated configuration, directories, plugins, and global overrides. An interfering
 AGENTS.override.md requires a concrete supervised decision, never automatic removal.
