@@ -255,8 +255,11 @@ framework, or rollback journal belongs in the receipt.
 
 ## Cleanup schedule
 
-One target-appropriate cleanup schedule is managed: a native desktop automation or
-a dedicated Linux user-cron entry invoking Codex from a stable checkout. Preserve
+One target-appropriate cleanup schedule is managed per environment and Codex home:
+a supported desktop automation on macOS or Windows, a native Task Scheduler job
+for Windows CLI-only use, or a dedicated Linux user-cron entry (including WSL)
+invoking Codex from a stable checkout. Windows desktop and CLI sharing a home
+share one schedule. Prove retirement before changing schedulers. Preserve
 unrelated schedules and never fingerprint whole crontabs or app storage. Use the
 existing receipt for exact schedule identity and normalized owned configuration;
 verify identity and normalization on the real target. Use
@@ -265,5 +268,9 @@ installation, observation, and receipt updates. The managing agent owns that
 separate native operation; filesystem reconciliation preserves its receipt entry
 without requiring or observing the schedule. There is no scheduled reconciliation
 or update.
+Windows CLI jobs run only as the logged-in user, without elevation, stored account
+passwords, or machine wake. Native delayed-run support handles eligible missed
+triggers. WSL cron requires the distribution and daemon to be running; missed
+stopped-distribution runs are skipped. No Windows job starts WSL for cleanup.
 Cleanup participation requires verified Agent Team adoption in each project's root
 AGENTS.md; participation never replaces association and removal-safety evidence.

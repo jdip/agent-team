@@ -57,6 +57,18 @@ def cleanup_schedule_entry(identity, observed_after_write):
             'algorithm': 'sha256', 'fingerprint': cleanup_schedule_fingerprint(observed_after_write)}
 
 
+def cleanup_schedule_identity(identity):
+    if not isinstance(identity, str):
+        return False
+    if identity.startswith('automation:'):
+        name = identity.removeprefix('automation:')
+        return (bool(name) and name not in ('.', '..') and '/' not in name
+                and (os.name != 'nt' or ('\\' not in name and ':' not in name)))
+    if identity.startswith('cron:'):
+        return len(identity) > len('cron:')
+    return bool(re.fullmatch(r'task-scheduler:\\AgentTeamCleanup-[0-9a-f]{64}', identity))
+
+
 def _mountinfo_path(value):
     return re.sub(r'\\([0-7]{3})', lambda match: chr(int(match.group(1), 8)), value)
 
@@ -350,7 +362,7 @@ def read_receipt(path):
             raise ValueError('unknown receipt entry')
         if entry['scope'] == {'kind': 'cleanup-schedule'}:
             target = entry['target']
-            if not isinstance(target, str) or not target.startswith(('automation:', 'cron:')):
+            if not cleanup_schedule_identity(target):
                 raise ValueError('unknown cleanup schedule identity')
         else:
             target = str(plain_path(entry['target']))
