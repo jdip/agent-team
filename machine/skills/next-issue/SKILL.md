@@ -9,7 +9,8 @@ Use this for a request to implement the next backlog issue. Discussing or creati
 this skill does not authorize executing the backlog. Work one issue per invocation;
 `$next-issue-loop` overrides that boundary. Do not route ordinary implementation
 through Wayfinder or grilling by default. An authorized `whats-next` handoff
-can supply execution authority for the established Active Backlog; it does not
+or named alignment-workflow handoff can supply execution authority for the
+established target Active Backlog; it does not
 waive this skill's scope, claims, or Design gate.
 
 ## Load the backlog and select work
@@ -111,7 +112,10 @@ perform the necessary review. Add no review ledger or attestation framework.
 
 The request to implement the issue includes its ordinary commits, push, PR to
 `test`, applicable gates, merge, and local test-environment verification under the
-approved backlog/runbook scope. Read `docs/workflows/pr-to-test.md`; use the shared
+approved backlog/runbook scope. When an approved child invokes a workflow with a
+more limited completion boundary, honor that owner: repository preparation ends
+at its verified local documentation handoff; separately scoped adoption/delivery
+work remains open. For test delivery, read `docs/workflows/pr-to-test.md`; use the shared
 `pr-to-test` skill when available and `scripts/pr-to-test.sh` as the canonical
 entry point. Use merge commits, preserving history. Local runbooks define actual
 application/deployment effects and completion evidence. An open PR, a successful
@@ -128,12 +132,15 @@ unless the user explicitly requests it as part of the current scope.
 ### Initial bootstrap
 
 If canonical delivery skills/scripts do not exist yet, inspect the approved
-backlog and repository guidance for a bootstrap delivery procedure. Use a concrete
-documented native Git/`gh` path when authorized; do not require later tooling to
-exist before its prerequisite issues can ship. If no such procedure exists,
-prepare one minimal proposal for the actual missing steps and batch the needed
-human decisions. Do not silently invent gates, bypass existing checks, scaffold
-a full release system, or declare an undelivered issue complete.
+backlog and current owning guidance for the missing delivery prerequisite.
+Assess inherited bootstrap procedures under the repository's adopted Repository
+Standard Guidance retirement outcome, where declared; an old plan or prior
+approval alone does not make one current authority. Use a concrete documented
+native Git/`gh` path only when currently authorized; do not require later
+tooling to exist before its prerequisite issues can ship. If no such procedure
+exists, prepare one minimal proposal for the actual missing steps and batch the
+needed human decisions. Do not silently invent gates, bypass existing checks,
+scaffold a full release system, or declare an undelivered issue complete.
 
 ## Recover, clean up, and resolve
 

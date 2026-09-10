@@ -10,10 +10,11 @@ source baseline, and authorized scope. Reuse that consent; assessment alone does
 not authorize this workflow's edits. Return its verified outcome or unresolved
 decision to the coordinator after following this workflow's own gates.
 
-Establish the selected standard's visibility and public-work outcome before any
+Begin with read-only assessment; implementation follows the target-specific plan
+below. Assess the selected standard's visibility and public-work requirements before any
 GitHub writes in this workflow, including tracker updates. Verify current visibility,
-preserve licensing and owner decisions, and connect the target's applicable policy
-to root guidance, tracker, review and delivery owners. Resolve required decisions
+preserve licensing and owner decisions, and reuse applicable policy for planning
+publication. Plan required policy changes with the other outcomes. Resolve required decisions
 before dependent publication; continue independent local work. Report actual policy
 use and unexercised paths with the delivery evidence.
 
@@ -30,8 +31,17 @@ rule), stale content, or another repository. Verify both revisions are from the
 recorded source before comparing them.
 
 Read the target standard and compare the relevant adopted-to-target source changes.
-Apply the relevant delta to actual repository guidance, workflows, and validation,
-preserving compatible customizations. Do not overwrite local files wholesale or
+Apply its Target assessment and planning and Guidance retirement outcomes to the
+actual repository, including inherited process outside the source delta. Read any
+supplied preparation handoff; otherwise search the target tracker, including closed
+handoffs and comments, for matching target/workflow/baseline and branch ancestry.
+Reuse its findings and map/spec links within current authority. Inaccessible or
+ambiguous evidence stays unresolved rather than being treated as absent.
+
+Resolve the target-owned Wayfinder plan and approved specification from that
+assessment and the upgrade's goals. Reuse covering decisions; plan changes,
+prerequisites, deferred work and delivery evidence for this target. Recheck state
+and plan coverage before applying the delta, preserving justified customizations. Do not overwrite local files wholesale or
 build a migration engine/compatibility matrix. When replacing a mechanism, migrate
 callers and remove obsolete code/configuration within scope rather than accumulating
 shims. If the outcome already holds, avoid gratuitous implementation changes.
@@ -62,10 +72,10 @@ and report unresolved conflicts rather than declaring adoption from text alone.
 
 Reassess the Application Code/Tooling mapping and actual gates. Application Code
 requires rigorous lint/type/validation and meaningful high coverage; Tooling is
-verified in real use. Record every identified application coverage gap and tooling
-coverage/tests to remove in scoped, deduplicated tracker issues. Report them honestly
-without making remediation a prerequisite to upgrade completion or weakening real
-delivery gates.
+verified in real use. Record application coverage gaps in scoped, deduplicated
+issues. Remove obsolete Tooling-suite requirements from guidance now and file later
+machinery retirement under the standard's outcome. Report remaining gaps and
+executable constraints; those follow-ups do not block guidance alignment.
 
 Complete independent work and batch substantive conflict decisions with concrete
 recommendations. Preserve unanswered decisions; do not assume intent or publish a

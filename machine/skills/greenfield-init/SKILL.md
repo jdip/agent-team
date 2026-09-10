@@ -10,10 +10,11 @@ source baseline, and authorized scope. Reuse that consent; assessment alone does
 not authorize this workflow's edits. Return its verified outcome or unresolved
 decision to the coordinator after following this workflow's own gates.
 
-Establish the selected standard's visibility and public-work outcome before any
+Begin with read-only assessment; implementation follows the target-specific plan
+below. Assess the selected standard's visibility and public-work requirements before any
 GitHub writes in this workflow, including tracker updates. Verify current visibility,
-preserve licensing and owner decisions, and connect the target's applicable policy
-to root guidance, tracker, review and delivery owners. Resolve required decisions
+preserve licensing and owner decisions, and reuse applicable policy for planning
+publication. Plan required policy changes with the other outcomes. Resolve required decisions
 before dependent publication; continue independent local work. Report actual policy
 use and unexercised paths with the delivery evidence.
 
@@ -37,7 +38,15 @@ Read the selected Agent Team source's `standard/README.md` and relevant ordinary
 templates. Source is https://github.com/jdip/agent-team. Unless the user specifies a
 revision, resolve its default branch and select one concrete commit. An unavailable
 or ambiguous source requires investigation; do not silently use stale content or
-switch to another branch. Apply the selected standard's checkout and delivery
+switch to another branch.
+
+Apply the selected standard's Target assessment and planning and Guidance retirement
+outcomes. Inspect pre-existing guidance and setup assumptions even without product
+code. Resolve the target-owned Wayfinder plan and approved specification against the
+actual purpose, constraints and workflow goals; reuse covering plans and preparation
+evidence. Resolve missing planning capabilities before implementation, without
+requiring adoption's own outputs to begin conversational planning. Recheck target
+state and plan coverage, then apply the selected standard's checkout and delivery
 requirements to the actual repository and root guidance, including initial branch
 setup when needed; preserve local work while preparing the adoption worktree.
 
@@ -68,10 +77,10 @@ here for this workflow's delivery; existing verification opt-in does not require
 Apply the selected standard's Claude guidance bridge contract to root and applicable
 nested repository-owned guidance.
 
-If inspection identifies application coverage gaps or tooling tests/coverage that
-should be removed, record every identified gap in scoped, deduplicated tracker
-issues. Link those issues without making their remediation an adoption prerequisite
-or claiming unmet coverage is satisfied.
+Record identified application coverage gaps in scoped, deduplicated issues without
+claiming unmet coverage is satisfied. Remove obsolete Tooling-suite requirements
+from guidance during alignment and file later machinery retirement under the
+standard's outcome; those follow-ups do not block guidance alignment.
 
 Add one Repository Standard section to root AGENTS.md with Source set to the exact
 source repository URL and Revision set to the full selected commit SHA, as specified
