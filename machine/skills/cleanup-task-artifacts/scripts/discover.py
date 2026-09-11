@@ -53,7 +53,7 @@ def discover(roots):
             instructions = root / 'AGENTS.md'
             if instructions.is_symlink() or not instructions.is_file():
                 raise ValueError('root AGENTS.md is missing or indirect')
-            revision = declaration(instructions.read_text())
+            revision = declaration(instructions.read_text(encoding='utf-8'))
             if revision not in verified:
                 response = subprocess.run(['gh', 'api', f'repos/jdip/agent-team/commits/{revision}', '--jq', '.sha'],
                                           capture_output=True, text=True)
