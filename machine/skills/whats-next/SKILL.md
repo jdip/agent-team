@@ -28,8 +28,10 @@ while code work is active. Reuse a successful read within that pass; refresh at 
 next pass and after relevant remediation. Report disabled or inaccessible alert
 coverage separately from zero alerts. This read does not start maintenance edits.
 
-Use the existing pointer owners to interpret and change saved selections. A closed
-historical selection permits discovering alternatives without replacing the pointer.
+Read [selection scope and handoff](../set-map/SELECTIONS.md) whenever reading,
+selecting, resuming, forking, moving or handing off a map/backlog. Use the existing
+selector owners with the explicit scope/task binding; preserve each effort. A closed
+historical selection permits discovering alternatives without replacing this scoped selection.
 Investigate invalid, conflicting, or unreadable state; a failed read is not an empty
 queue. Preserve partial work and pause only actions depending on unresolved evidence.
 
@@ -43,8 +45,9 @@ backlog child. Do not do a sizing investigation just to rank work.
 
 Work actively performed by another running task is excluded from our candidates.
 Account for its expected outcome and its effect on dependencies and code stability.
-When its turn finishes with work remaining, offer a concrete takeover; verify the
-handoff before assuming ownership. An assignee, inactivity, or a finished turn
+When its turn finishes with work remaining, offer a concrete human-approved
+takeover through the selection handoff owner; verify source quiescence, included
+claims and recipient binding before assuming ownership. An assignee, inactivity, or a finished turn
 alone is not permission. If task status is unavailable, preserve uncertain claims
 and continue work whose ownership is established.
 
@@ -106,7 +109,7 @@ ordinary tool calls. New direction, a blocker, or changed ownership can interrup
 a step when necessary.
 
 Refresh selections, ownership, actual partial effects, and the associated design
-before resuming. A changed pointer does not redirect a bound implementation loop:
+before resuming. A changed selection binding does not redirect a bound implementation loop:
 follow established explicit direction or ask whether to continue the old effort or
 select the new one. Preserve unresolved work and avoid replaying completed mutations.
 A reopened associated map pauses its entire implementation backlog; bring its

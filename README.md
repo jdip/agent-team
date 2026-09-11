@@ -116,6 +116,13 @@ You do not need to remember their invocation order:
    proposes bounded assessments or changes, and compares observed outcomes with project purpose.
    An empty queue is not proof that every desired outcome has been achieved.
 
+Saved maps and backlogs belong to explicit effort scopes. Separate tasks can work
+independently even in one checkout. Resuming or moving an effort preserves its
+binding; independent forks start separately. Ask to hand off a named map, backlog
+or both to another task: the workflow obtains human approval, stops source work,
+preserves included claims and verifies recipient ownership. Existing repository-wide
+selections require explicit import. See [selection scope and handoff](machine/skills/set-map/SELECTIONS.md).
+
 For example, after an assessment proposes two small fixes, **“Proceed with both
 fixes through reviewed delivery to test”** authorizes carrying that concrete
 batch through planning and delivery; it does not waive a map or spec. A request

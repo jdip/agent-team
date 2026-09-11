@@ -29,7 +29,9 @@ an open follow-up or the user's explicit deferral/abandonment.
 
 Triage refines approved work and offers prepared parents for Ready Backlog
 admission. The [tracker convention](../agents/issue-tracker.md#ready-backlog-and-triage)
-keeps future readiness separate from the single active selection. Triage offers
+keeps future readiness separate from each effort's active selection. Independent
+tasks use explicit scopes under [selection scope and handoff](../../machine/skills/set-map/SELECTIONS.md);
+resumes, forks, moves and human-approved transfers follow that owner. Triage offers
 activation only when no parent is active. Explicit `set-backlog` selects an
 existing parent through its shared script. Neither publication nor admission nor
 selection independently authorizes execution.
@@ -45,7 +47,7 @@ wait for actual answers, and reuse approvals already supplied.
 
 Relevant reviews, actual repository checks, and verified merged-source delivery
 permit the next child; main promotion is separate. Close the parent only when its
-full outcome and children are complete. Keep its pointer as the completed
+full outcome and children are complete. Keep its scoped binding as the completed
 selection, and wait for explicit selection/execution of another effort. Preserve
 claims, dependencies, unrelated state, and checkouts still backing Codex tasks.
 

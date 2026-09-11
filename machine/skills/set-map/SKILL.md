@@ -1,31 +1,30 @@
 ---
 name: set-map
-description: Save a Wayfinder map URL for this repository so later sessions can continue it with $next-waypoint.
+description: Select a Wayfinder map in an explicit effort scope, or carry out an approved map handoff or legacy import.
 ---
 
 # Set Map
 
-Use the map URL supplied by the user or established by the owning workflow under
-an authorized planning or implementation request. Preserve competing selections
-unless that authority covers switching. The human need not repeat the URL or
-invoke another command. Then run this skill's script exactly once:
+Read [selection scope and handoff](SELECTIONS.md) before selecting, reading,
+resuming, importing, refreshing or transferring a map. Establish the explicit
+scope and task-owner binding from the current task, preserving other efforts.
 
-```bash
-scripts/set-map.sh <map-url>
-```
+Use the map URL supplied by the user or established by an authorized workflow.
+The human need not repeat the URL or invoke another command. Preserve competing
+selections unless existing authority covers switching. Resolve scripts relative
+to this skill directory; `scripts/set-map.sh --help` owns the exact interface.
 
-Resolve the script relative to this skill directory. If the URL is missing, ask
-the user for it. The script accepts only an open `wayfinder:map` issue in the
-current repository and leaves any existing pointer unchanged on failure.
+For a new selection run `scripts/set-map.sh select --scope <scope> --owner <task>
+--expect-absent <map-url>`. For an authorized change use the retained
+`--generation <generation>` instead of `--expect-absent`. The helper validates an
+open `wayfinder:map` issue in the current repository, atomically updates only that
+scope's map entry and preserves existing state on failure.
 
-The script stores the pointer in Git's common metadata directory, making it
-untracked and shared by the repository's worktrees. Completion is a successful
-exit followed by reporting both output lines: the saved map's name and URL.
+Establish an initial binding through `show`; continue with `check` against the
+retained generation. Report scope, owner, generation, issue name and URL from the
+result. Completion requires successful readback, not just a launched script.
 
-For an authorized repository rename, refresh the existing selection with
-`scripts/set-map.sh --refresh <expected-issue-node-id>`. Capture the issue's
-immutable GraphQL node ID before the rename from trusted tracker evidence, then
-refresh after updating the Git remote and before reusing the old repository name.
-This resolves the saved URL, requires the same issue identity in the current
-repository, and permits retaining a completed map. It does not select another map
-or reopen the design. Read back the canonical URL; failure preserves the pointer.
+For human-approved handoff/takeover, explicit legacy migration or repository
+rename, follow the corresponding branch in the shared contract and use
+`transfer`, `import-legacy` or `refresh`. Selection and ownership transfer never
+substitute for planning, execution or tracker claim authority.

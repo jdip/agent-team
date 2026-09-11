@@ -77,8 +77,13 @@ does not waive planning. Keep small plans brief. Plan actual changes, prerequisi
 deferred work and evidence for the target's completion boundary, rather than create
 a universal bootstrap program. Research and planning records may precede approval;
 target guidance/configuration changes and adoption setup follow the approved plan.
-Use the existing backlog selection and `next-issue` owners for child claims and
-resolution in the target tracker. Resolve their pointer and execution context from
+Use the existing selection owners with explicit effort/task bindings for saved
+maps and backlogs. Independent efforts retain separate selections, including in
+a shared checkout; approved handoff identifies source, recipient and included
+claims, verifies source quiescence, and stops stale source continuation. Preserve
+legacy state for explicit migration. Use the backlog selection and `next-issue`
+owners for child claims and resolution in the target tracker. Resolve their
+scoped selection binding and execution context from
 the target checkout, even when this session starts elsewhere. A direct workflow
 invocation hands its target, approved child and authority to that executor before
 edits; within an already claimed child, execute the named skill without recursive

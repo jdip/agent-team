@@ -13,6 +13,12 @@ native child issues. Parent membership and blocking are separate GitHub
 relationships. This skill prepares work only; it neither selects an active
 backlog nor authorizes implementation.
 
+When resolving or changing a saved selection, read
+[selection scope and handoff](../set-map/SELECTIONS.md). Carry the explicit
+scope, task owner and generation through handoffs to selection/execution owners.
+Keep map and backlog bindings independent. Publication and closed design do not
+change another effort's selections or grant takeover authority.
+
 ## Confirm the approved handoff
 
 Resolve the current repository with `gh repo view`, then read its tracker
