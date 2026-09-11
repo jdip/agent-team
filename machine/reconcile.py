@@ -354,12 +354,21 @@ def read_receipt(path):
     plain_path(path)
     raw = path.read_bytes() if path.exists() else None
     receipt = json.loads(raw) if raw is not None else {'version': 1, 'entries': []}
-    if receipt.get('version') != 1 or set(receipt) != {'version', 'entries'}:
+    if (not isinstance(receipt, dict) or set(receipt) != {'version', 'entries'}
+            or type(receipt['version']) is not int or receipt['version'] != 1
+            or not isinstance(receipt['entries'], list)):
         raise ValueError('unknown receipt format')
     entries = {}
     for entry in receipt['entries']:
-        if set(entry) != {'target', 'scope', 'algorithm', 'fingerprint'} or entry['algorithm'] != 'sha256':
+        if (not isinstance(entry, dict)
+                or set(entry) != {'target', 'scope', 'algorithm', 'fingerprint'}
+                or entry['algorithm'] != 'sha256'
+                or not isinstance(entry['target'], str)
+                or not isinstance(entry['scope'], dict)):
             raise ValueError('unknown receipt entry')
+        if (not isinstance(entry['fingerprint'], str)
+                or re.fullmatch(r'[0-9a-f]{64}', entry['fingerprint']) is None):
+            raise ValueError('invalid receipt SHA-256 fingerprint')
         if entry['scope'] == {'kind': 'cleanup-schedule'}:
             target = entry['target']
             if not cleanup_schedule_identity(target):
