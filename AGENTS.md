@@ -5,8 +5,8 @@ sources. Read [standard/README.md](standard/README.md) for the standard and
 [machine/PROFILE.md](machine/PROFILE.md) for the exact Machine Profile ownership.
 Machine reconciliation follows [machine/RECONCILE.md](machine/RECONCILE.md).
 
-The canonical GitHub repository is private. Future public visibility requires
-explicit owner approval; private preparation follows the public-work policy below.
+The canonical GitHub repository is public and is intended to remain public.
+Changing visibility or licensing requires explicit owner approval.
 
 Before repository or GitHub writes, follow the
 [public-work policy](SECURITY.md#public-repository-work), including outgoing

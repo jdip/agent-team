@@ -5,19 +5,14 @@ description: Claim and work the next frontier ticket from this repository's save
 
 # Next Waypoint
 
-Resolve the current repository's absolute Git common directory:
+Read [selection scope and handoff](../set-map/SELECTIONS.md) before resolving
+state. Use the map selector's `show` only to establish a new explicitly authorized
+binding, then retain its scope, owner, generation and issue URL. Use `check` with
+that binding on continuation and before tracker mutations; transfer or selection
+changes stop this run. Missing or invalid context returns to `set-map` with existing
+authority; never infer a replacement scope or map.
 
-```bash
-git rev-parse --path-format=absolute --git-common-dir
-```
-
-Read `codex-wayfinder-map` from that directory. A valid pointer is exactly one
-non-empty line. If it is absent or invalid, return the concrete pointer problem
-to the invoking owner for resolution through `set-map`, carrying existing selection
-authority. In standalone use, resolve the missing selection with the user; no extra
-slash command is required. This entrypoint never infers a replacement map.
-
-For a valid pointer, read the `wayfinder` skill completely and follow its
+For a valid selection, read the `wayfinder` skill completely and follow its
 **Work through the map** workflow with the saved URL and no named ticket.
 Wayfinder owns ticket selection, claiming, human interaction, completion, and
 resolution recording; reaching Wayfinder's stopping condition completes this

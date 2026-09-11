@@ -1,11 +1,13 @@
 ---
 name: set-backlog
-description: Select an existing implementation specification parent as this repository's Active Backlog. Does not start implementation.
+description: Select an implementation backlog in an explicit effort scope, or carry out an approved backlog handoff or legacy import.
 ---
 
 # Set Backlog
 
-Use GitHub through `gh` and read the repository's tracker instructions. Resolve
+Read [selection scope and handoff](../set-map/SELECTIONS.md) to establish the
+explicit scope and task-owner binding for selection, continuation, import or
+handoff. Use GitHub through `gh` and read the repository's tracker instructions. Resolve
 this repository with `gh repo view`. This entry point selects an existing parent;
 `triage` owns intake and grouping, while `to-spec` and `to-tickets` own preparing
 and publishing an approved specification and breakdown.
@@ -32,7 +34,8 @@ issue is clearly the requested implementation parent; create the label if needed
 Clarify an ambiguous issue's role before converting it. Ready admission alone is
 not activation authorization.
 
-Without a supplied parent, inspect the saved pointer and paginate all open
+Without a supplied parent, inspect this task's explicit scoped binding through
+the selector (missing context is an error), and paginate all open
 `implementation:backlog` parents. Show the current selection and recommend an
 existing prepared parent by name and scope. Wait for the user's selection in
 ordinary text, unless this conversation already supplies it. If no suitable parent
@@ -41,13 +44,18 @@ exists, use `triage` to prepare approved work; do not create or group issues her
 ## Save and verify
 
 Recheck the intended parent's state and role, then run
-`scripts/set-backlog.sh <parent-url>` relative to this skill directory. This is the
-shared selection mechanism also used by triage after authorized activation.
-It validates the open current-repository parent and atomically writes one URL line
-to `codex-implementation-backlog` in Git's absolute common directory. Failure
-preserves the existing pointer. The pointer is shared across worktrees and remains
-independent of `codex-wayfinder-map`.
+`scripts/set-backlog.sh select --scope <scope> --owner <task> --expect-absent
+<parent-url>` relative to this skill directory. For an authorized change use the
+retained `--generation <generation>` instead of `--expect-absent`. Triage uses
+this same owner and mechanism. `--help` owns the exact interface.
 
-Read the saved pointer back and report the parent's name, URL, and selected scope.
-Selection does not claim work or start development; `next-issue` or
-`next-issue-loop` requires execution authorization.
+The helper validates the open current-repository parent and atomically updates
+only this scope's backlog entry; failure preserves existing state. It requires
+the installed sibling set-map package's shared resolver. Missing capability is a
+concrete failure, never a reason to write a pointer manually.
+
+Establish a new authorized binding with `show`, then use `check` with the retained
+generation for continuation. Report scope, owner, generation and the parent's
+name/URL. Selection does not claim work or authorize development. Follow the
+shared contract for human-approved `transfer` or explicit `import-legacy`,
+preserving the map binding, tracker claims, dependencies and design gates.

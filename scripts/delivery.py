@@ -123,7 +123,7 @@ def merge(number, expected_head, expected_base):
     author = call('git', 'show', '-s', '--format=%an%n%ae', revision).splitlines()
     if (len(author) != 2 or author[1] != author_email
             or author[0] not in (account['login'], account.get('name'))):
-        raise ValueError(f'PR {number} merge author differs from the approved account/no-reply identity; keep the repository private and investigate')
+        raise ValueError(f'PR {number} merge author differs from the approved account/no-reply identity; preserve repository state and investigate')
     parents = call('git', 'show', '-s', '--format=%P', revision).split()
     if parents != [expected_base, expected_head]:
         raise ValueError(f'PR {number} merged with unexpected parents; merge exists but verification/tagging stopped')

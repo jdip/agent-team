@@ -16,23 +16,26 @@ body instead of treating a triage brief or comment as the contract.
 ## Establish backlog state
 
 Resolve the current repository with `gh repo view` and read its tracker guidance.
-Resolve `git rev-parse --path-format=absolute --git-common-dir`, then inspect
-`codex-implementation-backlog`.
+Read [selection scope and handoff](../set-map/SELECTIONS.md) and inspect the
+explicit scope through the backlog selector. Retain and check the task's binding.
 
-- A missing pointer means there is no active parent.
-- A pointer to a closed parent means there is no active parent; retain the pointer
+- Only an explicit absent result for the established scope means there is no
+  active parent. Missing scope/owner context is an error, not an empty queue.
+- A selection of a closed parent means no active parent in this scope; retain it
   until an authorized selection replaces it.
-- A pointer that is unreadable, does not contain exactly one valid URL, identifies
+- A selection that is unreadable, malformed, transferred, stale, identifies
   another repository, or cannot be read from the tracker is an error, not an
   empty active state. Stop and report it.
 - An open pointed parent must be labelled `implementation:backlog`; it is the one
-  active parent. Routine triage preserves its selection and claims; refinement
+  active parent in this effort. Other efforts may have their own active parents.
+  Routine triage preserves their selections and claims; refinement
   follows the approved-scope rules below.
 
 A **Ready Backlog** is an open, non-active parent carrying both
-`implementation:backlog` and `implementation:ready`. Read all such parents before
-recommending work. Readiness is separate from active selection and execution
-authorization.
+`implementation:backlog` and `implementation:ready`. Read all such parents and
+supported task ownership evidence before recommending work; another effort's
+active or uncertain claim is not available intake. Readiness is separate from
+active selection and execution authorization.
 
 ## Assess intake
 
@@ -75,13 +78,15 @@ admitting and implementing this same effort; otherwise ask whether it should
 join the Ready Backlog. Specification or ticket approval alone does not supply
 that authority. After consent, create `implementation:ready` if necessary, apply
 it alongside `implementation:backlog`, and read the parent back. Do not alter
-the active pointer.
+the active scoped selection.
 
-Offer activation only when there is no active parent. Name the selected Ready
-Backlog parent and obtain authorization to activate it. Recheck the saved pointer and parent state immediately before selection; if another
-parent has become active, preserve it and stop activation. Then run
-`../set-backlog/scripts/set-backlog.sh <parent-url>`, resolved relative to this
-skill directory, and report its readback. This shared operation is the only
+Offer activation only when there is no active parent in this scope. Name the selected Ready
+Backlog parent and obtain authorization to activate it. Recheck this scope's
+selection, owner/generation and parent state immediately before selection; if
+another parent has become active in this scope, preserve it and stop activation.
+Then invoke
+the `set-backlog` owner with this scope, owner and expected generation (or
+confirmed absence), and report its readback. This shared operation is the only
 selection mechanism; do not duplicate its validation or offer to replace an active
 parent during routine triage.
 
@@ -92,7 +97,7 @@ required.
 
 ## Report
 
-Report the active parent or the exact pointer error, Ready Backlog parents,
+Report the active parent or the exact selection error, Ready Backlog parents,
 triaged candidates and visible blockers, duplicate decisions, and every approved
 write with its readback. If approval or required context is missing, leave the
 affected issue and backlog state unchanged.

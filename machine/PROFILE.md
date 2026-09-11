@@ -122,8 +122,11 @@ Only the listed package identities are approved; neighbors are not managed.
 
 All declared local packages are present. Reconciliation still preflights
 every source and live target; a complete source inventory is not proof of machine
-agreement. Actual local runbooks govern workflow completion. Preserve the distinct
-codex-wayfinder-map and codex-implementation-backlog Git-common-directory pointers.
+agreement. Actual local runbooks govern workflow completion. Distribute set-map
+and set-backlog together: the latter uses the former's shared selector helper.
+Preserve untracked effort-scoped selection state and legacy repository-wide
+pointers; [selection scope and handoff](skills/set-map/SELECTIONS.md) owns their
+explicit migration and task binding. Source installation never migrates selections.
 The maintained [implementation workflow](../docs/workflows/implementation.md)
 connects these packages and records their authorization boundaries.
 
