@@ -12,6 +12,12 @@ for routine implementation choices.
 
 The destination varies per effort, and naming it is the first act of charting: it shapes every ticket. It might be a spec to hand off and iterate on, a decision to lock before planning starts, or a change made in place like a data-structure migration. The map is domain-agnostic: engineering work, course content, whatever fits the shape.
 
+When resolving or changing a saved selection, read
+[selection scope and handoff](../set-map/SELECTIONS.md). Carry the explicit
+scope, task owner and generation through handoffs to selection/execution owners.
+Keep map and backlog bindings independent. Publication and closed design do not
+change another effort's selections or grant takeover authority.
+
 ## Plan, don't do
 
 Wayfinder is **planning** by default: each ticket resolves a decision, and the map is done when the way is clear, with nothing left to decide before someone goes and does the thing. The pull to just do the work is usually the signal you've reached the edge of the map and it's time to hand off. Record standing preferences in **Notes**. Execute associated implementation through `next-issue` only after the entire map is resolved and the user authorizes execution. Decision-unblocking tasks remain part of planning.

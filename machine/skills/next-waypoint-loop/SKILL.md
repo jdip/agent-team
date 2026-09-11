@@ -17,17 +17,12 @@ is needed.
 
 ## Load the saved map
 
-Resolve the current repository's absolute Git common directory:
-
-```bash
-git rev-parse --path-format=absolute --git-common-dir
-```
-
-Read `codex-wayfinder-map` from that directory. A valid pointer is exactly one
-non-empty line. If it is absent or invalid, return the concrete pointer problem
-to the invoking owner for resolution through `set-map`, carrying existing selection
-authority. In standalone use, resolve the missing selection with the user; no extra
-slash command is required. This loop never infers a replacement map.
+Read [selection scope and handoff](../set-map/SELECTIONS.md) before resolving
+state. Use the map selector's `show` only to establish a new explicitly authorized
+binding, then retain its scope, owner, generation and issue URL. Use `check` with
+that binding on continuation and before tracker mutations; transfer or selection
+changes stop this run. Missing or invalid context returns to `set-map` with existing
+authority; never infer a replacement scope or map.
 
 Read the `wayfinder` skill completely and the repository's issue-tracker
 instructions. Use the saved URL with **Work through the map**, with no named

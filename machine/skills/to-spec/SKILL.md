@@ -13,6 +13,12 @@ specification parent and its executable ticket breakdown. The parent is also the
 implementation backlog; do not create a parallel planning or queue issue.
 `to-tickets` owns publication after the batch is approved.
 
+When resolving or changing a saved selection, read
+[selection scope and handoff](../set-map/SELECTIONS.md). Carry the explicit
+scope, task owner and generation through handoffs to selection/execution owners.
+Keep map and backlog bindings independent. Publication and closed design do not
+change another effort's selections or grant takeover authority.
+
 ## Choose the planning path
 
 Read the repository instructions, issue-tracker conventions, domain vocabulary,

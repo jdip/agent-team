@@ -107,9 +107,18 @@ reporting completion. Publication alone does not select or execute a backlog.
   implementation objective, approved design links, execution boundaries, and
   completion criteria. Native sub-issues hold the ordered work set. Do not use
   the closed planning map as the implementation parent.
-- **Pointer**: `codex-implementation-backlog` in the absolute Git common directory
-  contains exactly one parent URL. It is untracked, shared across worktrees, and
-  independent of `codex-wayfinder-map`.
+- **Selection**: use [selection scope and handoff](../../machine/skills/set-map/SELECTIONS.md)
+  and the owning selectors for all reads and writes. Each effort has an explicit
+  scope and task-owner binding; map and backlog selections remain independent.
+  State is untracked in Git's common directory but isolated by scope. Retain
+  generations through continuation; changed ownership stops stale tasks. Legacy
+  root pointers remain unchanged until explicitly imported, with no fallback.
+- **Handoff**: require human approval of source, recipient, map/backlog/both and
+  included claims. Stop source work and verify supported task evidence before
+  transfer. Record sanitized handoff and claim evidence in existing issues,
+  preserving native dependencies and specification-associated design gates.
+  Read back recipient ownership before continuing; partial transfer preserves
+  the source's other selection. Missing evidence preserves the claim and state.
 - **Membership**: use the same native sub-issue operations described above. Inspect
   `GET repos/<owner>/<repo>/issues/<child>/parent` before attaching existing work.
   Do not silently reparent issues from another effort. Preserve dependencies.
@@ -139,7 +148,8 @@ reporting completion. Publication alone does not select or execute a backlog.
 `implementation:ready` records the user's approval to admit that prepared parent
 for future execution. Create the ready label when needed. The Ready Backlog is
 open ready-labelled parents except the currently active parent. Labels do not
-activate work; the saved pointer identifies the one Active Backlog.
+activate work; the scoped selection identifies this effort's Active Backlog.
+Another effort may have a different active backlog. Preserve its ownership.
 
 Paginate open parent intake, for example:
 `gh api repos/<owner>/<repo>/issues --method GET -f state=open -f labels=implementation:backlog --paginate`.
@@ -155,11 +165,12 @@ changes the planning gate. Expanding scope, moving work between efforts, and
 admitting prepared parents to the Ready Backlog require a human decision.
 Current scope and acceptance live in issue bodies; comments hold evidence.
 
-Triage reads and validates the saved pointer before offering activation. An absent
-pointer or a verified closed selected parent means no active parent. An invalid,
-unreadable, wrong-repository, or inaccessible pointer is an unresolved error,
-not an empty queue. Preserve the pointer while investigating. Offer activation
-only when no parent is active, and carry out explicit approval through the shared
+Triage reads and validates the explicit scope and owner binding before offering
+activation. A confirmed absent selection in that scope or a verified closed
+selected parent means no active parent for this effort. Missing binding context
+is an error. An invalid, unreadable, wrong-repository, or inaccessible selection
+is unresolved, not an empty queue. Preserve it while investigating. Offer
+activation only when no parent is active in this scope, and carry out explicit approval through the shared
 `set-backlog/scripts/set-backlog.sh` mechanism. Routine triage preserves an open
 active parent; explicit `set-backlog` may switch it at the user's request.
 Completion never selects another parent automatically. Readiness and activation

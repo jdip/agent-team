@@ -15,13 +15,13 @@ or planning.
 
 ## Load the backlog and select work
 
-Resolve `git rev-parse --path-format=absolute --git-common-dir` and read its
-`codex-implementation-backlog` file. Require exactly one nonempty URL line. If
-it is missing or invalid, return the concrete pointer problem to the invoking
-owner for resolution through `set-backlog`, carrying existing selection
-authority. In standalone use, resolve the missing selection with the user. This
-executor does not guess a parent or search the issue pool for a replacement.
-Leave `codex-wayfinder-map` alone.
+Read [selection scope and handoff](../set-map/SELECTIONS.md). Resolve the
+explicit backlog scope and task owner through `set-backlog`'s selector. Establish
+a new authorized binding with `show`, retain scope, owner, generation and parent
+URL, and use `check` with that binding for continuation and before mutations.
+Missing, invalid or transferred state returns to the selection owner with existing
+authority. This executor never adopts another scope or parent. Preserve the
+independently selected map.
 
 Read repository instructions, the saved parent, and relevant design/decision
 links. Verify the parent is an issue in this repository labelled
@@ -30,7 +30,7 @@ effort: report its state; if unfinished children remain, surface the inconsisten
 The parent body and child bodies hold current approved scope and acceptance;
 comments hold decision history and delivery evidence. Ready labels do not select
 work or authorize execution. Keep this invocation within the initially selected
-parent; if the pointer changes, stop and report the change rather than following
+parent; if the selection binding changes, stop and report it rather than following
 another session into a different effort.
 
 Apply the **Design gate** below before selecting or resuming work.
@@ -64,9 +64,9 @@ Identify the associated Wayfinder map from the specification's approved design
 links and the originating decision's parent relationship. Read that map's body,
 comments, and all children with pagination, including their resolutions and any
 remaining fog. Distinguish this effort's map from incidental historical
-references. Use the specification's sources, not `codex-wayfinder-map`, which
-may select an unrelated planning effort. Require a resolved map and approved
-specification that cover this child, unless the operator explicitly waived the
+references. Use the specification's sources, not the independently selected
+planning map, which may belong to an unrelated effort. Require a resolved map
+and approved specification that cover this child, unless the operator explicitly waived the
 missing planning requirement for this scope. Record and honor only that
 exception. Small fixes, standalone decisions and direct implementation requests
 do not self-exempt. Missing coverage returns to Wayfinder and `to-spec` through
@@ -82,9 +82,10 @@ decision that is reopened likewise needs resolution before associated work
 proceeds. Unavailable or ambiguous source state is unresolved; never infer
 clearance from a failed read.
 
-Recheck the active pointer, parent state, and associated design state before a
-claim, when resuming after human input or interruption, before delivery or issue
-closure, and between loop issues. Stop on a changed pointer or closed parent;
+Recheck the selection owner and generation, parent state, and associated design
+state before a claim, when resuming after human input or interruption, before each repository or
+tracker mutation, before delivery or issue closure, and between loop issues. Stop
+on a changed selection, transferred ownership, stale generation or closed parent;
 resume only within explicit user authorization. If implementation exposes a
 substantive missing decision, reopen the associated map (or standalone decision),
 record the concrete question there and link it from the implementation issue,
