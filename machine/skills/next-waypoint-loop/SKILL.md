@@ -30,16 +30,16 @@ ticket. If Wayfinder is unavailable, report the missing dependency.
 
 ## Continue through the frontier
 
-1. Load the map and select its first open, unblocked, unclaimed child in tracker
+1. Apply Wayfinder's **Map-entry evidence** rule before advancing, then select
+   its first open, unblocked, unclaimed child in tracker
    order. Claim it before work. Do not skip a human-in-the-loop ticket to reach
    an autonomous one. Do not take a ticket claimed by another session.
 2. Follow Wayfinder's workflow and the selected ticket's required skills.
    Continue independently through authorized work and routine recoverable
    failures. A prototype or grilling ticket requires the human's actual
    participation; never supply their answers yourself.
-3. For a human decision, invoke `grilling` and complete its actual dialogue and
-   shared-understanding confirmation with the user. Grilling owns question
-   readiness, batching and recommendations. Keep the ticket claimed and unresolved
+3. For a human decision, follow Wayfinder's **Human-decision completion** rule,
+   invoking `grilling` for the actual dialogue. Keep the ticket claimed and unresolved
    while waiting; do not claim another ticket to bypass that dependency.
 4. When the ticket is resolved, finish **all** Wayfinder bookkeeping: record the
    resolution, satisfy Wayfinder’s implementation handoff, close the ticket,

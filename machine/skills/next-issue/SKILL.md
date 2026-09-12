@@ -73,6 +73,10 @@ do not self-exempt. Missing coverage returns to Wayfinder and `to-spec` through
 the invoking owner; continue read-only discovery and preserve claims while
 planning is unresolved.
 
+Apply Wayfinder's **Map-entry evidence** rule before accepting the associated
+map as design coverage, including when its map and specification are already
+approved. Missing dialogue evidence returns to that owner before implementation.
+
 The entire associated map must be resolved: the map and every required decision
 are closed and no substantive decision remains unsettled. An open or reopened
 map pauses the whole associated backlog, including otherwise independent
