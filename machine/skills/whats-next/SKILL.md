@@ -55,13 +55,17 @@ and continue work whose ownership is established.
 
 Apply the global Planning before implementation rule to every implementation
 candidate, including an existing PR and direct maintenance or alignment work.
-Reuse a resolved map and approved spec covering the actual change. If coverage
+Before reusing any map or approved spec, apply Wayfinder's **Map-entry evidence**
+rule. Reuse a resolved map and approved spec covering the actual change. If coverage
 is missing, begin or resume Wayfinder from the inspected target and desired
-outcome. Use Wayfinder's grilling entry before charting new work; smallness or a
-delivery request does not supply a planning waiver.
+outcome. Hand control to Wayfinder's **Chart the map** entry and stay in its
+grilling dialogue until its completion gate is satisfied. A concrete destination
+is the result of that dialogue, not an alternative gate. Smallness or a delivery
+request does not supply a planning waiver.
 Read-only assessment may continue while planning remains open.
 
-Once the destination is concrete, carry the request's planning authority through
+After Wayfinder's entry dialogue and user confirmation, carry the request's
+planning authority through
 `wayfinder`, `set-map` and `next-waypoint-loop`; resolve their repository
 context against the target. A compact settled map may have no decision children.
 Select a new map while it is open, before resolution/closure; reusing resolved
@@ -94,7 +98,7 @@ of a combined proposal and carry it forward across ordinary skill boundaries.
 | Approved Active Backlog | Use `next-issue-loop`, supplying the eligible selection when completion-first ranking changes ordinary order. Preserve the associated map's Design gate and existing claim/delivery rules. |
 | Prepared inactive backlog | Use `triage` for necessary intake/admission and `set-backlog` for approved selection. Present only missing admission, activation, and execution approvals together, then start `next-issue-loop` to the extent approved. |
 | Selected Wayfinder map | Continue `next-waypoint-loop`; research facts and present human decisions. A different map needs an approved select-and-start proposal through `set-map`. |
-| New planning destination | Begin Wayfinder dialogue from the change request; once concrete, chart or reuse its map, then use `set-map` and `next-waypoint-loop` under existing authority. Ask only for missing decisions or competing selection authority. |
+| New planning destination | Hand off to Wayfinder's **Chart the map** dialogue and completion gate before map creation; then use `set-map` and `next-waypoint-loop` under existing authority. Preserve its required human questions and confirmation. |
 | Entire map resolved | Use `to-spec` to draft the parent and complete ticket breakdown automatically. Present the batch and missing publication/admission/activation/execution approvals together; use `to-tickets` and selection/execution owners for the approved portion. Reuse the effort's implementation follow-up. |
 | Alert-protection gaps, actionable dependency alerts or existing remediation | Follow [dependency upkeep](maintenance.md#dependency-upkeep), then hand the selected repository-owned remediation or protection scope and existing approval to `dependabot-upkeep`. Return after the coherent step. |
 | Hygiene, adopted repository verification or Agent Team alignment | Follow [maintenance and alignment](maintenance.md) once the relevant baseline is stable. |
