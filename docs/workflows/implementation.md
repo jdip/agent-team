@@ -14,7 +14,8 @@ assessment rules.
 
 The [global planning rule](../../machine/AGENTS.md#planning-before-implementation)
 applies inside and outside this coordinator, including direct specialist requests.
-Wayfinder owns proportionate maps and decision resolution; the existing executor
+Wayfinder owns the grilling entry before new maps and subsequent decision
+resolution; the existing executor
 uses one specification parent and at least one executable child. Reuse covering
 plans and authority across these owners, preserving phase-specific completion
 boundaries. Planning records can precede completed implementation planning.

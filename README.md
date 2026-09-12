@@ -96,8 +96,9 @@ You do not need to remember their invocation order:
    gates are checked. When paths compete or approval is missing, the agent offers
    concrete options, rough effort, and a recommendation. Reply with your choice
    and the scope you authorize.
-3. **Plan proportionately, then approve the spec.** Change conversations naturally
-   enter Wayfinder when no covering map exists. Every implementation needs a resolved
+3. **Question the direction, then record it.** New-work discussions invoke
+   Wayfinder and grilling before a map is created. Confirm shared understanding;
+   approved continuations reuse settled answers. Every implementation needs a resolved
    map and approved specification unless you explicitly waive planning. Small work
    keeps those records brief and reuses existing coverage; settled maps need no
    invented decisions. Review the spec and executable ticket breakdown together.
@@ -183,7 +184,7 @@ a coordinating workflow does not bypass them.
 | [set-map](machine/skills/set-map/SKILL.md) | Saves the repository's selected planning map. | Supply the open map URL when explicitly choosing the effort to continue. |
 | [next-waypoint](machine/skills/next-waypoint/SKILL.md) | Advances one eligible planning ticket. | Use with a selected map when you want one decision/research step handled. |
 | [next-waypoint-loop](machine/skills/next-waypoint-loop/SKILL.md) | Continues planning across eligible tickets. | Use with a selected map to progress until human input or a blocker is needed. |
-| [grilling](https://github.com/mattpocock/skills/blob/3cca18b368ae95cdbdebbff572ccafa662551015/skills/productivity/grilling/SKILL.md) | Stress-tests a plan or idea through pointed questions. | Explicitly ask to be grilled on a concrete decision and its assumptions. |
+| [grilling](https://github.com/mattpocock/skills/blob/3cca18b368ae95cdbdebbff572ccafa662551015/skills/productivity/grilling/SKILL.md) | Stress-tests a plan or idea through pointed questions. | Wayfinder invokes it for new-work discussions; you can also request it for a concrete decision and its assumptions. |
 | [research](machine/skills/research/SKILL.md) | Investigates a question using primary sources. | Supply a question and constraints; explicitly request a saved artifact if needed. |
 | [prototype](machine/skills/prototype/SKILL.md) | Builds a throwaway experiment to resolve a design question. | Supply the uncertainty to test and what observation would answer it. |
 | [wait-what](https://github.com/mattpocock/skills/blob/3cca18b368ae95cdbdebbff572ccafa662551015/skills/productivity/wait-what/SKILL.md) | Clarifies a confusing explanation. | Invoke when you need the preceding explanation made easier to understand. |

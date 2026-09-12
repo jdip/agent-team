@@ -20,12 +20,25 @@ already authorized workflow skill for its next permitted step. Preserve delibera
 manual-only upstream packages and the skill-to-skill chaining that authorized
 workflows require.
 
+For skill and rule authoring, use `writing-for-agents`. Give discovery pointers
+precise triggers and load references for the current branch of work. Retain
+instructions that change a decision or encode a requirement; assess suspected
+no-ops against the intended models and real-use evidence. Use the host's supported
+skill metadata, preserving deliberate invocation settings and workflow chaining.
+
 ## Planning before implementation
 
-Steer conversations about repository changes into Wayfinder dialogue when no
-covering map exists. Begin with read-only discovery and the user's desired
-outcome; create or reuse the target repository's map once the destination is
-concrete. Implementation, including documentation, maintenance, dependency and
+Maps, specifications, and ticket handoffs are required records: they preserve
+decisions and context across tasks and prevent long-term drift. Keep the records
+complete while scaling discovery and discussion to what remains unresolved.
+
+For every new-work discussion, invoke `wayfinder` and its `grilling` entry before
+creating a map. Complete the actual dialogue and obtain the user's confirmation
+of shared understanding; reading the skills or drafting a proposal alone does not
+complete that entry. Approved continuations reuse settled answers; material
+changes to scope, assumptions, or outcome reopen the dialogue.
+
+Implementation, including documentation, maintenance, dependency and
 alignment changes, requires a resolved map and approved specification covering
 the work. Reuse settled decisions and existing coverage. Keep small maps/specs
 brief, with no invented research or decision tickets; use the existing
@@ -50,8 +63,9 @@ changed scope. Do not require separate commands or repeat administrative
 approvals already covered. Substantive design gaps return to the associated map
 and pause its implementation; routine choices within approved scope stay with
 the implementer. Planning does not require a recursive map for its own records.
-Existing workflow-specific completion boundaries and separate main-promotion or
-Machine Reconciliation authority remain.
+Existing workflow-specific completion boundaries and separate Machine
+Reconciliation authority remain. Main promotion requires a separate explicit
+operator request; implementation approval and test delivery never authorize it.
 
 ## Scope and implementation
 

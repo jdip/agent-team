@@ -74,7 +74,8 @@ Run `gh issue view <number> --comments`.
 
 ## Wayfinding operations
 
-Used by `wayfinder`. The **map** is a single issue; real decision tickets are
+Used after `wayfinder`'s grilling entry confirms direction for new work. The
+**map** is a single issue; real decision tickets are
 native children. A compact settled map records the agreed direction directly and
 needs no invented children. Keep it open through handoff bookkeeping, then
 record resolution and close it before executable ticket publication. Use the
