@@ -1,11 +1,21 @@
 ---
 name: tdd
-description: Test-driven development. Use when the user wants to build features or fix bugs test-first, mentions "red-green-refactor", or wants integration tests.
+description: Use when fixing application bugs, adding or changing application behavior, or explicitly requesting test-first work or red-green-refactor.
 ---
 
 # Test-Driven Development
 
-TDD is the red → green loop. This skill is the reference that makes that loop produce tests worth keeping: what a good test is, where tests go, the anti-patterns, and the rules of the loop. Every section applies on every cycle: consult them before and during the loop, not after.
+Use **red → green → refactor** for application bug fixes and new or changed
+behavior. For a bug, diagnose uncertain causes first, then normally reproduce the
+failure in a behavioral regression test before changing the implementation. Use
+`diagnosing-bugs` when difficult diagnosis needs its loop. Explicit user constraints
+and the repository's Application Code/Tooling classification govern execution;
+record a concrete limitation when a meaningful automated regression cannot be
+established, and verify through the strongest available behavioral evidence.
+
+A request for integration tests alone specifies a test type, not an implementation
+method. Use this loop when those tests cover a bug fix or new/changed behavior,
+or when the user requests test-first work.
 
 When exploring the codebase, read `CONTEXT.md` (if it exists) so test names and interface vocabulary match the project's domain language, and respect ADRs in the area you're touching.
 
@@ -13,7 +23,8 @@ When exploring the codebase, read `CONTEXT.md` (if it exists) so test names and 
 
 Tests verify behavior through public interfaces, not implementation details. Code can change entirely; tests shouldn't. A good test reads like a specification: "user can checkout with valid cart" tells you exactly what capability exists, and it survives refactors because it doesn't care about internal structure.
 
-See [tests.md](tests.md) for examples and [mocking.md](mocking.md) for mocking guidelines.
+Read [tests.md](tests.md) when examples would help choose a behavioral test shape.
+When substituting an external system boundary, read [mocking.md](mocking.md).
 
 ## Seams: where tests go
 
@@ -39,7 +50,7 @@ Apply the repository's classification before adding tests. For Application Code,
 
 - **Red before green.** Write the failing test first, then only enough code to pass it. Don't anticipate future tests or add speculative features.
 - **One slice at a time.** One seam, one test, one minimal implementation per cycle.
-- **Refactoring is not part of the loop.** It belongs to the review stage (see the `code-review` skill), not the red → green implementation cycle.
+- **Refactor after green.** The implementation agent may simplify within the approved scope while preserving passing behavior, then rerun affected checks. Substantial redesign returns to the planning owner. Use `code-review` for the subsequent read-only review; its findings return to the implementation agent for fixes.
 
 ## Attribution
 

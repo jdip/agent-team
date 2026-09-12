@@ -35,12 +35,11 @@ changes, target pushes, merges, adoption, upgrades, or unrelated changes.
 
 ## Assess and plan
 
-Apply the selected standard's Guidance retirement outcome to the target's actual
-guidance as a read-only assessment. Start at root instructions, then inspect broadly
-by purpose and effect,
-including unlinked or embedded process and accessible external references. Resolve
-aliases and cycles normally. Report inaccessible references and scope gaps; seek
-a decision when one prevents relevant assessment or correction.
+Invoke `audit-agent-instructions` for a comprehensive read-only assessment of the
+target's guidance. Supply the selected standard's Guidance retirement outcome,
+exact baseline, intended hosts/models and preparation boundary. The audit skill
+owns coverage, instruction interactions, evidence and proposed remedies. Resolve
+any missing audit capability or material coverage gap before preparation edits.
 
 Record each root or nested `AGENTS.md` path that is repository-owned guidance for
 a scoped component, following the selected standard's bridge discovery exclusions.
@@ -66,39 +65,26 @@ under the standard's retirement outcome, keeping current executable constraints
 distinct from policy. Substantive new choices return to Wayfinder; routine choices
 and already supplied authorization carry forward.
 
-## Required final OpenAI audit
+## Required final audit
 
-After completing Agent Team's audit and targeted preparation changes, locate and
-load the full available OpenAI-provided `openai-docs` skill. Run it against the
-prepared target on the same preparation branch with this request, verbatim, even
-when Astra is already selected:
+After targeted preparation changes, invoke the full available OpenAI-provided
+`openai-docs` skill to assess the prepared guidance against current official
+prompting and instruction-design guidance for the intended models. Supply the
+approved preparation scope, deliberate model-role assignments and target-document
+authority boundary. Complete this invocation even when the model is already
+selected; a model-selection check or a reference to the skill is insufficient.
+Record the official sources and resulting findings or supported no-change result.
 
-```text
-$openai-docs migrate this project to GPT-6 Astra and explicitly audit the
-prepared repository's agent instructions and skills against current official
-OpenAI Astra prompting and migration guidance. Perform this audit even if Astra
-is already selected; checking model selection alone does not complete the task.
+Use `audit-agent-instructions` to reconcile that evidence with the prepared
+instruction set and its original findings, including unchanged guidance and
+references. Apply supported repairs through the claimed documentation child within
+its approved scope. Substantive new choices return to Wayfinder before dependent
+edits. Preserve deliberate model-role assignments; application/API migration and
+configuration changes require their own authorization.
 
-Read the discovered guidance, including unlinked and embedded process as well as
-AGENTS.md, SKILL.md and referenced documents. Audit instruction conflicts and
-authority, unnecessary
-approval pauses and follow-through, delegation, writing style, and proportionate
-testing and verification. Apply concrete fixes within the approved preparation
-scope, preserving deliberate model-role assignments and necessary delivery controls.
-Return findings needing a substantive new decision to Wayfinder before dependent edits.
-Apply the selected standard's guidance-retirement outcome; preserve successful
-real-use verification without reinstating permanent Tooling-suite obligations.
-Report the instruction surfaces reviewed, findings, changes or an evidence-based
-no-change conclusion, and any decisions or changes outside preparation scope.
-```
-
-Run the skill using current [official OpenAI Astra guidance](https://developers.openai.com/api/docs/guides/latest-model).
-This is a full skill invocation, not a custom Astra checklist. Provide the approved
-preparation scope, intended guidance, deliberate model-role assignments, and the
-target-document authority boundary as context. A reference to the skill or a
-model-selection check does not complete this pass. If `openai-docs` is unavailable,
-stop: the target is not ready for handoff. Keep application or API changes outside
-repository preparation as separate decisions.
+Both skill invocations and their evidence are required for handoff. Missing
+capability or material unresolved coverage leaves the target unready; report the
+specific gap and preserve the preparation branch.
 
 ## Verify and hand off
 

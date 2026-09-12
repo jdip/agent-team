@@ -67,8 +67,10 @@ baseline and assesses target documents as review material. All four alignment
 workflows follow the selected standard's Target assessment and planning outcome:
 read-only assessment, target-owned Wayfinder map and approved spec, then execution
 against the target's state and workflow goals. Reuse covering plans and handoffs;
-preparation edits retain their documentation-only boundary. The preparation skill's final pass invokes
-the full OpenAI `openai-docs` skill for the migration and instruction audit before combined review and verification.
+preparation edits retain their documentation-only boundary. The preparation skill
+uses `audit-agent-instructions` for comprehensive assessment and a required
+`openai-docs` invocation for current official instruction guidance, then completes
+combined review and verification under its final-audit contract.
 
 The result is a committed local preparation branch and an evidence-based readiness
 handoff. Continue from that prepared branch's changes when separately authorized

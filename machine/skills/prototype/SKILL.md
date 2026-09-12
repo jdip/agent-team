@@ -5,30 +5,50 @@ description: Build a throwaway prototype to answer a design question. Use when t
 
 # Prototype
 
-A prototype is **throwaway code that answers a question**. The question decides the shape.
+A prototype is **throwaway code that answers a design question**. Make the
+question, the available environment, and the evidence needed decide its shape.
 
-## Pick a branch
+## Choose the inquiry
 
-Identify which question is being answered, using the user's prompt, the surrounding code, or by asking if the user is around:
+Use [LOGIC.md](LOGIC.md) for behavior, state transitions, data shape, or an API
+surface. Use [UI.md](UI.md) for visual hierarchy, interaction, or how a surface
+fits its surrounding product. When one question contains both, separate the
+decisions or build the smallest artifact that can answer the unresolved part.
 
-- **"Does this logic / state model feel right?"** → [LOGIC.md](LOGIC.md). Build a single shareable HTML file (free-play buttons plus tabbed guided walkthroughs) that pushes the state machine through cases that are hard to reason about on paper, and that a non-developer can drive.
-- **"What should this look like?"** → [UI.md](UI.md). Generate several radically different UI variations on a single route, switchable via a URL search param and a floating bottom bar.
+State the question and the observation that would resolve it before writing the
+artifact. Ask the user when those are not concrete; otherwise record the
+assumption used to choose the branch.
 
-The two branches produce very different artifacts, so getting this wrong wastes the whole prototype. If the question is genuinely ambiguous and the user isn't reachable, default to whichever branch better matches the surrounding code (a backend module → logic; a page or component → UI) and state the assumption at the top of the prototype.
+## Rules that apply to every prototype
 
-## Rules that apply to both
-
-1. **Throwaway from day one, and clearly marked as such.** Put the artifact in an authorized, task-owned location close to the module or page it explores when that context is useful. Name it so a casual reader can see it is a prototype. For throwaway UI routes, follow the project's routing convention.
-2. **Use the existing environment.** Make the prototype trivial to run through an already supported project command, or open a self-contained artifact directly when that format needs no new project runtime or toolchain. Keep its format consistent with the project's approved languages and environment.
-3. **No persistence by default.** State lives in memory. Persistence is the thing the prototype is _checking_, not something it should depend on. If the question explicitly involves a database, hit a scratch DB or a local file with a clear "PROTOTYPE, wipe me" name.
-4. **Verify the question.** Run the prototype through the relevant scenarios and inspect rendered behavior. Honor required local gates; avoid adding production polish or a new test suite merely for a throwaway artifact.
-5. **Surface the state.** After every action (logic) or on every variant switch (UI), print or render the full relevant state so the user can see what changed.
-6. **End with a verdict and handoff.** Capture the question, the evidence from the
-   prototype, and the resulting decision in the artifact or in the authorized
-   planning record. For a planning-only request, end with the concrete implementation handoff.
-   When the existing request already authorizes implementation, continue with the
-   selected decision through the repository's normal workflow without asking
-   again. A verdict alone does not authorize changes to production code.
+1. **Keep it throwaway and task-owned.** Mark the artifact as a prototype and
+   place it in an authorized location. Keep it close to the explored module or
+   surface when that context is useful; follow the project's route convention
+   for a throwaway route. Exclude prototype artifacts and temporary controls from
+   production delivery using the project's existing isolation or build mechanism,
+   and verify that exclusion.
+2. **Use the approved environment.** Choose the smallest format that is easy to
+   run or inspect with existing project commands, languages, and runtimes. A
+   directly opened self-contained artifact is appropriate only when it needs no
+   new environment. Do not add a framework, server, runtime, or toolchain for
+   the inquiry.
+3. **Use representative context.** Reuse the nearby page, component, domain
+   language, read-only data, or authenticated context when it makes the
+   decision easier to judge. When that is unavailable or unsafe, use a clearly
+   labelled sample or stub and record the resulting limit.
+4. **Make the relevant result visible.** Render or print the state,
+   transition, selected alternative, error, or other evidence needed to judge
+   the question after relevant interaction. Keep persistence in memory unless
+   persistence itself is under examination; then use an isolated disposable
+   resource.
+5. **Verify the question.** Exercise the scenarios that bear on the decision,
+   inspect the rendered or observable result, and run applicable local gates.
+   Keep verification proportional to a throwaway artifact.
+6. **Record the verdict and handoff.** Capture the question, evidence,
+   decision, and proposed implementation seam in the artifact or authorized
+   planning record. A planning-only prototype ends with a concrete handoff.
+   When implementation is already authorized, continue through the normal
+   workflow; the prototype remains evidence rather than production code.
 
 ## Attribution
 
