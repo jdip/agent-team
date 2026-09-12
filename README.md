@@ -96,8 +96,9 @@ You do not need to remember their invocation order:
    gates are checked. When paths compete or approval is missing, the agent offers
    concrete options, rough effort, and a recommendation. Reply with your choice
    and the scope you authorize.
-3. **Plan proportionately, then approve the spec.** Change conversations naturally
-   enter Wayfinder when no covering map exists. Every implementation needs a resolved
+3. **Question the direction, then record it.** New-work discussions invoke
+   Wayfinder and grilling before a map is created. Confirm shared understanding;
+   approved continuations reuse settled answers. Every implementation needs a resolved
    map and approved specification unless you explicitly waive planning. Small work
    keeps those records brief and reuses existing coverage; settled maps need no
    invented decisions. Review the spec and executable ticket breakdown together.
@@ -183,7 +184,7 @@ a coordinating workflow does not bypass them.
 | [set-map](machine/skills/set-map/SKILL.md) | Saves the repository's selected planning map. | Supply the open map URL when explicitly choosing the effort to continue. |
 | [next-waypoint](machine/skills/next-waypoint/SKILL.md) | Advances one eligible planning ticket. | Use with a selected map when you want one decision/research step handled. |
 | [next-waypoint-loop](machine/skills/next-waypoint-loop/SKILL.md) | Continues planning across eligible tickets. | Use with a selected map to progress until human input or a blocker is needed. |
-| [grilling](https://github.com/mattpocock/skills/blob/3cca18b368ae95cdbdebbff572ccafa662551015/skills/productivity/grilling/SKILL.md) | Stress-tests a plan or idea through pointed questions. | Explicitly ask to be grilled on a concrete decision and its assumptions. |
+| [grilling](https://github.com/mattpocock/skills/blob/3cca18b368ae95cdbdebbff572ccafa662551015/skills/productivity/grilling/SKILL.md) | Stress-tests a plan or idea through pointed questions. | Wayfinder invokes it for new-work discussions; you can also request it for a concrete decision and its assumptions. |
 | [research](machine/skills/research/SKILL.md) | Investigates a question using primary sources. | Supply a question and constraints; explicitly request a saved artifact if needed. |
 | [prototype](machine/skills/prototype/SKILL.md) | Builds a throwaway experiment to resolve a design question. | Supply the uncertainty to test and what observation would answer it. |
 | [wait-what](https://github.com/mattpocock/skills/blob/3cca18b368ae95cdbdebbff572ccafa662551015/skills/productivity/wait-what/SKILL.md) | Clarifies a confusing explanation. | Invoke when you need the preceding explanation made easier to understand. |
@@ -198,7 +199,7 @@ a coordinating workflow does not bypass them.
 | [set-backlog](machine/skills/set-backlog/SKILL.md) | Selects an existing implementation parent. | Supply the prepared parent URL; selection alone does not authorize execution. |
 | [next-issue](machine/skills/next-issue/SKILL.md) | Implements one eligible child through verified test delivery. | Use with an approved active backlog when you want one implementation issue completed. |
 | [next-issue-loop](machine/skills/next-issue-loop/SKILL.md) | Continues eligible implementation within the selected backlog. | Authorize continuous execution; it stops for required decisions or blockers. |
-| [tdd](machine/skills/tdd/SKILL.md) | Builds behavior one failing test and minimal passing implementation at a time. | Request test-first application development; follow real-use verification for Tooling. |
+| [tdd](machine/skills/tdd/SKILL.md) | Fixes bugs and builds behavior through failing tests, minimal implementation and scoped refactoring. | Use for application bug fixes, new or changed behavior, and explicit test-first work; follow real-use verification for Tooling. |
 | [diagnosing-bugs](https://github.com/mattpocock/skills/blob/3cca18b368ae95cdbdebbff572ccafa662551015/skills/engineering/diagnosing-bugs/SKILL.md) | Investigates difficult bugs and performance regressions. | Supply observed behavior, reproduction steps, and the expected result. |
 | [resolving-merge-conflicts](machine/skills/resolving-merge-conflicts/SKILL.md) | Resolves an in-progress merge or rebase and verifies the result. | Use when Git reports conflicts; identify the intended combined behavior. |
 | [code-review](machine/skills/code-review/SKILL.md) | Reviews Standards and Spec correctness separately. | Supply a PR, branch, or fixed comparison point and its requirements. |
@@ -212,6 +213,7 @@ a coordinating workflow does not bypass them.
 | --- | --- | --- |
 | [codebase-hygiene](machine/skills/codebase-hygiene/SKILL.md) | Surveys maintenance opportunities and coordinates approved cleanup. | Request an assessment, then approve a concrete cleanup batch if worthwhile. |
 | [reflect](machine/skills/reflect/SKILL.md) | Captures reusable lessons as actionable issues. | Runs when a brief reflection check finds an improvement, or when you ask to reflect; uses current-task evidence. |
+| [audit-agent-instructions](machine/skills/audit-agent-instructions/SKILL.md) | Audits instruction quality and interactions with accountable coverage. | Request a full or targeted skill/rule audit; receive evidence-backed findings and proposed changes. Repairs follow the target's authorized workflow. |
 | [repository-verification](machine/skills/repository-verification/SKILL.md) | Assesses suitability and creates or audits optional repository verification instructions. | Adoption/upgrade recommends include, omit or defer. Explicitly opt in for setup; `whats-next` considers useful audits for adopters using existing UI or non-UI controls. |
 | [dependency-review](machine/skills/dependency-review/SKILL.md) | Assesses whether a dependency earns its maintenance cost. | Name a dependency or scoped inventory; keeping it is a valid result. |
 | [dependabot-upkeep](machine/skills/dependabot-upkeep/SKILL.md) | Configures dependency-alert protection and routes alerts through the repository's delivery workflow. | Supply a setup or alert scope; `whats-next` discovers current alerts alongside other work. |

@@ -1,6 +1,6 @@
 ---
 name: wayfinder
-description: Plan repository changes before implementation, from compact settled work to large uncertain efforts. Start or resume a shared map when change conversations lack covering design, and resolve its decisions before specification and delivery.
+description: Plan new work through grilling before creating a map, or resume mapped decisions before specification and implementation.
 ---
 
 Begin from the desired **destination** and the actual repository. This skill
@@ -129,17 +129,20 @@ Two modes. Either way, **never resolve more than one ticket per session**, with 
 
 ### Chart the map
 
-A change conversation or implementation request can begin this planning session,
-directly or through `whats-next` or another owning workflow. Start dialogue
-without a separate invocation approval; create or reuse tracker artifacts once
-the destination is concrete. Reuse established direction and the global Planning
-before implementation rule, including its explicit-waiver and planning-work
-boundaries.
+A new-work discussion invokes this entry directly or through `whats-next` or
+another owning workflow. Invoke `grilling` before creating the map and follow its
+existing dialogue and shared-understanding completion rule. Record the confirmed
+direction in the map; a generated map or proposed spec is not evidence that the
+dialogue occurred. Reuse prior answers on approved continuations and reopen
+dialogue when scope, assumptions, or outcome materially changes. Preserve the
+global Planning before implementation rule and its explicit-waiver boundary.
 
-1. **Name the destination.** Read and apply `grilling` and `domain-modeling` to pin down what this map is finding its way to: the spec, decision, or change. The destination fixes the scope, so it's settled first.
+1. **Name the destination.** Complete the `grilling` entry above with the user.
+   Use `domain-modeling` when terminology or domain relationships need resolution.
+   Chart only after the user confirms shared understanding of the destination.
 2. **Map the frontier.** Inspect the whole destination for actual open decisions,
    using `grilling` where human judgment is unresolved. Reuse supplied answers.
-   If the route is already clear, keep the map compact with the agreed direction;
+   If the route is clear after that dialogue, keep the map compact with the agreed direction;
    it still precedes the spec unless the operator explicitly waived planning.
 3. **Create or reuse the map** (label `wayfinder:map`): record Destination, Notes, settled direction and only real remaining fog. Keep it open until its resolution and implementation handoff are recorded.
 4. **Create the tickets you can specify now** as child issues of the map, then wire blocking edges in a **second pass** (issues need ids before they can reference each other). Wiring sorts them into the frontier and the blocked; everything you can't yet specify stays in the fog: the **Not yet specified** section.
@@ -148,7 +151,7 @@ boundaries.
    or implementation, select the open map through `set-map` before closure, then
    use `next-waypoint-loop` under that authority. Reusing an already resolved map
    needs no new selection; retain its source links and existing pointer.
-   An already settled compact map proceeds directly to the Implementation handoff:
+   A compact map with confirmed direction proceeds directly to the Implementation handoff:
    prepare its specification and executable breakdown, record resolution and close
    the map after verifying that no decision remains. No dummy frontier is needed.
 

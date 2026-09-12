@@ -106,7 +106,8 @@ whole authorized outcome, including necessary concrete fixes. Apply the
 repository's documented Application Code/Tooling classification by purpose:
 
 - Application Code gets rigorous linting, type checking, validation, and meaningful
-  tests with strong emphasis on high coverage. Follow actual local gates.
+  tests with strong emphasis on high coverage. Invoke `tdd` for bug fixes and
+  new or changed application behavior; that skill owns the test-first loop. Follow actual local gates.
 - Tooling is validated by successful real use. Do not build coverage suites,
   fake environments, resumable state machines, or tests of tests for tooling.
   Existing real checks can be run without inventing an orchestration test product.

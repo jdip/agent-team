@@ -99,6 +99,7 @@ Only the listed package identities are approved; neighbors are not managed.
 | code-simplification | Original behavior-preserving simplification workflow |
 | research | Adapted primary-source research and assigned artifact ownership |
 | reflect | Original focused lesson capture and actionable issue follow-through |
+| audit-agent-instructions | Original evidence-based skill and rule audit |
 | repository-verification | Original suitability assessment, opt-in setup and audit workflow |
 | prototype | Adapted planning prototypes and authorized implementation handoff |
 | tdd | Adapted behavioral testing at established public boundaries |
@@ -193,6 +194,7 @@ is separate from native Claude session usability.
 | code-simplification | Original behavior-preserving simplification workflow |
 | research | Adapted primary-source research and assigned artifact ownership |
 | reflect | Original focused lesson capture and actionable issue follow-through |
+| audit-agent-instructions | Original evidence-based skill and rule audit |
 | repository-verification | Original suitability assessment, opt-in setup and audit workflow |
 | prototype | Adapted planning prototypes and authorized implementation handoff |
 | tdd | Adapted behavioral testing at established public boundaries |

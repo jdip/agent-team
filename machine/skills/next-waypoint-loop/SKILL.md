@@ -37,11 +37,10 @@ ticket. If Wayfinder is unavailable, report the missing dependency.
    Continue independently through authorized work and routine recoverable
    failures. A prototype or grilling ticket requires the human's actual
    participation; never supply their answers yourself.
-3. Before pausing for input or approval, assemble the full ready decision round
-   for the claimed ticket as described below. Complete the independent work
-   needed to present concrete recommendations or reviewable results. Ask the
-   ready questions together, then pause. Keep the ticket claimed and unresolved;
-   do not claim another ticket while this one waits for the human.
+3. For a human decision, invoke `grilling` and complete its actual dialogue and
+   shared-understanding confirmation with the user. Grilling owns question
+   readiness, batching and recommendations. Keep the ticket claimed and unresolved
+   while waiting; do not claim another ticket to bypass that dependency.
 4. When the ticket is resolved, finish **all** Wayfinder bookkeeping: record the
    resolution, satisfy Wayfinder’s implementation handoff, close the ticket,
    append the map's context pointer, and create or
@@ -53,48 +52,18 @@ ticket. If Wayfinder is unavailable, report the missing dependency.
    Otherwise immediately repeat from step 1 without asking whether to continue
    or ending the turn merely because one ticket finished.
 
-After the human answers a round, apply all supplied answers, complete newly
-authorized independent work, and recompute the ready decisions. Resume the same
-claimed ticket, then continue the loop. Do not treat a partial answer as approval
-of unanswered decisions; carry those forward without blocking unrelated progress
-within the ticket. Honor a later request to stop or change scope.
-
-## Batch decisions and work within each turn
-
-Wayfinder's ticket frontier chooses **which ticket to work**. Grilling's decision
-frontier chooses **all questions ready to ask within that ticket**. One claimed
-ticket does not mean one question per turn. The instruction to pause for human
-input means pause after preparing the ready round, not at the first uncertainty.
-
-- Survey the claimed ticket's whole decision tree before asking. Gather available
-  facts and advance independent work across it, rather than following one branch
-  through a succession of tiny confirmations.
-- Follow grilling's existing whole-frontier rule: batch independent, answerable
-  decisions in one numbered round, with a concrete recommendation for each. Use
-  as many questions as are useful and coherent; do not impose a one-question cap
-  or pad a round to meet a quota. Combine tightly related choices into a coherent
-  proposal when that makes the human's decision easier.
-- A question is ready only when its prerequisites are settled. Do not assume an
-  answer to another open question to make a larger batch. Research unsettled
-  facts as required by the ticket's skills; only dependent questions wait for
-  those results. If only one meaningful question is ready, ask that one.
-- Choose routine implementation details within the agreed constraints and state
-  consequential assumptions. Do not turn every filename, restatement of an
-  accepted rule, or already-authorized next step into another approval request.
-- Human decisions and required approvals remain human-owned. Where grilling
-  needs confirmation of shared understanding, include the concrete consolidated
-  proposal in the ready round; do not add repeated confirmations of points the
-  human has already explicitly confirmed.
-- After answers settle a ticket, finish its bookkeeping and immediately advance
-  to the refreshed tracker frontier in the same turn. Ticket boundaries are not
-  turn boundaries; human input dependencies are.
+After the human answers, resume the same claimed ticket through its required
+skill, preserving supplied answers and existing approval. Complete its bookkeeping
+and refresh the tracker frontier before continuing. Honor a later request to stop
+or change scope.
 
 ## End conditions
 
 Pause for required human input or approval. Otherwise continue until the map is
 complete, the user stops the run, or no actionable frontier remains.
 
-For a settled map with no decision children, complete Wayfinder's implementation
+For a map with direction confirmed through Wayfinder's entry and no decision
+children, complete Wayfinder's implementation
 handoff and resolution directly; do not create work just to populate the
 frontier. Once the map is resolved, carry an existing implementation request
 through the specification, publication and backlog owners, asking only for

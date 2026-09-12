@@ -14,7 +14,8 @@ assessment rules.
 
 The [global planning rule](../../machine/AGENTS.md#planning-before-implementation)
 applies inside and outside this coordinator, including direct specialist requests.
-Wayfinder owns proportionate maps and decision resolution; the existing executor
+Wayfinder owns the grilling entry before new maps and subsequent decision
+resolution; the existing executor
 uses one specification parent and at least one executable child. Reuse covering
 plans and authority across these owners, preserving phase-specific completion
 boundaries. Planning records can precede completed implementation planning.
@@ -66,8 +67,10 @@ baseline and assesses target documents as review material. All four alignment
 workflows follow the selected standard's Target assessment and planning outcome:
 read-only assessment, target-owned Wayfinder map and approved spec, then execution
 against the target's state and workflow goals. Reuse covering plans and handoffs;
-preparation edits retain their documentation-only boundary. The preparation skill's final pass invokes
-the full OpenAI `openai-docs` skill for the migration and instruction audit before combined review and verification.
+preparation edits retain their documentation-only boundary. The preparation skill
+uses `audit-agent-instructions` for comprehensive assessment and a required
+`openai-docs` invocation for current official instruction guidance, then completes
+combined review and verification under its final-audit contract.
 
 The result is a committed local preparation branch and an evidence-based readiness
 handoff. Continue from that prepared branch's changes when separately authorized

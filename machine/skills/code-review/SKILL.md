@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: "Review the changes since a fixed point (commit, branch, tag, or merge-base) along two axes: Standards (does the code follow this repo's documented coding standards?) and Spec (does the code match what the originating issue/spec asked for?). Checks both axes under the assigned reviewer’s ownership and reports them separately. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to \"review since X\"."
+description: Review a PR, branch, or working-tree diff against repository standards and the requested outcome, including delivery reviews.
 ---
 
 Two-axis review of the requested committed or working-tree changes:

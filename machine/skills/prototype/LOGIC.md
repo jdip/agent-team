@@ -1,74 +1,47 @@
-# Logic Prototype
+# Logic prototype
 
-A shareable demo that lets anyone drive a state model by clicking buttons. Use this when the question is about **business logic, state transitions, or data shape**: the kind of thing that looks reasonable on paper but only feels wrong once you push it through real cases.
+Use this branch when the question concerns behavior, state transitions, data
+shape, or an API surface that needs to be exercised before implementation.
 
-When the existing environment permits it, a single HTML file with nothing to install is ideal: you can hand it to a non-developer (a designer, a PM, a domain expert) and let them feel the model for themselves. Use the repository's approved language and environment instead when that is the applicable constraint. In either case, it speaks their language, not the code's.
+## Shape the evidence
 
-## When this is the right shape
+Write the question, candidate rule, and observations that would support or
+reject it where a reviewer can see them. Choose a few representative scenarios:
+the ordinary path, the consequential edge or boundary, and a rejected or
+invalid action when that distinction matters.
 
-- "I'm not sure if this state machine handles the edge case where X then Y."
-- "Does this data model actually let me represent the case where..."
-- "I want to feel out what the API should look like before writing it."
-- Anything where someone wants to **press buttons and watch state change**.
+Choose an artifact that people who need to judge the result can use in the
+approved environment. For example, a directly opened HTML demo can work for a
+clickable state exploration when it requires no new runtime; an existing
+component, executable module, or established task runner can better expose a
+candidate that must fit the repository. The question, not a preferred artifact
+format, makes that choice.
 
-If the question is "what should this look like," this is the wrong branch. Use [UI.md](UI.md).
+## Build the smallest useful model
 
-## Process
+Express the candidate logic in the form that makes its decision boundaries
+clear: a reducer, state machine, pure functions over data, or a module with a
+small stateful surface. Keep presentation separate from the candidate logic
+when that makes the rule easier to inspect or reuse as implementation evidence.
 
-### 1. State the question
+Give a human-readable interaction only when it helps someone exercise the
+scenarios. It may use direct controls, a guided sequence, a compact script, or
+another established interface. Use domain language. After each relevant action,
+show the full relevant state and the transition, acceptance, or rejection that
+answers the question; do not hide the evidence behind implementation names or a
+raw dump when a readable presentation is practical.
 
-Before writing code, write down what state model and what question you're prototyping. One paragraph, at the top of the demo (in a visible intro, not just a comment). A logic prototype that answers the wrong question is pure waste, so make the question explicit so it can be checked later, whether the user is watching now or returning to it AFK.
+## Verify and decide
 
-### 2. Isolate the logic in a portable module
+Run each chosen scenario from a known state and inspect the observed result.
+Record the verdict, the observations that support it, and the implementation
+seam. Retain the artifact only as an authorized planning record. When the
+decision is implemented, rebuild the selected logic under the repository's
+normal production constraints rather than carrying the prototype shell forward.
 
-Put the actual logic (the bit that's answering the question) in a single `<script>` block written as a small, pure module that can inform a later implementation. The page around it is throwaway; the module is an executable expression of the candidate decision.
+## Boundaries
 
-The right shape depends on the question:
-
-- **A pure reducer**: `(state, action) => state`. Good when actions are discrete events and state is a single value.
-- **A state machine**: explicit states and transitions. Good when "which actions are even legal right now" is part of the question.
-- **A small set of pure functions** over a plain data type. Good when there's no implicit current state, just transformations.
-- **A class or module with a clear method surface** when the logic genuinely owns ongoing internal state.
-
-Pick whichever shape best fits the question being asked, *not* whichever is easiest to wire to a page. Keep it pure: no DOM, no `document`, no button handlers reaching inside it. The page calls into it; nothing flows the other direction. This makes the prototype a useful, concrete input to a later implementation decision.
-
-### 3. Build the shareable demo
-
-Use the repository's existing environment and make the demo directly runnable. A
-single plain HTML/CSS/JS file is appropriate when it opens directly without adding
-a project runtime or toolchain. Otherwise, use an already established language and
-task-runner entry point. Keep the artifact easy to share and run.
-
-Write it for a non-developer. Every label is in **domain language**, not code: buttons and state read like the business, not the reducer. Explain in plain words what's happening.
-
-Lay it out with a clean hierarchy, top to bottom:
-
-1. **Title and one-line explanation** of what this demo lets you explore (the question from step 1).
-2. **Current state**: the full relevant state, rendered as a readable panel (labelled fields, not a raw JSON dump), re-rendered after every click so the change is visible. Where it helps a non-developer follow, call out what just changed.
-3. **Free-play buttons**: one button per action, always available, so anyone can poke at the model in any order. Each click dispatches its action and re-renders the state.
-4. **Guided walkthroughs**: a set of **scenarios**, one per tab. Each tab holds a short plain-language description of the scenario (the situation it sets up and what to watch for) and underneath it, the ordered **buttons to press** for that scenario. Each step is a real button: clicking it performs that action and moves to the next step. Starting a walkthrough resets to a known initial state so the scenario runs the same way every time.
-
-Choose scenarios that demonstrate the awkward cases, the ones hard to reason about on paper: the happy path, a tricky edge case, an attempt at something that should be illegal.
-
-Keep it beautiful but restrained: clean typography, generous spacing, one accent colour. No animations, no gimmicks: nothing that competes with the state and the buttons.
-
-### 4. Hand it over
-
-Send them the file, or open it for them. They'll click through the walkthroughs and free-play whenever they get to it; the interesting moments are when they say "wait, that shouldn't be possible" or "huh, I assumed X would be different"; those are the bugs in the _idea_, which is the whole point. If they want new actions or a new scenario, add them. Prototypes evolve.
-
-### 5. Capture the verdict and implementation handoff
-
-Once the prototype has answered its question, record the verdict, the observed
-behavior that supports it, and the proposed implementation seam. Keep the demo as
-the planning artifact when its retention is authorized. When implementation is
-already authorized, apply the selected logic through the repository's normal
-workflow without asking again; otherwise hand off the validated logic shape.
-
-## Anti-patterns
-
-- **Keep verification proportional.** Exercise the scenarios that answer the design question and honor actual local gates; a throwaway demo does not need a new coverage suite.
-- **Don't wire it to the real database.** Use in-memory state unless the question is specifically about persistence.
-- **Don't generalise.** No "what if we wanted to support X later." The prototype answers one question.
-- **Don't blur the logic and the page together.** If the pure module references the DOM, `document`, or button handlers, it's no longer liftable. Keep the page as a thin shell over a pure module.
-- **Don't introduce a framework, bundler, server, language, or runtime for the demo.** Use a self-contained artifact where that fits, or the project's established environment.
-- **Don't ship the HTML shell into production.** The page is optimised for being clicked through by hand. Authorized implementation can use the verified logic shape as evidence.
+Keep integrations in memory or against an isolated disposable resource unless
+the inquiry specifically concerns persistence. Use existing language, runtime,
+and task-runner choices. The prototype concentrates on one decision; its
+scenarios should expose that decision rather than speculate about future scope.

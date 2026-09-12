@@ -18,9 +18,9 @@ copying an entire scaffolding tree.
   sub-issue, dependency, claim, and remediation deduplication conventions in
   docs/agents/issue-tracker.md. Include search, matching-issue reuse, evidence,
   readback, and blocker links so global filing guidance has a concrete local path.
-- Lazy domain-documentation guidance like docs/agents/domain.md. Read existing
-  CONTEXT.md or CONTEXT-MAP.md and relevant ADRs. Create or change domain docs when
-  real terms or decisions emerge, never as empty scaffolding.
+- Task-relevant domain-documentation pointers like docs/agents/domain.md. Create
+  or change domain docs when real terms or decisions emerge, rather than as
+  empty scaffolding.
 - Actual development and verification instructions, with a local classification
   of Application Code and Tooling by purpose.
 - Guidance retirement under the outcome below, including inherited process that
@@ -62,8 +62,9 @@ inspect relevant code, guidance, current mechanisms, constraints, capabilities a
 existing preparation/map/spec evidence against that workflow's required outcomes.
 An empty-looking repository or a source revision delta does not replace assessment.
 
-Conduct or resume Wayfinder with that evidence to resolve how this target should
-reach the workflow's goals. The target owns the map and specification, including
+Conduct or resume Wayfinder with that evidence, following its grilling entry
+before charting new work, to resolve how this target should reach the workflow's
+goals. The target owns the map and specification, including
 when preparation is driven from Agent Team. Reuse covering plans and settled
 decisions; one plan may cover preparation and subsequent adoption/upgrade while
 preserving each phase's authorization and completion boundary. If the target
@@ -99,6 +100,16 @@ Missing capabilities or unresolved decisions remain explicit rather than becomin
 silent implementation.
 
 ## Guidance retirement
+
+For instruction authoring and review, use `writing-for-agents` and the
+[global instruction conventions](../machine/AGENTS.md#host-capabilities-and-skills).
+Evaluate the baseline itself as well as target guidance. Preserve explicit
+requirements and their reasons: maps/specs/ticket handoffs provide durable context,
+and main promotion requires a separate explicit operator request. Simplification
+improves how these requirements are expressed and reached, not their force.
+Current [OpenAI instruction guidance](https://developers.openai.com/blog/rethinking-skills-and-prompts-for-gpt-6-astra)
+informs this assessment; model-specific advice is evidence to assess against the
+target's actual agent audience, not authority to override operator decisions.
 
 Preparation, adoption and upgrades assess repository-owned guidance by purpose and
 effect. Inspect the repository broadly, including unlinked documents, embedded
