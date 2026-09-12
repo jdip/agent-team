@@ -1,6 +1,6 @@
 ---
 name: whats-next
-description: Identify and advance the next useful work in the current repository, continuing through planning, implementation, alignment, and maintenance workflows until a human decision or blocker requires a pause. Use when the operator asks what to do next or to keep repository progress moving.
+description: Choose and advance repository work when the operator asks what to do next or to keep progress moving.
 ---
 
 # What's Next
@@ -57,7 +57,8 @@ Apply the global Planning before implementation rule to every implementation
 candidate, including an existing PR and direct maintenance or alignment work.
 Reuse a resolved map and approved spec covering the actual change. If coverage
 is missing, begin or resume Wayfinder from the inspected target and desired
-outcome; smallness or a delivery request does not supply a planning waiver.
+outcome. Use Wayfinder's grilling entry before charting new work; smallness or a
+delivery request does not supply a planning waiver.
 Read-only assessment may continue while planning remains open.
 
 Once the destination is concrete, carry the request's planning authority through

@@ -8,10 +8,10 @@ do not publish a placeholder declaration or duplicate machine-level settings.
 
 <Repository-specific purpose, scope, and invariants.>
 
-- Work tracking: docs/agents/issue-tracker.md.
-- Domain documentation: docs/agents/domain.md.
-- Actual development, Application Code/Tooling classification, and checks:
-  docs/development.md.
+- For issue tracking and handoffs, use docs/agents/issue-tracker.md.
+- For domain terminology and decisions, use docs/agents/domain.md.
+- For implementation and verification, use docs/development.md for the actual
+  environment, Application Code/Tooling classification, and checks.
 
 ## Visibility and publication
 

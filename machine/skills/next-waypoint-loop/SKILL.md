@@ -94,7 +94,8 @@ input means pause after preparing the ready round, not at the first uncertainty.
 Pause for required human input or approval. Otherwise continue until the map is
 complete, the user stops the run, or no actionable frontier remains.
 
-For a settled map with no decision children, complete Wayfinder's implementation
+For a map with direction confirmed through Wayfinder's entry and no decision
+children, complete Wayfinder's implementation
 handoff and resolution directly; do not create work just to populate the
 frontier. Once the map is resolved, carry an existing implementation request
 through the specification, publication and backlog owners, asking only for
