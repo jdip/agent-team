@@ -33,8 +33,10 @@ sources and scope; preserve their claims, dependencies, and current scheduling
 state. Do not create a duplicate parent or move work from another effort.
 
 Require a covering Wayfinder map unless the operator explicitly waived it under
-the global Planning before implementation rule. If missing, begin Wayfinder from
-the supplied outcome and evidence. Read the complete map, its comments, every
+the global Planning before implementation rule. Before reusing a map or its spec,
+apply Wayfinder's **Map-entry evidence** rule, including for closed maps.
+If the covering map is missing, begin Wayfinder from the supplied outcome and
+evidence. Read the complete map, its comments, every
 child and material linked decisions. Draft once all decisions are settled; a map
 awaiting only its resolution/handoff bookkeeping can receive this draft before
 closure. A substantive unresolved decision returns to Wayfinder and pauses the

@@ -130,12 +130,21 @@ Two modes. Either way, **never resolve more than one ticket per session**, with 
 ### Chart the map
 
 A new-work discussion invokes this entry directly or through `whats-next` or
-another owning workflow. Invoke `grilling` before creating the map and follow its
-existing dialogue and shared-understanding completion rule. Record the confirmed
-direction in the map; a generated map or proposed spec is not evidence that the
-dialogue occurred. Reuse prior answers on approved continuations and reopen
-dialogue when scope, assumptions, or outcome materially changes. Preserve the
-global Planning before implementation rule and its explicit-waiver boundary.
+another owning workflow. Invoke `grilling` to establish the destination, constraints,
+success criteria, scope, assumptions and tradeoffs with the user. Follow its rounds:
+ask the ready questions, wait for actual answers, and follow dependent questions
+until no human decision about the destination remains. Deeper design decisions
+may become map tickets. Grilling owns the dialogue procedure; this entry owns
+the boundary between establishing the destination and mapping its remaining design.
+
+Before creating a map, summarize the shared understanding and obtain the user's
+explicit confirmation. A detailed request, agent proposal, or reading the skill
+does not establish completed grilling. Record the confirmed direction and a concise
+summary of the actual dialogue in the map's existing Notes/Decisions so far;
+use available conversation evidence without publishing private transcripts.
+Reuse supported prior answers on approved continuations and reopen dialogue when
+scope, assumptions, or outcome materially changes. Preserve the global Planning
+before implementation rule and its explicit-waiver boundary.
 
 1. **Name the destination.** Complete the `grilling` entry above with the user.
    Use `domain-modeling` when terminology or domain relationships need resolution.
@@ -155,17 +164,46 @@ global Planning before implementation rule and its explicit-waiver boundary.
    prepare its specification and executable breakdown, record resolution and close
    the map after verifying that no decision remains. No dummy frontier is needed.
 
+### Map-entry evidence
+
+Before resuming a map or reusing its design for specification or implementation,
+establish from recorded decisions and available conversation that the **Chart the
+map** entry dialogue and confirmation occurred. Closure and an approved spec alone
+do not establish that evidence. If evidence is missing, complete that entry with
+the user before advancing; reuse supported answers and record the recovered
+understanding in the existing map. Recovering evidence does not require a new map.
+If the dialogue reveals an unsettled substantive decision, reopen the map under
+the implementation handoff rule. An explicit scoped planning waiver retains its
+existing effect.
+
 ### Work through the map
 
 User invokes with a map (URL or number). A ticket is **optional**: without one, you pick the next decision, not the user.
 
-1. Load the **map**: the low-res view, not every ticket body.
+1. Load the **map**: the low-res view, not every ticket body. Apply **Map-entry
+   evidence** before advancing.
 2. If no open decisions or fog remain, complete the Implementation handoff and
    map resolution directly, including for a compact map with no children.
    Otherwise choose the ticket. If the user named one, use it. Otherwise take the first frontier ticket in order. **Claim it**: assign it to yourself before any work.
-3. Resolve it. **Zoom as needed**: fetch the full body of any related or closed ticket on demand; read and apply whichever skills the `## Notes` block names. Use `grilling` and `domain-modeling` when an unresolved human decision requires them; reuse settled answers.
+3. Resolve it. **Zoom as needed**: fetch the full body of any related or closed ticket on demand; read and apply whichever skills the `## Notes` block names. Apply **Human-decision completion** below before resolving a human decision; use `domain-modeling` when terminology or relationships need resolution.
 4. Record the resolution: post the answer as a **resolution comment**, satisfy the **Implementation handoff** below, **close** the issue, and **append a context pointer** to the map's Decisions-so-far when it has a map parent.
 5. Add newly-surfaced tickets (create-then-wire); graduate any fog the answer has made specifiable, clearing each graduated patch from **Not yet specified** so it lives only as its new ticket. If the answer reveals that a ticket (this one or another) sits beyond the destination, **rule it out of scope** rather than resolving it on the route. If the decision invalidates other parts of the map, update or delete those tickets.
+
+### Human-decision completion
+
+Invoke `grilling` for a waypoint involving human judgment, including choices that
+emerge from research or prototypes. Follow its actual question-and-answer rounds,
+reusing settled answers. Keep the waypoint unresolved while relevant questions or
+dependent follow-ups await the user. Pure factual research can finish autonomously;
+its findings alone do not settle a resulting human choice.
+
+For waypoint resolution, the completion criterion is that the user has answered
+the relevant questions, dependent questions have been followed through, and no
+human decision within that waypoint remains unresolved. This waypoint-specific
+criterion replaces grilling's separate final shared-understanding confirmation;
+record the resolution and close the waypoint without an additional confirmation
+prompt. Asking questions or presenting a recommendation alone is not completion.
+The **Chart the map** entry retains its explicit confirmation gate.
 
 ## Implementation handoff
 
