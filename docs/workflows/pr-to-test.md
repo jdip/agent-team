@@ -21,10 +21,13 @@ every change and resolved/accepted findings; doubt requires the relevant review.
 Run scripts/check.sh, git diff --check, and the actual changed helper operation.
 No review record framework or Tooling coverage suite is needed.
 
+Choose the contribution using the shared
+[Version classification](../../machine/skills/pr-to-test/SKILL.md#version-classification)
+guidance, then set `contribution` to `major`, `minor`, `patch` or `none`.
 From the repository root run:
 
 ```bash
-scripts/pr-to-test.sh --title 'Concrete change' --body-file /path/to/pr-body.md --semver none
+scripts/pr-to-test.sh --title 'Concrete change' --body-file /path/to/pr-body.md --semver "${contribution:?Set contribution from the actual change}"
 ```
 
 The script pushes the current named task branch, creates or reuses its open PR to

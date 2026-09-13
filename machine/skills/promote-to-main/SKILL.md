@@ -24,6 +24,10 @@ signing, processing, and user-visible behavior only where the local runbook
 requires them. Use merge commits for test-to-main and required main-to-test sync.
 Check the intended revisions and investigate drift before including changed scope.
 
+Review task contributions against [Version classification](../pr-to-test/SKILL.md#version-classification)
+and the actual delivered changes, resolving routine misclassification before
+calculating the promotion version.
+
 Versioning uses each applicable task PR once in merge order: major/minor/patch/none,
 with normal resets. Sync contributes none; promotion wrappers do not recount task
 changes. All-none retains the version without a new tag. Resolve routine metadata

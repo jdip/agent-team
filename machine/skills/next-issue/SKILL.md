@@ -134,7 +134,9 @@ entry point. Use merge commits, preserving history. Local runbooks define actual
 application/deployment effects and completion evidence. An open PR, a successful
 script launch, or a merge without required test deployment is not completion.
 
-For this repository's label/tag policy, semver is per PR and `none` is valid.
+Choose each PR's semver contribution using
+[Version classification](../pr-to-test/SKILL.md#version-classification) and the
+repository's label/tag policy.
 Bookkeeping must not become an artificial release gate; real application and
 delivery requirements remain in force.
 

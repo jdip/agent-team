@@ -351,7 +351,10 @@ Completion means the local runbook's verified result, including real deployment 
 processing when applicable. Verified test delivery permits the next issue; promotion
 is separately requested. Do not make promotion a per-task gate.
 
-Use semver:major, semver:minor, semver:patch, and semver:none labels. Count each
+Use semver:major, semver:minor, semver:patch, and semver:none labels. Classify
+delivered behavior through the shared
+[Version classification](../machine/skills/pr-to-test/SKILL.md#version-classification)
+guidance and the repository's explicit compatibility policy. Count each
 applicable merged task PR once in deterministic merge order, with normal resets:
 1.4.2 + patch + minor + patch = 1.5.1. Synchronization contributes none; promotion
 wrappers do not recount component changes. All-none promotion keeps the existing
