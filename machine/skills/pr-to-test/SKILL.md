@@ -44,14 +44,19 @@ partial progress. All canonical task-to-test merges use merge commits.
 
 On failure inspect the earliest error and actual partial effects before recovery.
 Continue routine authorized fixes and remaining steps; never blindly rerun a merge
-or overwrite protection. Complete independent work and batch ready human decisions
-with concrete recommendations when a new decision or external prerequisite is needed.
+or overwrite protection. Complete independent work. Before pausing or reporting a
+failure, use `cleanup-task-artifacts` with local guidance. The delivery authority
+covers this phase cleanup; preserve the current task environment and resources
+needed by a pending gate. Then batch ready human decisions with concrete
+recommendations when a new decision or external prerequisite is needed.
 
-After verified delivery, record the PR and evidence and close the originating issue
-only if its whole acceptance outcome is met. Use `cleanup-task-artifacts` when
-available, together with local artifact guidance. If that package is unavailable,
-apply the same rule directly: remove only associated resources proven safe; retain
-attached Codex worktrees, shared/uncertain artifacts, and unpublished work. Use
-supported lifecycle handling, never raw app-storage edits or blanket pruning.
-Report delivery, actual cleanup, retained resources, and unresolved work. Verified
-test delivery permits the next authorized issue/milestone without promotion.
+After verified delivery, record the PR and evidence, then use
+`cleanup-task-artifacts` with local guidance before closing the originating issue
+or final reporting. Follow its resource and retention policy; close the issue only
+if its whole acceptance outcome is met. Verified test delivery permits the next
+authorized issue/milestone without promotion.
+
+If the cleanup package is unavailable, use local artifact guidance to stop/remove
+only exact task-owned resources proven safe for that action. Preserve active,
+shared, uncertain or needed state and attached checkouts; use supported lifecycle
+tools. Report the unavailable policy and actual cleanup limits.

@@ -164,18 +164,18 @@ unresolved design choice keeps the issue claimed and unresolved. Apply the
 Design gate for a substantive missing decision; covered implementation reuses
 its existing map.
 
-Before pausing, complete independent work within the issue and ask ALL ready
-questions together in ordinary text, with concrete recommendations, and wait
-for the actual answers. Do not use timed or disappearing question widgets.
+Before pausing after a substantial phase, a failed/blocked operation, or for user
+input, complete independent work within the issue, then use `cleanup-task-artifacts`
+with local guidance and ask ALL ready questions together in ordinary text, with
+concrete recommendations, and wait for the actual answers. Phase cleanup does not
+complete this issue or detach its checkout. Do not use timed or disappearing
+question widgets.
 Do not guess dependent answers, add confirmation for settled points, or treat a partial reply as approval
 of unanswered decisions. Resume this issue after the reply.
 
-After delivery, clean all provably associated AND safe-to-remove task resources,
-including branches, worktrees, containers, and logs, under local guidance. Preserve
-unpublished work and shared/uncertain artifacts. Never delete a checkout still
-backing a Codex task. Use supported app lifecycle handling; if safe removal cannot
-be established, retain and report it. Do not use broad pruning or edit app storage.
-Deferred safe cleanup is reported honestly and is not a main-promotion gate.
+After delivery, use `cleanup-task-artifacts` with local guidance before final
+reporting. Follow its resource and retention policy. Deferred safe cleanup is
+reported honestly and is not a main-promotion gate.
 
 Post a resolution linking the delivered PR, verification/review evidence, and any
 remaining non-blocking remediation or retained artifacts. Close the issue only

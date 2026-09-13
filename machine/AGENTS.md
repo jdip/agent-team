@@ -209,8 +209,15 @@ continue backlog work. Main promotion is separately requested. Canonical PR flow
 use merge commits; per-PR additive semver allows none and must not manufacture a
 release blocker. Actual application and delivery gates remain mandatory.
 
-Clean only resources proven associated with the task and safe to remove. Never
-orphan a checkout backing a task. Use supported host lifecycle tools. Automatic
-archival requires proven completion, unpinned/inactive status, and more than seven
-days since the last turn; missing evidence means retain. Report delivered work,
+Stop or remove only exact resources proven task-owned and safe for that action;
+preserve active/shared state and checkouts backing tasks. Use supported host
+lifecycle tools. Before launching temporary compute, use `cleanup-task-artifacts`
+to establish ownership and teardown. At each major phase boundary—completed
+validation or proof, verified delivery or
+promotion, a substantial phase end, failure or waiting, and final handoff—use
+`cleanup-task-artifacts` before reporting. Existing work authority includes this
+cleanup; it does not end an incomplete task or detach its checkout.
+Follow that skill's retention evidence and task-context rules. Automatic archival
+requires proven completion, unpinned/inactive status, and more than seven days
+since the last turn; missing evidence means retain. Report delivered work,
 verification limits, unresolved decisions, and retained artifacts plainly.
