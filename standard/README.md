@@ -317,6 +317,13 @@ global `promote-to-main` skill, `docs/workflows/promote-to-main.md`, and
 `scripts/promote-to-main.sh` from the clean primary `test` checkout, completing
 verification and main-to-test synchronization.
 
+Root guidance must direct agents to `cleanup-task-artifacts` before launching
+temporary compute to establish ownership and teardown, and before reporting at
+major phase boundaries: completed validation/proof, verified delivery/promotion,
+substantial phase end, failure/waiting, and final handoff. The skill owns the
+resource and retention policy; phase cleanup does not end an incomplete task or
+detach its checkout.
+
 Adoption and upgrades establish these outcomes in both the actual checkout layout
 and root guidance. If required branches are absent, establish them from the target
 repository's intended baseline; resolve ambiguous history before changing refs.
@@ -356,9 +363,7 @@ Version metadata cannot waive real application/delivery gates or invent an artif
 blocker. A real artifact pipeline's version prerequisite and initial version are
 local runbook decisions.
 
-Clean only artifacts proven associated with the task and safe to remove. Preserve
-shared, active, uncertain, uncommitted, or unpublished state and needed evidence.
-Never delete a Codex-attached checkout; use supported lifecycle handling or retain
-it. Daily cleanup adds no authority beyond the same safety checks. Automatic archival
-also requires proven completion, unpinned/inactive state, and more than seven days
-since an observed last turn. Missing evidence means skip.
+Use `cleanup-task-artifacts` at the required phase boundaries. Its policy governs
+safe task-resource cleanup and retention; daily cleanup adds no authority beyond it.
+Automatic archival also requires proven completion, unpinned/inactive state, and
+more than seven days since an observed last turn. Missing evidence means skip.

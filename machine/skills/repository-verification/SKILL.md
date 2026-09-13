@@ -74,10 +74,13 @@ deletions or production writes.
 
 Follow the resulting instructions on the actual repository: establish readiness,
 exercise each initially selected behavior, capture the action and resulting state,
-check relevant side effects and clean up owned state. Verify that evidence remains
-available. Fix instruction/control gaps within authorized scope and repeat only
-affected proof. Unexecuted or unreachable instructions remain unverified; name the
-missing prerequisite. Do not declare setup complete without the real-use proof.
+check relevant side effects and verify that evidence remains available. When the
+setup or proof phase completes or pauses, use `cleanup-task-artifacts` with local
+guidance before reporting. Phase cleanup does not complete a continuing task or
+detach its checkout. Fix instruction/control gaps within authorized scope and
+repeat only affected proof. Unexecuted or unreachable instructions remain
+unverified; name the missing prerequisite. Do not declare setup complete without
+the real-use proof.
 
 ## Audit an adopted guide
 
@@ -87,6 +90,8 @@ the selected behaviors and makes no whole-guide claim. Read relevant source chan
 and check for important unmapped behavior before driving the real paths serially.
 Use the guide's readiness, isolation, evidence and cleanup rules. Recheck health
 and recover a known state after unexpected behavior before continuing to drive.
+Before reporting a completed or paused audit phase, use `cleanup-task-artifacts`
+with the guide's local guidance.
 
 Distinguish stale instructions, working behavior the controls cannot reach, and a
 product regression. Correct authorized guide/control drift at its owner and prove

@@ -1,14 +1,42 @@
 ---
 name: cleanup-task-artifacts
-description: Clean verified task artifacts after delivery or during an authorized daily sweep, preserving active and uncertain work.
+description: Establish ownership before launching temporary compute; release task-owned resources at major work boundaries or during an authorized daily sweep.
 ---
 
 # Cleanup Task Artifacts
 
-Use for authorized delivery cleanup or the explicitly installed daily cleanup sweep.
+Use before launching temporary compute and at the end of validation, a proof, a substantial work phase, delivery or
+promotion, and before pausing for failure, human input or final handoff. The
+authorized work includes cleanup of its own temporary resources; another cleanup
+request is unnecessary. Also use for the explicitly installed daily sweep.
 Cleanup does not authorize Machine Reconciliation, updates, unrelated repair,
 publication, or broader deletion. Read the relevant repository's AGENTS.md and
 local delivery/artifact guidance. Protect the current task's own environment.
+
+## Establish resource lifetime
+
+When starting temporary compute, establish its exact identity, owning operation,
+and teardown command through the existing local lifecycle owner. Prefer its
+automatic cleanup on success, failure and handled interruption. Keep evidence in
+the existing task/run output and native resource metadata, not a new registry.
+If a launcher lacks teardown, the supervising agent still owns safe cleanup and
+files the launcher defect through the repository's tracker guidance.
+
+At a major boundary, inspect resources started or retained by the work, including
+delegated work. An ended validation operation can release its compute while the
+overall task remains open. An attached checkout, retained data or failed proof is
+not by itself a reason to leave temporary services running. Capture needed
+diagnostics, then stop proven-owned compute that is no longer needed. Preserve
+failed diagnostic state unless its deletion is independently safe. Remove stopped
+containers and dedicated networks only when no needed state or other user depends
+on them; volumes and checkpoint images retain their local ownership rules.
+
+Keep services required by active work or a pending verification gate. An explicitly
+retained live preview needs exact resources, an owner, a reason and a stop/restart
+procedure in the task's existing evidence. Durable product agents and shared
+services have their own lifecycle; task completion never makes them disposable.
+An interruption that bypasses teardown, such as host loss, needs later inspection
+by the supervisor or daily sweep, not a claim that exit handlers always ran.
 
 ## Discover participating repositories
 
@@ -24,13 +52,32 @@ or a new registry. Unavailable inventory/source evidence means skip, not inferre
 participation. Direct delivery cleanup may use the already verified current
 task/repository scope before the repository's first adoption.
 
+Read every discovery result. Distinguish roots without adoption from a declared
+adoption whose source cannot be verified or whose guidance cannot be read. A newly
+observed broken participation path or unavailable discovery is actionable; report
+it with its skip reason and continue independent eligible roots. Missing evidence
+preserves the affected resources; it is not a successful empty sweep.
+
+For participating roots, explicitly inventory running AND stopped containers,
+dedicated networks and local background processes where those resources are used.
+Resolve the actual Docker context/endpoint used by the work; inspect `docker ps -a`
+and only relevant `docker inspect` fields (state, labels, mounts and restart
+policy), without dumping environment variables or credentials. Use Compose project
+and working-directory labels or the local owner's equivalent to find candidates,
+including projects in retained worktrees. A default development `down` command may
+target a different namespace from validation. Missing Docker/process access is a
+coverage limit, not proof of no leftovers. Do not start an unavailable engine or
+contact an unrelated remote context just to expand the sweep.
+
 ## Establish what can be removed
 
 Eligibility only establishes participation. For every candidate establish BOTH
-association with the completed task and safe removal, using actual task, Git,
-container, process, or artifact evidence. Names and age can suggest candidates but
-never prove ownership or safety. Inspect exact resource identifiers and local
-runbook-defined artifacts; clean all qualifying task resources, not just branches.
+association with the owning task/operation and safety of the proposed stop/removal,
+using actual task, Git, container, process, or artifact evidence. Establish that
+the operation has ended and the resource is no longer needed; the entire task
+need not be completed. Names, age and a stopped state suggest candidates but never
+prove ownership or safety. Inspect exact resource identifiers and local
+runbook-defined artifacts; handle all qualifying task resources, not just branches.
 
 Preserve active work, shared resources, uncommitted/unpublished changes, needed
 evidence, uncertain artifacts, and the sweep's stable source checkout. Verify a
@@ -60,11 +107,25 @@ checkout; observe and report actual lifecycle results. Preserve any local state
 that archival/removal could endanger. Headless hosts without supported task evidence
 skip affected archival and checkout removal.
 
-## Finish
+## Verify the disposition before reporting
 
-Remove only the proven-safe exact resources under existing authorization. Investigate
-unexpected failures before further action; do not blindly retry destructive steps
+Recheck identity and current users immediately before a stop/removal. Invoke the
+existing exact-resource teardown and inspect the resulting container/process state;
+a launched cleanup command or successful validation exit is not teardown evidence.
+Account for stopped/removed resources, explicitly retained live resources and
+unresolved resources in the existing task/run evidence. Missing task timestamps or
+checkout lifecycle tools restrict archival/checkout removal, not independently
+provable cleanup of an ended operation's temporary compute.
+
+Investigate unexpected failures before further action; do not blindly retry destructive steps
 or build a cleanup journal/state machine. Batch genuine human decisions after
-finishing independent cleanup. Report meaningful cleanup, failures, and required
-action; remain quiet on unchanged/no-op scheduled runs. No notifications about an
-unchanged skipped set are needed on every run. Never mark unresolved work complete.
+finishing independent cleanup. Before the final response or pause, report meaningful
+cleanup and any retained live resources, failed teardown or missing evidence that
+needs action. Do not describe unresolved teardown as completed cleanup or close an
+issue whose acceptance requires it.
+
+Scheduled runs retain a concise disposition in their existing run output/memory,
+including coverage limits and discovery failures. Notify on meaningful cleanup,
+new or materially changed failures, or required action; remain quiet on unchanged
+non-actionable skips and genuine no-ops. An unchanged known failure remains
+unresolved in the run evidence even when it needs no repeat notification.

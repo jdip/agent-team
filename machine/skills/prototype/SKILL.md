@@ -44,11 +44,14 @@ assumption used to choose the branch.
 5. **Verify the question.** Exercise the scenarios that bear on the decision,
    inspect the rendered or observable result, and run applicable local gates.
    Keep verification proportional to a throwaway artifact.
-6. **Record the verdict and handoff.** Capture the question, evidence,
-   decision, and proposed implementation seam in the artifact or authorized
-   planning record. A planning-only prototype ends with a concrete handoff.
-   When implementation is already authorized, continue through the normal
-   workflow; the prototype remains evidence rather than production code.
+6. **Clean, record the verdict, and hand off.** After the prototype's proof is
+   complete or before it pauses, use `cleanup-task-artifacts` with local guidance
+   before reporting the verdict. Phase cleanup does not end a continuing task or
+   detach its checkout. Capture the question, evidence, decision, and proposed
+   implementation seam in the artifact or authorized planning record. A
+   planning-only prototype ends with a concrete handoff. When implementation is
+   already authorized, continue through the normal workflow; the prototype remains
+   evidence rather than production code.
 
 ## Attribution
 

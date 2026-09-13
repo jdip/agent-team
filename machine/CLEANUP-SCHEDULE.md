@@ -46,8 +46,22 @@ and effort supported on that host. Its prompt explicitly loads the stable shared
 cleanup skill, obtains known roots through supported project inventory, calls positive
 adoption discovery, preserves attached/active/shared/uncertain resources, and permits
 automatic archival only with complete evidence and a last turn more than seven days
-old. Notify only meaningful cleanup, failures, or required action; no-op runs stay
-quiet. Do not schedule Machine Reconciliation or software/source updates.
+old. Require inventory of running/stopped containers and background processes used
+by participating roots, including worktree-owned stacks, and the cleanup skill's
+verified resource dispositions. Missing task archival evidence must not suppress
+independently provable cleanup of ended temporary operations. Read discovery skip
+reasons and retain coverage failures in the existing run output/memory. Notify on
+meaningful cleanup, new or changed failures, or required action; unchanged
+non-actionable skips and genuine no-ops stay quiet. Do not schedule Machine
+Reconciliation or software/source updates.
+
+Resolve the saved project identity against the current supported inventory before
+installation or repair; an existing path alone does not prove a saved project target.
+Preserve the existing schedule and notification preferences unless a change is
+requested. After configuration/receipt readback, exercise a supervised real sweep
+and separately observe an actual scheduled run through supported run evidence.
+An ACTIVE status or manual invocation does not prove scheduled execution. If the
+host cannot expose that evidence, report the limit and keep runtime acceptance open.
 
 Before updating an existing native job, use:
 
@@ -131,9 +145,11 @@ Use retire-cron for an authorized receipt-proven removal. No cron job is install
 on desktop macOS by this helper.
 
 The headless prompt uses only supported project inventory or supplied roots. If
-neither is available, or exact task timestamps/completion/attachment cannot be
-established, skip affected discovery, archival, and removal. Do not scrape internal
-Codex stores. Verify actual Codex startup, authentication, the real cron entry, and
+neither is available, skip affected discovery and report the coverage limit.
+Missing exact task timestamps/completion/attachment restricts archival and checkout
+removal; continue independently provable cleanup of ended operations' temporary
+compute under the shared skill. Do not scrape internal Codex stores.
+Verify actual Codex startup, authentication, the real cron entry, and
 safe sweep behavior on the supported Linux target. A local syntax check is not
 headless execution evidence.
 

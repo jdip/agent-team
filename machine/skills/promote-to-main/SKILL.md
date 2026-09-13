@@ -33,12 +33,19 @@ version prerequisite remains a genuine prerequisite defined locally.
 
 Inspect actual partial effects after failures before recovering. Do not blindly
 replay publication or treat script launch as completion. Continue independent
-work and batch ready intent-dependent decisions with concrete recommendations.
-Honor external approval/processing gates and report them pending until satisfied.
+work. Before pausing or reporting a failure, use `cleanup-task-artifacts` with
+local guidance. The promotion authority covers this phase cleanup; preserve the
+current task environment and resources needed by a pending gate. Then batch ready
+intent-dependent decisions with concrete recommendations. Honor external
+approval/processing gates and report them pending until satisfied.
 
 After the locally defined promotion and synchronization results are verified,
-finish tracker bookkeeping and use `cleanup-task-artifacts` plus local guidance
-when available. Its absence does not waive evidence-based cleanup: remove only
-associated resources proven safe, retain attached/shared/uncertain checkouts and
-unpublished work, and use supported Codex lifecycle handling. Report verified
-results, exact tags actually published, partial failures, and retained resources.
+use `cleanup-task-artifacts` with local guidance before tracker bookkeeping or
+final reporting. Follow its resource and retention policy, then finish tracker
+bookkeeping. Report verified results, exact tags actually published, partial
+failures, and retained resources.
+
+If the cleanup package is unavailable, use local artifact guidance to stop/remove
+only exact task-owned resources proven safe for that action. Preserve active,
+shared, uncertain or needed state and attached checkouts; use supported lifecycle
+tools. Report the unavailable policy and actual cleanup limits.
