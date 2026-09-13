@@ -152,7 +152,7 @@ reconciliation incomplete; ask whether they should become the standard, without
 silently publishing them or establishing permanent exceptions.
 
 Prepare a complete temporary candidate config from the actual shared config,
-editing only the nine owned paths to match machine/config.toml. Preserve comments,
+editing only the eleven owned paths to match machine/config.toml. Preserve comments,
 formatting, and unrelated fields. Retired previously owned fields are removed only
 after their prior receipt passes. The helper parses the candidate and proves its
 owned values match the source and its unowned values match the actual config. It
