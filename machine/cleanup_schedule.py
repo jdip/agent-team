@@ -115,9 +115,17 @@ def cleanup_prompt(home, stable, project_roots=()):
     roots_text = ('Use only supported known project roots.' if not roots else
                   f'Use only these explicitly supplied project roots: {", ".join(map(str, roots))}.')
     return (f'Use the cleanup-task-artifacts skill at {skill}. Use {python} to run its discovery script. '
-            f'{roots_text} Skip archival/removal when task lifecycle evidence is unavailable. '
+            f'{roots_text} Read every discovery result and report broken participation or unavailable evidence. '
+            'Inspect running and stopped containers, dedicated networks and background processes '
+            'used by participating roots, including their worktrees, through the verified resource context. '
+            'Use the skill to establish ended-operation ownership and safe stop/removal; '
+            'preserve active/shared/durable resources and needed data. '
+            'Missing task archival evidence restricts archival and checkout removal, not independently '
+            'proven cleanup of temporary compute. Verify and record each resource disposition. '
             f'Preserve the stable source checkout at {stable} and Codex home at {home}. '
-            'Notify only meaningful cleanup, failures, or required action; stay quiet on no-op runs. '
+            'Record coverage gaps and unresolved failures in the existing run output. '
+            'Notify only meaningful cleanup, new or changed failures, or required action; '
+            'stay quiet on unchanged non-actionable skips and genuine no-op runs. '
             'Do not reconcile or update machines.')
 
 
