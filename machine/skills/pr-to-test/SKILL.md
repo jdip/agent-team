@@ -35,7 +35,9 @@ means perform the needed review. Do not create a review ledger.
 Perform actual local gates: rigorous lint/type/validation/meaningful high-coverage
 checks for Application Code; successful real use for Tooling. Do not build a fake
 forge, fixture machine, orchestration suite, or tests of tests. Resolve routine
-semver labeling from the actual change; none is valid and bookkeeping is advisory.
+semver labeling using [Version classification](#version-classification) before
+calling the script; pass the chosen contribution explicitly when supported.
+Bookkeeping remains advisory.
 
 Call the fixed script with the local runbook's actual arguments. Follow the result
 through the runbook's completion evidence, including test deployment/processing and
@@ -60,3 +62,20 @@ If the cleanup package is unavailable, use local artifact guidance to stop/remov
 only exact task-owned resources proven safe for that action. Preserve active,
 shared, uncertain or needed state and attached checkouts; use supported lifecycle
 tools. Report the unavailable policy and actual cleanup limits.
+
+## Version classification
+
+Classify the delivered behavior and compatibility impact, including behavior
+encoded in rules, skills, configuration and automation prompts. Application Code
+versus Tooling determines verification requirements, not version contribution.
+
+- **major**: breaks an existing supported contract.
+- **minor**: adds a backward-compatible capability.
+- **patch**: corrects existing behavior while preserving supported contracts.
+- **none**: changes no delivered behavior, such as editorial-only wording or links.
+
+For a mixed task PR, choose the highest applicable contribution. A rule that
+corrects missing teardown is a patch; correcting its spelling without changing
+execution is none. Judge instruction edits by the behavior they direct, not their
+file extension. Apply a repository's explicit compatibility/version policy where
+it refines this classification, and record the contribution's reason in the PR.
