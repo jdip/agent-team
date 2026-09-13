@@ -40,7 +40,7 @@ Authentication is established independently inside each environment.
 
 ## Shared configuration and whole files
 
-Merge only these nine dotted paths from [config.toml](config.toml) into
+Merge only these eleven dotted paths from [config.toml](config.toml) into
 `$CODEX_HOME/config.toml`; never replace that file wholesale:
 
 - model
@@ -52,6 +52,12 @@ Merge only these nine dotted paths from [config.toml](config.toml) into
 - agents.default_subagent_model
 - agents.default_subagent_reasoning_effort
 - agents.interrupt_message
+- features.multi_agent_v2.min_wait_timeout_ms
+- features.multi_agent_v2.default_wait_timeout_ms
+
+Longer idle waits reduce repeated parent-agent wakeups while subagents work.
+Codex ends a wait early when agent messages or user input arrive. Multi-agent V2
+enablement and maximum wait time remain unmanaged.
 
 All other fields remain unmanaged, including root service_tier, credentials,
 providers, MCP servers and environment, trust, history, projects, and UI settings.

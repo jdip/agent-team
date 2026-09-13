@@ -9,3 +9,7 @@ max_concurrent_threads_per_session = 4
 default_subagent_model = "gpt-5.6-terra"
 default_subagent_reasoning_effort = "medium"
 interrupt_message = true
+
+[features.multi_agent_v2]
+min_wait_timeout_ms = 300000
+default_wait_timeout_ms = 600000
