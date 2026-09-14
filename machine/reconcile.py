@@ -327,8 +327,8 @@ def inventory(source, home, skills, upstream, upstream_root=None, claude_root=No
     targets = [str(plain_path(row[1])) for row in rows]
     if len(set(targets)) != len(targets):
         raise ValueError('duplicate profile target')
-    if len(fields) != 11:
-        raise ValueError('expected eleven managed configuration fields; inspect the declaration')
+    if len(fields) != 12:
+        raise ValueError('expected twelve managed configuration fields; inspect the declaration')
     return rows, pin, packages
 
 
