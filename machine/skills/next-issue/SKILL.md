@@ -106,7 +106,9 @@ work when authorized. Make routine implementation choices within the approved
 design; do not turn every detail into a user decision.
 
 Use a suitable branch/worktree while preserving unrelated work. Implement the
-whole authorized outcome, including necessary concrete fixes. Apply the
+whole authorized outcome, including necessary concrete fixes. Before validation,
+choose execution and observation owners using
+[Execution ownership](../pr-to-test/SKILL.md#execution-ownership). Apply the
 repository's documented Application Code/Tooling classification by purpose:
 
 - Application Code gets rigorous linting, type checking, validation, and meaningful
