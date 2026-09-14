@@ -5,7 +5,9 @@ Run when requested directly or when the brief's weekly review is due. Obtain
 weekly is the review cadence, while the longer evidence window avoids judging
 quiet practitioners on one week's posting frequency. Read prior briefs/audits,
 inspect current primary material, and assess changes since the previous review.
-The purpose is to keep attention on meaningful contributions to agentic coding.
+The purpose is to keep attention on meaningful contributions to the agentic coding
+conversation. Assess social posts, blogs, videos, and discussions; project artifacts
+can corroborate claims but commit frequency is not a measure of contribution.
 The ordinary brief's 15–20 minute target does not imply an exhaustive thirty-day
 audit; disclose the actual sample and research coverage.
 

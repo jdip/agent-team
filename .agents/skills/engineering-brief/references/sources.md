@@ -8,11 +8,30 @@ well supported. Grade each reported claim from its direct evidence.
 Start with what practitioners are saying, trying, building, and learning.
 Theo Browne, ThePrimeagen, Matt Pocock, Lauren ‘poteto’ Tan, and Peter Steinberger
 anchor discovery; the wider catalog supplies additional builders and counterpoints.
-Read firsthand posts, videos, streams, demonstrations, code, experiments, and
-postmortems. Use official product sources to verify relevant capabilities. A minor
+Read their social posts, blogs, newsletters, videos, streams, and discussions
+first. Follow what they are saying about agentic engineering, including lessons,
+disagreements, failures, and changed minds. Repositories substantiate claims from
+that conversation; do not mine their commits or patches to manufacture coverage.
+When social or video material is inaccessible, report that limit and research
+other accessible writing instead of substituting repository activity. Use official
+product sources to verify relevant capabilities. A minor
 fix in an unused tool earns no coverage merely because it concerns agents.
 Select unfamiliar tools for consequential, transferable engineering lessons.
 State the actual sample rather than implying every source was monitored.
+
+## Anchor reading channels
+
+Start each person's research with these channels, verified through their own site
+or profile. Inspect the substance of posts or transcripts; titles alone do not
+establish a position. Discover additional channels from the author's own links.
+
+| Person | Read and watch first |
+| --- | --- |
+| Theo | [X](https://twitter.com/theo), [YouTube](https://youtube.com/@t3dotgg), [site and blog](https://t3.gg/) |
+| ThePrimeagen | [X](https://twitter.com/ThePrimeagen), [YouTube](https://youtube.com/ThePrimeagen), [official channel directory](https://linktr.ee/ThePrimeagen) |
+| Matt Pocock | [writing](https://www.mattpocock.com/), [social channel](https://www.mattpocock.com/twitter), [YouTube](https://www.youtube.com/c/mattpocockuk) |
+| Lauren “poteto” Tan | [X posts and articles](https://x.com/poteto) |
+| Peter Steinberger | [blog](https://steipete.me/), [X](https://x.com/steipete) |
 
 ## Coverage domains
 
@@ -41,7 +60,7 @@ corroboration.
 | --- | --- | --- |
 | [Thorsten Ball](https://thorstenball.com/) — [Register Spill](https://registerspill.thorstenball.com/) | Programming tools, agent-assisted software work | A practicing engineer writing concrete observations about how agents change software work. |
 | [Armin Ronacher](https://lucumr.pocoo.org/) / [mitsuhiko](https://github.com/mitsuhiko) | Language/runtime design, open-source maintenance, coding agents | Maintainer perspective on agent harnesses, abstractions, and production tradeoffs. |
-| [Mario Zechner](https://mariozechner.at/) / [badlogic](https://github.com/badlogic) | Pi, agent loops, tool design | Builds and publicly iterates on agent tooling; follow implementation and release artifacts. |
+| [Mario Zechner](https://mariozechner.at/) / [badlogic](https://github.com/badlogic) | Pi, agent loops, tool design | Builds and publicly iterates on agent tooling; read his writing about agent design, tradeoffs, and practical experience. |
 | [Mitchell Hashimoto](https://mitchellh.com/) | Developer tools, terminal UX, isolated environments | Long-running maintainer with practical evidence about developer workflows and tool ergonomics. |
 | [Jesse Vincent](https://blog.fsck.com/) | Production operations, workflow systems, durable software | Useful counterweight from a maintainer of long-lived production systems. |
 | [Peter Steinberger](https://steipete.me/) / [steipete](https://github.com/steipete) | Mobile engineering, developer tooling, agent workflows | Publishes hands-on agent experiments and open-source tooling. |
@@ -56,11 +75,10 @@ corroboration.
 | [Simon Willison](https://simonwillison.net/) | LLM tooling, prompt injection, reproducible experiments | Publishes reproducible technical investigations and security-relevant observations. |
 | [Geoffrey Huntley](https://ghuntley.com/) / [ghuntley](https://github.com/ghuntley) | Developer infrastructure, remote development, agent work | Builder perspective on execution environments and software delivery. |
 | [Andrej Karpathy](https://karpathy.ai/) | Model behavior, training, coding-agent practice | Useful for technically grounded model and harness observations; distinguish demos from measured outcomes. |
-| [ThePrimeagen](https://github.com/ThePrimeagen) | Developer tooling, editor/terminal workflow | Practitioner commentary can surface workflow leads; verify important claims elsewhere. |
-| [Theo Browne](https://t3.gg/) / [t3.gg](https://github.com/t3-oss) | Web platforms, developer experience, coding agents | Follow concrete builds, repositories, and experiments rather than announcement content. |
+| [ThePrimeagen](https://github.com/ThePrimeagen) | Developer tooling, editor/terminal workflow | Follow his firsthand experiences, demonstrations, and arguments about agentic development; distinguish observation from opinion. |
+| [Theo Browne](https://t3.gg/) / [t3.gg](https://github.com/t3-oss) | Web platforms, developer experience, coding agents | Follow his discussion of agentic development, changing practices, and technical tradeoffs; corroborate empirical claims as needed. |
 | [Steve Yegge](https://steve-yegge.blogspot.com/) / [beads](https://github.com/steveyegge/beads) | Developer workflow, task systems, agent coordination | Maintains agent-adjacent workflow tools and supplies a long-horizon engineering viewpoint. |
 | [swyx](https://www.swyx.io/) / [Latent Space](https://www.latent.space/) | AI engineering ecosystem, practitioner discovery | A discovery bridge to practitioners and projects; promote only primary evidence into substantive findings. |
-
 | [David Crawshaw](https://crawshaw.io/) | Agent feedback loops, code review, repository knowledge | [How I program with Agents](https://crawshaw.io/blog/programming-with-agents) describes real implementation, authorization/performance failures, and the effect of local code explanations. |
 | [Harper Reed](https://harper.blog/) | Daily coding-agent workflows, remote sessions, practical tooling | [Remote Claude Code](https://harper.blog/2026/01/05/claude-code-is-better-on-your-phone/) documents his working setup with persistent terminals and helper configuration; assess individual practices rather than adopting the setup wholesale. |
 | [Birgitta Böckeler](https://birgitta.info/) | AI-assisted delivery, architecture, feedback and verification | [Harness engineering for coding agent users](https://martinfowler.com/articles/harness-engineering.html) connects repository context, deterministic controls, and human steering; distinguish its reasoned framework from measured outcomes. |
@@ -83,7 +101,7 @@ Preserve substantive skeptics and counterexamples alongside successful builds.
 
 When a candidate earns attention, record their name, canonical channel, specialty,
 specific contribution with a direct link, evidence limits, and reason to revisit
-in the brief's source-quality section and local watch history. Include candidates
+in the brief's source review and local watch history. Include candidates
 only when supported; no per-run quota. Propose standing catalog additions through
 the existing curation workflow. Revisit whether sources continue contributing
 useful work; silence is different from a demonstrated decline in quality.
@@ -134,7 +152,7 @@ Agent Team.
 | Model Context Protocol | [MCP specification](https://modelcontextprotocol.io/) | Protocol changes, permission boundaries, and tool-server security. |
 | Official MCP Registry | [registry](https://registry.modelcontextprotocol.io/) | Publisher identity, release provenance, and server capabilities. |
 | Matt Pocock's skills | [source repository](https://github.com/mattpocock/skills) | Reusable engineering workflow implementation and instruction design. |
-| poteto; PStack (separate source) | [poteto profile](https://github.com/poteto) / [source repository](https://github.com/backnotprop/pstack) | Independently inspect each owner’s agent-aware developer workflow; the paired discovery seeds do not imply shared authorship. |
+| Lauren “poteto” Tan / pstack | [social posts](https://x.com/poteto) / [author’s guide](https://github.com/cursor/plugins/blob/main/pstack/README.md) | Read her explanations of context, design, and verification; the Cursor pstack source can substantiate the discussed workflow. |
 | Addy Osmani's agent skills | [source repository](https://github.com/addyosmani/agent-skills) | Portable skill design; confirm scope and maintenance activity per proposed use. |
 | Superpowers | [source repository](https://github.com/obra/superpowers) | Workflow composition, tests/evals, and adoption constraints. |
 | NVIDIA skills | [NVIDIA-Verified Agent Skills](https://docs.nvidia.com/skills) / [source repository](https://github.com/nvidia/skills) | Supply-chain controls, evaluation, signing, and portability practices for skills. |

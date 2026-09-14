@@ -1,6 +1,6 @@
 ---
 name: engineering-brief
-description: Write a practitioner-led news brief on thoughtful contributions to agentic coding and major AI developments, with implications for Agent Team and a weekly watchlist review.
+description: Write a practitioner-led news brief on thoughtful contributions to agentic coding and major AI developments, with implications for Agent Team and a weekly watchlist review, or run an on-demand source audit.
 ---
 
 # Engineering Brief
@@ -26,10 +26,12 @@ and presentation. Direct source-audit requests use the audit procedure below.
 
 ## Research people and consequential developments
 
-Start with the anchor practitioners and their wider engineering community. Follow
-firsthand writing, videos, streams, projects, experiments, failures, and technical
-debates. Seek the actual contribution behind a mention. Discover additional
-engineers through the catalog's discovery procedure, including maintainers outside
+Start with the anchor practitioners’ social posts, blogs, newsletters, videos,
+streams, and discussions, then follow their wider engineering community. The
+stories concern what they are saying about agentic engineering: ideas, lessons,
+experiences, disagreements, and changed minds. Seek the actual contribution behind
+a mention. Use repositories to substantiate a discussed claim, not commit or patch
+activity as a substitute for reading people. Discover additional engineers through the catalog's discovery procedure, including maintainers outside
 the familiar social circle.
 
 In parallel where useful, check major model, product, harness, and research changes.

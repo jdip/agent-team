@@ -3,8 +3,11 @@
 ## Choose stories worth the reader's time
 
 The subject is thoughtful contributions to agentic coding and consequential AI
-news. Anchor the edition in what real engineers are doing, learning, demonstrating,
-or disputing. Major model, product, and research developments can earn coverage
+news. Anchor the edition in what real engineers are saying in social posts, blogs,
+videos, and discussions: what they are learning, demonstrating, or disputing.
+Following a person means following their thinking and experience, not their patch
+feed. Repository activity is supporting evidence, not a substitute for that coverage.
+Major model, product, and research developments can earn coverage
 without an immediate Agent Team change; explain their broader significance.
 
 For every candidate, establish:
@@ -33,7 +36,8 @@ Make clear when that pattern is your synthesis rather than a demonstrated result
 
 Use up to five leading stories with descriptive headlines. Give each enough
 connected prose to explain what happened, how the idea or system works, why it
-matters, and its important limitation or counterargument. Name the engineer whose
+matters, who should care, and its important limitation or counterargument. Explain
+whether it challenges or reinforces current practice. Name the engineer whose
 work is being discussed. Put compact impact/evidence labels beside the headline;
 make the claim type clear in prose or a short label. Cite direct sources near claims.
 Place its native topic control after the explanation.
@@ -65,7 +69,7 @@ in supporting notes. Do not repeat a leading story to fill another section.
 
 Repository implications belong after the reader understands the news. Recognize
 what Agent Team already does; do not propose adopting an existing practice as a
-new experiment. Each experiment states uncertainty, baseline/comparison, scope,
+new experiment. Each experiment states uncertainty, baseline/comparison, cost/scope,
 measurement/success criterion, and stopping or rollback condition. Avoid forced
 experiments where understanding the development is the useful outcome.
 
