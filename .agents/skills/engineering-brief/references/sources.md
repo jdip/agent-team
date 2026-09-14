@@ -5,10 +5,14 @@ audit. It is a maintained search-priority policy, not a claim-evidence ledger.
 Source tiers say where to look first; they do not determine whether a claim is
 well supported. Grade each reported claim from its direct evidence.
 
-Prefer a maintainer's code, release notes, technical writing, experiment, or
-postmortem over commentary about that work. A run is deliberately bounded: it
-does not claim that every entry or coverage lane was checked. Follow a useful
-lead to its primary source before treating it as reportable evidence.
+Start with what practitioners are saying, trying, building, and learning.
+Theo Browne, ThePrimeagen, Matt Pocock, Lauren ‘poteto’ Tan, and Peter Steinberger
+anchor discovery; the wider catalog supplies additional builders and counterpoints.
+Read firsthand posts, videos, streams, demonstrations, code, experiments, and
+postmortems. Use official product sources to verify relevant capabilities. A minor
+fix in an unused tool earns no coverage merely because it concerns agents.
+Select unfamiliar tools for consequential, transferable engineering lessons.
+State the actual sample rather than implying every source was monitored.
 
 ## Coverage domains
 
@@ -57,15 +61,32 @@ corroboration.
 | [Steve Yegge](https://steve-yegge.blogspot.com/) / [beads](https://github.com/steveyegge/beads) | Developer workflow, task systems, agent coordination | Maintains agent-adjacent workflow tools and supplies a long-horizon engineering viewpoint. |
 | [swyx](https://www.swyx.io/) / [Latent Space](https://www.latent.space/) | AI engineering ecosystem, practitioner discovery | A discovery bridge to practitioners and projects; promote only primary evidence into substantive findings. |
 
+| [David Crawshaw](https://crawshaw.io/) | Agent feedback loops, code review, repository knowledge | [How I program with Agents](https://crawshaw.io/blog/programming-with-agents) describes real implementation, authorization/performance failures, and the effect of local code explanations. |
+| [Harper Reed](https://harper.blog/) | Daily coding-agent workflows, remote sessions, practical tooling | [Remote Claude Code](https://harper.blog/2026/01/05/claude-code-is-better-on-your-phone/) documents his working setup with persistent terminals and helper configuration; assess individual practices rather than adopting the setup wholesale. |
+| [Birgitta Böckeler](https://birgitta.info/) | AI-assisted delivery, architecture, feedback and verification | [Harness engineering for coding agent users](https://martinfowler.com/articles/harness-engineering.html) connects repository context, deterministic controls, and human steering; distinguish its reasoned framework from measured outcomes. |
+| [Graham Dumpleton](https://grahamdumpleton.me/) | Python maintenance, testing, instrumentation, AI-directed implementation | [Introducing wrapture](https://grahamdumpleton.me/posts/2026/08/introducing-wrapture/) documents a domain engineer directing AI implementation of a concrete library with explicit caveats. |
+
 ### Tier A discovery criteria
 
-Propose a new Tier A entry when primary material shows sustained engineering work:
-maintaining production or open-source systems, publishing code or measurements,
-documenting a reproducible workflow, or writing a useful postmortem. Seek
-experienced maintainers applying agents to ordinary software work, including
-software supply-chain, operations, security, testing, and developer-experience
-specialties. Popularity, a large audience, or repeated commentary alone is not a
-reason to add an entry.
+During each ordinary brief, follow substantive references from watched engineers
+to collaborators, maintainers, interview guests, technical disagreements, and the
+authors of demonstrated work. Look beyond this social circle through project
+contributors, technical talks, and maintainer write-ups, especially in ordinary
+production software. A mention supplies a lead, not an endorsement.
+
+Inspect the candidate's own artifact and role in it. Look for concrete agentic
+engineering contributions: a working project, explained workflow, reproducible
+experiment, failure analysis, or a reasoned argument grounded in their practice.
+Check sustained engineering work rather than requiring frequent content output.
+Popularity, mutual mentions, and a single viral claim do not establish quality.
+Preserve substantive skeptics and counterexamples alongside successful builds.
+
+When a candidate earns attention, record their name, canonical channel, specialty,
+specific contribution with a direct link, evidence limits, and reason to revisit
+in the brief's source-quality section and local watch history. Include candidates
+only when supported; no per-run quota. Propose standing catalog additions through
+the existing curation workflow. Revisit whether sources continue contributing
+useful work; silence is different from a demonstrated decline in quality.
 
 ## Tier B — official product sources
 

@@ -150,9 +150,11 @@ Verified test delivery completes ordinary implementation;
 
 In Codex desktop, invoke the repository-local
 [engineering-brief](.agents/skills/engineering-brief/SKILL.md) skill for a brief or
-source audit. It compares primary engineering evidence with this repository and
-proposes small measurable experiments. Briefs cover since the last completed run,
-with a two-week cutoff; source audits examine about thirty days. Both run on demand.
+source audit. It follows thoughtful agentic engineers and major AI developments,
+explains their significance, and connects useful lessons to this repository. Briefs cover since the last completed run,
+with a two-week cutoff. The first brief after seven days includes a watchlist review;
+source audits assess about thirty days of evidence and can also be requested directly.
+Runs remain on demand.
 Topic controls request separate read-only investigations. Reports and watch history
 stay local and untracked in the Git common directory; the source list changes only
 through review. This repository-only skill is outside the Machine Profile inventory.

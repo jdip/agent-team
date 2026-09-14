@@ -11,8 +11,10 @@ Use the current host's native inline follow-up syntax in the conversation:
 The label avoids `]`; escape double quotes inside `prompt` and keep the directive
 an unescaped Markdown list item. Replace the example request with actual topic
 content. This is a rendered output directive, not a callable MCP tool or a URL.
-Keep the corresponding complete copyable request in the saved report. When the
-host cannot render a control, present that request and direct source links.
+Keep the corresponding complete copyable request in the saved report’s supporting
+notes, preferably under a labeled Markdown details block. The article carries the
+short control, not the full dispatch instructions. When native controls are
+unavailable, provide a link to the complete fallback and direct source links.
 
 ## Build the request
 

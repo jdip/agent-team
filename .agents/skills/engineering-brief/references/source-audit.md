@@ -1,8 +1,11 @@
 # Source-audit mode
 
-Run on demand over the approximately thirty-day interval returned by the history
-helper. Read available prior briefs/audits and inspect current primary material.
-The purpose is to prevent the source list from drifting into an influencer feed.
+Run when requested directly or when the brief's weekly review is due. Obtain
+`history.py context --mode audit` and use its approximately thirty-day interval:
+weekly is the review cadence, while the longer evidence window avoids judging
+quiet practitioners on one week's posting frequency. Read prior briefs/audits,
+inspect current primary material, and assess changes since the previous review.
+The purpose is to keep attention on meaningful contributions to agentic coding.
 The ordinary brief's 15–20 minute target does not imply an exhaustive thirty-day
 audit; disclose the actual sample and research coverage.
 
@@ -20,6 +23,9 @@ unvisited source. A source's affiliation is context, not proof of bias; evaluate
 its actual output. Repeated claims trace back to their original source.
 
 Classify proposed curation as **PROMOTE**, **KEEP**, **DEMOTE**, **DROP**, or **ADD**.
+Explain who earned continued attention, who should receive more or less attention,
+and which newly discovered engineers merit following, using specific contributions.
+Distinguish low posting frequency from demonstrated noise or weak work.
 Look for new engineers, maintainers, projects and communities; missing technical
 specialties; vendor concentration; echo chambers; and drift from engineering
 toward reaction, speculation or promotion.

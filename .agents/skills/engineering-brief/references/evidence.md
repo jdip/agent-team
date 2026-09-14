@@ -24,7 +24,9 @@ unsupported claim. Many outlets repeating one source do not corroborate it.
 Grade the precise claim. Release notes can establish that a feature exists,
 without establishing that it improves productivity. Cite the direct source and
 mark unknowns; do not let the feature's Evidence A spill into an untested benefit.
-Prefer a short report dominated by A evidence over many C claims.
+A grade measures support, not newsworthiness. Select stories using the editorial
+criteria in [brief format](brief.md); rigorous grading also permits discussing a
+valuable argument as an argument rather than pretending it is measured.
 
 | Impact | Meaning for this repository |
 | --- | --- |

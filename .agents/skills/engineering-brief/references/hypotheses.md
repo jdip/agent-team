@@ -22,7 +22,7 @@ practice exists in this repo from evidence that it improves outcomes.
    should not replace build/test/lint/deploy infrastructure merely because they
    can invoke it.**
 
-On the first brief, summarize observed Agent Team orchestration, skills, context,
+In the first brief’s supporting notes, summarize observed Agent Team orchestration, skills, context,
 planning, parallelism, verification, and review. Compare the repo against all nine
 hypotheses using **ahead**, **roughly aligned**, **potential gap**, or **unknown**
 where justified, with source paths/revision and measurement caveats. These labels
