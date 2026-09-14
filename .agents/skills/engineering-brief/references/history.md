@@ -57,6 +57,9 @@ Use the returned archive path for the conversation's report link.
 
 Distinct/overlapping runs are retained; the greatest completed coverage end sets
 the next brief boundary. An older run finishing late cannot move it backwards.
+For a correction, preserve the original and save a complete superseding report
+with the same interval and an explicit link to the original. Among equal coverage
+ends, the latest completion supplies the current report and watch continuity.
 Quiet reports may complete when their checked coverage and limitations are honest.
 Failed, interrupted, or incompletely saved runs do not advance coverage.
 

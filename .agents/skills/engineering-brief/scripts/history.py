@@ -18,6 +18,8 @@ DAYS = {"brief": 14, "audit": 30}
 
 
 def timestamp(value):
+    if not isinstance(value, str):
+        raise ValueError("timestamps must be strings")
     result = datetime.fromisoformat(value.replace("Z", "+00:00"))
     if result.tzinfo is None:
         raise ValueError("timestamps must include a timezone")
@@ -33,7 +35,9 @@ def archive_root():
         ["git", "rev-parse", "--path-format=absolute", "--git-common-dir"],
         check=True, capture_output=True, text=True,
     )
-    common = Path(result.stdout.strip()).resolve(strict=True)
+    common = Path(result.stdout.strip())
+    if common.is_symlink() or not common.is_dir():
+        raise ValueError("Git common directory is not a real directory")
     archive = common / "codex-engineering-brief"
     if archive.is_symlink():
         raise ValueError("preserve symlinked archive; resolve its ownership first")
@@ -66,7 +70,9 @@ def completed_reports(archive, mode, now):
         if not start <= end <= completed <= now or end - start > timedelta(days=DAYS[mode]):
             raise ValueError(f"invalid report interval: {path.name}")
         reports.append({**data, "path": str(path)})
-    return sorted(reports, key=lambda item: timestamp(item["coverage_end"]))
+    return sorted(reports, key=lambda item: (
+        timestamp(item["coverage_end"]), timestamp(item["completed_at"]), item["path"],
+    ))
 
 
 def context(archive, mode, now):

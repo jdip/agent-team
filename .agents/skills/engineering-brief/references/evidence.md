@@ -42,8 +42,11 @@ them. Consult root/local instructions, agent definitions, skills, orchestration,
 prompts, routing, context/memory, planning, review, tests/runtime validation,
 worktrees/branches, remote execution, and architecture notes as relevant.
 
-Cite repository-relative paths and the inspected revision in saved reports.
-Conversation links can resolve actual local paths. A baseline documents observed
+Cite repository-relative paths and the inspected revision in saved reports. Render
+those paths as code text or use a verified permalink; archive-relative Markdown
+links do not point back into the checkout. Conversation links can resolve actual
+local paths. Locate each rule in its owning file: session-injected instructions
+are not necessarily the contents of root `AGENTS.md`. A baseline documents observed
 capability at that revision; absence of an eval is not proof of poor performance.
 
 Classify each comparison, explaining why:

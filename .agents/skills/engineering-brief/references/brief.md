@@ -9,7 +9,7 @@ Retain the following sections. Use up to five leading developments, not five
 mandatory slots. For a quiet section distinguish no meaningful findings in the
 checked material from material not checked. Cross-reference a recurring topic
 rather than duplicating its story and controls. Aim for an 8–12 minute read without
-padding; the initial architecture baseline may be a linked local appendix.
+padding; include the initial architecture baseline in the report body.
 
 ## 1. TOP 5
 
@@ -84,4 +84,4 @@ or contrary evidence rather than repeating unchanged stories in TOP 5.
 
 Record highest-value sources in this run, observed noise, newly discovered
 engineers/repos, and emerging blind spots. Separate unvisited sources from low-value
-ones. Recommend curation changes without editing standing policy.
+ones. Link curation proposals to their supporting observations.

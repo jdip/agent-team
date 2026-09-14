@@ -10,6 +10,22 @@ postmortem over commentary about that work. A run is deliberately bounded: it
 does not claim that every entry or coverage lane was checked. Follow a useful
 lead to its primary source before treating it as reportable evidence.
 
+## Coverage domains
+
+Use these domains to rotate discovery and report sampled versus uninvestigated
+coverage. Select substantive evidence relevant to Agent Team across the interval;
+a run need not find news in every domain.
+
+- Coding-agent harnesses, orchestration, subagents and parallel agents
+- Worktrees and isolated workspaces; persistent and remote agents
+- Skills, plugins, Agent Skills / `SKILL.md`, MCP and alternatives to MCP
+- Context engineering and compaction; repository instructions (`AGENTS.md` / `CLAUDE.md`)
+- Specification and planning workflows; verification and reviewer agents
+- Testing and runtime validation; evals; model routing; memory; observability
+- Permissions and sandboxing; prompt-injection defenses; agent security
+- Coding-agent UX; agent-team coordination; long-running tasks
+- Practical use of Codex, Claude Code, and similar systems
+
 ## Tier A — builders and empirical engineers
 
 These people are watched because they build, maintain, measure, or document
@@ -97,7 +113,7 @@ Agent Team.
 | Model Context Protocol | [MCP specification](https://modelcontextprotocol.io/) | Protocol changes, permission boundaries, and tool-server security. |
 | Official MCP Registry | [registry](https://registry.modelcontextprotocol.io/) | Publisher identity, release provenance, and server capabilities. |
 | Matt Pocock's skills | [source repository](https://github.com/mattpocock/skills) | Reusable engineering workflow implementation and instruction design. |
-| poteto / PStack | [poteto profile](https://github.com/poteto) / [source repository](https://github.com/backnotprop/pstack) | Agent-aware developer workflow and collaboration mechanics. |
+| poteto; PStack (separate source) | [poteto profile](https://github.com/poteto) / [source repository](https://github.com/backnotprop/pstack) | Independently inspect each owner’s agent-aware developer workflow; the paired discovery seeds do not imply shared authorship. |
 | Addy Osmani's agent skills | [source repository](https://github.com/addyosmani/agent-skills) | Portable skill design; confirm scope and maintenance activity per proposed use. |
 | Superpowers | [source repository](https://github.com/obra/superpowers) | Workflow composition, tests/evals, and adoption constraints. |
 | NVIDIA skills | [NVIDIA-Verified Agent Skills](https://docs.nvidia.com/skills) / [source repository](https://github.com/nvidia/skills) | Supply-chain controls, evaluation, signing, and portability practices for skills. |
@@ -131,12 +147,9 @@ measurement needed for an engineering conclusion.
 
 ## Catalog maintenance
 
-The source audit may recommend **PROMOTE**, **KEEP**, **DEMOTE**, **DROP**, or
-**ADD** based on observed engineering work, reproducibility/evidence, practical
-usefulness, technical depth, signal-to-noise, and independence from vendor
-marketing. It proposes changes; it does not edit this standing policy. Deduplicate
-aliases and syndications so repeated coverage of one original claim is never
-misrepresented as independent confirmation.
+Use [source-audit mode](source-audit.md) when requested to score sources and
+propose catalog changes. Deduplicate aliases and syndications so repeated coverage
+of one original claim is never misrepresented as independent confirmation.
 
 When a listed link no longer resolves, retain the source name, mark the canonical
 link unresolved, and investigate a replacement through the source owner's own

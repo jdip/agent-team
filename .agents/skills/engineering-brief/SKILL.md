@@ -32,7 +32,8 @@ Invocation does not create a schedule or authorize adopting an external idea.
    when useful and authorized by repository guidance. Be explicit about coverage
    and inaccessible sources; a time budget never proves exhaustive monitoring.
    Rotate deeper discovery among technical specialties rather than repeatedly
-   sampling the loudest sources. A source audit uses its own 30-day interval.
+   sampling the loudest sources. Use the catalog’s coverage domains to name what
+   was sampled and what remains uninvestigated.
 
 ## Produce the selected output
 
@@ -41,13 +42,10 @@ Invocation does not create a schedule or authorize adopting an external idea.
   roles, skills, planning, context, worktrees, review, and verification paths for
   each recommendation. On the first run, include a compact architecture baseline
   and evidence against all nine hypotheses. Subsequent runs refresh affected
-  conclusions against the actual revision. Aim for an 8–12 minute read, with up
-  to five leading findings and zero to three measurable experiments. A quiet
-  interval earns a short, honest report rather than filler.
+  conclusions against the actual revision. Follow the format’s length and finding
+  limits; a quiet interval earns a short, honest report rather than filler.
 - **Source audit:** read [audit format](references/source-audit.md). Evaluate
-  actual evidence and source coverage over approximately 30 days. Recommend
-  changes to the curated list; maintain its current policy until a reviewed
-  repository change is authorized. Local observations do not replace that policy.
+  actual evidence and source coverage over approximately 30 days.
 
 For every substantive topic in either mode, follow
 [topic actions](references/topic-actions.md): attach a contextual control requesting
@@ -56,9 +54,11 @@ a task. Preserve a complete copyable request when native controls are unavailabl
 
 ## Complete and present
 
-Check substantive claims, direct citations, evidence/impact independence, actual
-repo comparisons, and experiment success criteria. Distinguish **no meaningful
-finding in the checked sources** from **not investigated**. State contrary
+Before saving, open each substantive finding's direct source and verify its exact
+URL, dates, and support for the stated claim. An unresolved link cannot establish
+Evidence A; find the original artifact or omit the finding. Check evidence/impact
+independence, actual repo comparisons, and experiment success criteria. Distinguish
+**no meaningful finding in the checked sources** from **not investigated**. State contrary
 evidence, unresolved questions, checked coverage, and any two-week cutoff gap.
 
 Save the complete report through the history helper only after this check. Keep

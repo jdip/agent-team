@@ -1,6 +1,7 @@
 # Development and verification
 
-Agent Team's `machine/` configuration, skills, reconciliation helpers, `standard/`
+Agent Team's `.agents/skills/` repository skills, `machine/` configuration,
+skills, reconciliation helpers, `standard/`
 guidance/templates, and `scripts/` delivery helpers are Tooling: they maintain
 machines and repositories. There is no separate application, server, or deployable
 product runtime here. Classify future code by purpose rather than its language.
