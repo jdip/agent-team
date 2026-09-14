@@ -156,7 +156,9 @@ Briefs cover since the last completed run, with a two-week cutoff. A watchlist r
 runs when no completed source audit exists or the last one is at least seven days
 old; ordinary briefs never reset that clock. Source audits assess about thirty days of evidence and can also be requested directly.
 Runs remain on demand.
-Topic controls request separate read-only investigations. Reports and watch history
+Briefs are read through a local HTML blog archive with source links, history
+navigation, and collapsed discussion prompts. The short chat summary supplies
+native controls to request separate read-only investigations. Reports and watch history
 stay local and untracked in the Git common directory; the source list changes only
 through review. This repository-only skill is outside the Machine Profile inventory.
 

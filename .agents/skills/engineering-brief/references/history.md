@@ -53,7 +53,9 @@ Use `--mode audit` for an audit. The helper prefixes completion metadata to the
 report and atomically publishes a uniquely named Markdown file. Only a successful
 save creates completed history. Record repository revision, dirty-state caveats,
 coverage limits, sources, report findings, and watch continuity in the report body.
-Use the returned archive path for the conversation's report link.
+The Markdown remains canonical history. After saving, rebuild the derived HTML
+archive using [presentation](presentation.md); link its article and index from
+the conversation. Rendering does not create a completed report or advance a clock.
 
 Distinct/overlapping runs are retained; the greatest completed coverage end sets
 the next brief boundary. An older run finishing late cannot move it backwards.

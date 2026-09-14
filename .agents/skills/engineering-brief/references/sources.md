@@ -169,9 +169,11 @@ observability, portability and composition, and documented security controls.
 
 ## Tier D — discovery sources
 
-Use these to surface leads, not to establish claims. Community posts, videos,
-podcasts, newsletters, and discussion threads often omit the code, conditions, or
-measurement needed for an engineering conclusion.
+Third-party summaries and community reactions supply discovery leads. A
+practitioner’s own social post, video, newsletter, or discussion contribution is
+primary evidence of their firsthand account or argument; grade that precise claim.
+The platform does not determine the tier. Measurements need their conditions and
+methodology, but a thoughtful argument does not require a linked repository.
 
 | Discovery source | Canonical entry point | Required next step |
 | --- | --- | --- |
@@ -179,9 +181,9 @@ measurement needed for an engineering conclusion.
 | Reddit | [reddit.com](https://www.reddit.com/) | Treat discussion as anecdotal until a primary source supports the claim. |
 | GitHub Trending | [GitHub Trending](https://github.com/trending) | Inspect the repository, maintainer, releases, issues, and actual implementation. |
 | GitHub Discussions | [GitHub Explore](https://github.com/explore) | Follow discussion to the owning project and its authoritative decision record. |
-| YouTube | [YouTube](https://www.youtube.com/) | Locate demos, code, benchmarks, or accompanying technical writing. |
-| X / social posts | [X](https://x.com/) | Seek the source code, release, experiment, or firsthand write-up behind the post. |
-| Podcasts and newsletters | No single canonical source | Treat each episode or issue as a lead; attribute it and seek supporting primary material. |
+| YouTube | [YouTube](https://www.youtube.com/) | Read the transcript or watch the relevant passage; distinguish firsthand experience, argument, and third-party reaction. |
+| X / social posts | [X](https://x.com/) | Read the original post and relevant thread; follow supporting links when the specific claim needs corroboration. |
+| Podcasts and newsletters | No single canonical source | Attribute the author or speaker and read their contribution; trace secondhand claims to the original source. |
 | Discord and other community discussions | No public universal source | Use only accessible, authorized material; do not imply access to private communities. |
 
 ## Catalog maintenance

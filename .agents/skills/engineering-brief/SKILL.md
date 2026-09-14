@@ -80,8 +80,10 @@ Before archiving, verify each substantive source's exact URL, authorship, date, 
 support for the claim. Apply the brief format's editorial acceptance check as well
 as citation checks. A valid file or resolved URL does not establish a useful brief.
 
-Save only the finished, checked edition through the history helper. Present the
-readable brief in the conversation with its topic controls and archived report
-link. Keep generated reports and observations local and untracked. Standing source
+Save only the finished, checked edition through the history helper. Follow
+[HTML presentation](references/presentation.md) to rebuild the local blog archive
+and inspect the resulting article. Present a short summary, article/archive links,
+and native topic controls in conversation. The HTML article is the primary reader;
+keep generated reports and observations local and untracked. Standing source
 changes and proposed experiments enter the repository workflow when selected;
 invocation authorizes neither adoption nor scheduling.

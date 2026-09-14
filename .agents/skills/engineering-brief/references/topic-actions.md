@@ -1,8 +1,9 @@
 # Topic actions in Codex desktop
 
-Place one contextual action under each substantive topic in briefs and audits.
+Keep one contextual action for each substantive topic in briefs and audits.
 Repeated mentions can point to that topic instead of creating duplicate controls.
-Use the current host's native inline follow-up syntax in the conversation:
+The HTML article exposes its complete request in a collapsed discussion panel.
+The short chat summary carries the current host's native inline follow-up syntax:
 
 ```text
 - :codex-followup[Explore this topic in a new task]{prompt="Complete self-contained request"}
@@ -12,8 +13,9 @@ The label avoids `]`; escape double quotes inside `prompt` and keep the directiv
 an unescaped Markdown list item. Replace the example request with actual topic
 content. This is a rendered output directive, not a callable MCP tool or a URL.
 Keep the corresponding complete copyable request in the saved report’s supporting
-notes, preferably under a labeled Markdown details block. The article carries the
-short control, not the full dispatch instructions. When native controls are
+notes, preferably under a labeled Markdown details block. The HTML reader hides
+the full dispatch instructions until its discussion panel is expanded. Label that
+panel as a discussion prompt; it does not open a task. When native controls are
 unavailable, provide a link to the complete fallback and direct source links.
 
 ## Build the request

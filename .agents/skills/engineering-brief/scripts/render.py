@@ -1,0 +1,402 @@
+#!/usr/bin/env python3
+"""Build a private, offline HTML archive from completed engineering-brief reports."""
+
+import argparse
+from datetime import datetime, timezone
+import html
+from html.parser import HTMLParser
+import json
+import os
+from pathlib import Path
+import posixpath
+import re
+from string import Template
+import tempfile
+from urllib.parse import urlsplit
+
+import markdown
+
+from history import archive_root, completed_reports, timestamp
+
+
+PACKAGE = Path(__file__).resolve().parent.parent
+TEMPLATES = PACKAGE / "templates"
+METADATA = re.compile(r"^<!-- engineering-brief .* -->\n?", re.MULTILINE)
+H1 = re.compile(r"^# (?!#)(.+?)\s*$", re.MULTILINE)
+FOLLOWUP = re.compile(
+    r"(?m)^[ \t]*(?:[-*+]\s+)?"
+    r":codex-followup\[(?P<label>[^\]]+)\]"
+    r"\{prompt=\"(?P<prompt>(?:\\.|[^\"\\])*)\"\}[ \t]*$"
+)
+COPYABLE = re.compile(r"(?m)^\*\*Copyable request:\*\*[^\n]*(?:\n|$)")
+COPYABLE_DETAILS = re.compile(
+    r"(?is)<details>\s*<summary>Copyable requests for separate topic tasks</summary>.*?</details>\s*"
+)
+RAW_HTML = re.compile(r"(?is)<(?:(?:/)?[a-z][^>]*|!--.*?--)>")
+SAFE_DETAILS = re.compile(r"(?is)</?(?:details|summary)(?:\s+[^>]*)?>")
+
+
+def safe_url(value):
+    parsed = urlsplit(value)
+    if value.startswith("#"):
+        return value if len(value) > 1 else None
+    if parsed.scheme in {"http", "https"} and parsed.netloc:
+        return value
+    return None
+
+
+class Sanitizer(HTMLParser):
+    """Retain only renderer-produced Markdown markup and safe external links."""
+
+    tags = {
+        "p", "br", "hr", "strong", "em", "del", "code", "pre", "blockquote",
+        "ul", "ol", "li", "h1", "h2", "h3", "h4", "h5", "h6", "table",
+        "thead", "tbody", "tr", "th", "td", "a", "details", "summary",
+    }
+    void = {"br", "hr"}
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.parts = []
+        self.stack = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag not in self.tags:
+            self.parts.append(html.escape(self.get_starttag_text()))
+            self.stack.append(None)
+            return
+        allowed = []
+        attributes = dict(attrs)
+        if tag == "a":
+            href = safe_url(attributes.get("href", ""))
+            if href:
+                allowed.append(("href", href))
+            if attributes.get("title"):
+                allowed.append(("title", attributes["title"]))
+        elif tag in {"h1", "h2", "h3", "h4", "h5", "h6"}:
+            identifier = attributes.get("id")
+            if identifier and re.fullmatch(r"[A-Za-z][A-Za-z0-9_.:-]*", identifier):
+                allowed.append(("id", identifier))
+        elif tag == "code":
+            language = attributes.get("class")
+            if language and re.fullmatch(r"language-[A-Za-z0-9_+-]+", language):
+                allowed.append(("class", language))
+        text = "".join(f' {key}="{html.escape(value, quote=True)}"' for key, value in allowed)
+        self.parts.append(f"<{tag}{text}>")
+        if tag not in self.void:
+            self.stack.append(tag)
+
+    def handle_startendtag(self, tag, attrs):
+        self.handle_starttag(tag, attrs)
+        if tag not in self.void:
+            self.handle_endtag(tag)
+
+    def handle_endtag(self, tag):
+        if not self.stack:
+            self.parts.append(html.escape(f"</{tag}>"))
+            return
+        opened = self.stack.pop()
+        if opened == tag:
+            self.parts.append(f"</{tag}>")
+        elif opened is None:
+            self.parts.append(html.escape(f"</{tag}>"))
+        else:
+            self.parts.append(html.escape(f"</{tag}>"))
+
+    def handle_data(self, data):
+        self.parts.append(html.escape(data))
+
+    def handle_entityref(self, name):
+        self.parts.append(f"&{name};")
+
+    def handle_charref(self, name):
+        self.parts.append(f"&#{name};")
+
+    def handle_comment(self, data):
+        self.parts.append(html.escape(f"<!--{data}-->"))
+
+    def result(self):
+        return "".join(self.parts)
+
+
+def discussion_html(prompt):
+    prompt = re.sub(r"\\([\\\"])", r"\1", prompt)
+    return (
+        '<details class="discussion"><summary>Discussion prompt</summary><pre>'
+        f"{html.escape(prompt)}</pre></details>"
+    )
+
+
+def protect_discussions(source):
+    discussions = {}
+
+    def preserve_details(match):
+        raw = match.group()
+        if not SAFE_DETAILS.fullmatch(raw):
+            return html.escape(raw)
+        if raw.startswith("</"):
+            return raw
+        name = "details" if raw.lower().startswith("<details") else "summary"
+        return f'<{name} markdown="1">'
+
+    def replace(match):
+        token = f"ENGINEERING_BRIEF_DISCUSSION_{len(discussions)}_END"
+        discussions[token] = discussion_html(match.group("prompt"))
+        return f"\n\n{token}\n\n"
+
+    source = RAW_HTML.sub(preserve_details, source)
+    source = FOLLOWUP.sub(replace, source)
+    source = COPYABLE.sub("", source)
+    source = COPYABLE_DETAILS.sub("", source)
+    if ":codex-followup" in source:
+        raise ValueError("unrecognized native follow-up directive; preserve the source report")
+    return source, discussions
+
+
+def sanitize(value):
+    parser = Sanitizer()
+    parser.feed(value)
+    parser.close()
+    return parser.result()
+
+
+def title_from(source, mode, report):
+    match = H1.search(source)
+    if match:
+        return re.sub(r"[*_`\[\]]", "", match.group(1)).strip()
+    return f"{mode.title()} {report['coverage_end'][:10]}"
+
+
+def ensure_single_h1(source, title):
+    matches = list(H1.finditer(source))
+    if not matches:
+        return f"# {title}\n\n{source.lstrip()}"
+    first = matches[0]
+    start = source[:first.start()]
+    rest = source[first.end():]
+    rest = H1.sub(lambda item: f"## {item.group(1)}", rest)
+    return f"{start}{first.group(0)}{rest}"
+
+
+def render_markdown(source):
+    protected, discussions = protect_discussions(source)
+    renderer = markdown.Markdown(extensions=["extra", "sane_lists", "toc"])
+    rendered = sanitize(renderer.convert(protected))
+    for token, panel in discussions.items():
+        rendered = rendered.replace(f"<p>{token}</p>", panel)
+    return rendered, renderer.toc_tokens
+
+
+def date_label(report):
+    return timestamp(report["coverage_end"]).strftime("%B %-d, %Y")
+
+
+def listing_date(report):
+    label = date_label(report)
+    if report["mode"] == "audit":
+        completed = timestamp(report["completed_at"]).strftime("%-I:%M %p UTC")
+        return f"{label} · completed {completed}"
+    return label
+
+
+def excerpt(source):
+    cleaned = protect_discussions(source)[0]
+    cleaned = METADATA.sub("", cleaned)
+    paragraphs = re.split(r"\n\s*\n", cleaned)
+    for paragraph in paragraphs:
+        line = paragraph.strip()
+        if (not line or line.startswith("#") or line.startswith("**Copyable request:")
+                or re.fullmatch(r"\*\*[^*]+\*\*", line)):
+            continue
+        line = re.sub(r"\[([^\]]+)\]\([^)]*\)", r"\1", line)
+        line = re.sub(r"[*_`>#]", "", line)
+        line = " ".join(line.split())
+        if line:
+            return line[:237].rstrip() + ("…" if len(line) > 237 else "")
+    return "Completed report."
+
+
+def relative_href(page, target):
+    return posixpath.relpath(target.as_posix(), page.parent.as_posix())
+
+
+def report_path(report):
+    return Path(report["path"])
+
+
+def output_path(report):
+    return Path(report["mode"]) / (report_path(report).stem + ".html")
+
+
+def navigation(page, latest):
+    items = [('<a href="' + relative_href(page, Path("index.html")) + '">Archive</a>')]
+    for mode in ("brief", "audit"):
+        current = latest.get(mode)
+        if current:
+            label = "Latest brief" if mode == "brief" else "Latest source audit"
+            items.append(
+                f'<a href="{relative_href(page, output_path(current))}">{label}</a>'
+            )
+    return "".join(items)
+
+
+def toc_html(tokens):
+    rows = []
+    def visit(entries):
+        for token in entries:
+            if token["level"] == 2:
+                rows.append(
+                    f'<li><a href="#{html.escape(token["id"], quote=True)}">'
+                    f'{html.escape(token["name"])}</a></li>'
+                )
+            visit(token.get("children", []))
+
+    visit(tokens)
+    if not rows:
+        return "<p>Read offline from this local archive.</p>"
+    return "<h2>In this edition</h2><ul>" + "".join(rows) + "</ul>"
+
+
+def article_sidebar(tokens, report):
+    note = (
+        '<p class="reading-time">Local archive · '
+        f'{html.escape(report["mode"])} · {html.escape(date_label(report))}</p>'
+    )
+    return note + toc_html(tokens)
+
+
+def pagination(page, reports, index):
+    previous = reports[index - 1] if index else None
+    following = reports[index + 1] if index + 1 < len(reports) else None
+    left = ""
+    right = ""
+    if previous:
+        left = (
+            f'<a href="{relative_href(page, output_path(previous))}">'
+            "← Earlier edition</a>"
+        )
+    if following:
+        right = (
+            f'<a href="{relative_href(page, output_path(following))}">'
+            "Later edition →</a>"
+        )
+    if not left and not right:
+        return ""
+    return f'<nav class="pagination" aria-label="Edition navigation">{left}{right}</nav>'
+
+
+def load_templates():
+    page = TEMPLATES / "page.html"
+    style = TEMPLATES / "style.css"
+    if not page.is_file() or page.is_symlink() or not style.is_file() or style.is_symlink():
+        raise ValueError("missing or unsafe page template/style")
+    return Template(page.read_text(encoding="utf-8")), style.read_text(encoding="utf-8")
+
+
+def page_html(template, styles, title, navigation_html, content, sidebar):
+    return template.substitute(
+        title=html.escape(title), styles=styles, navigation=navigation_html,
+        content=content, sidebar=sidebar,
+    )
+
+
+def atomic_write(target, content):
+    if target.is_symlink():
+        raise ValueError(f"preserve symlinked output: {target}")
+    target.parent.mkdir(parents=True, exist_ok=True)
+    descriptor, temporary = tempfile.mkstemp(prefix=".render-", dir=target.parent)
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8") as output:
+            output.write(content)
+            output.flush()
+            os.fsync(output.fileno())
+        os.replace(temporary, target)
+    finally:
+        Path(temporary).unlink(missing_ok=True)
+
+
+def output_directory(archive):
+    site = archive / "site"
+    if site.is_symlink() or (site.exists() and not site.is_dir()):
+        raise ValueError("preserve unsafe site output path")
+    for mode in ("brief", "audit"):
+        folder = site / mode
+        if folder.is_symlink() or (folder.exists() and not folder.is_dir()):
+            raise ValueError(f"preserve unsafe {mode} site directory")
+    return site
+
+
+def build(archive):
+    now = datetime.now(timezone.utc)
+    reports = {mode: completed_reports(archive, mode, now) for mode in ("brief", "audit")}
+    if not reports["brief"] and not reports["audit"]:
+        raise ValueError("no completed reports available for rendering")
+    template, styles = load_templates()
+    rendered = []
+    for mode, rows in reports.items():
+        for index, report in enumerate(rows):
+            source = report_path(report).read_text(encoding="utf-8")
+            source = METADATA.sub("", source, count=1)
+            title = title_from(source, mode, report)
+            body, tokens = render_markdown(ensure_single_h1(source, title))
+            page = output_path(report)
+            content = (
+                f'<p class="metadata">{html.escape(date_label(report))} · '
+                f'{html.escape(mode)}</p>{body}{pagination(page, rows, index)}'
+            )
+            rendered.append((page, page_html(
+                template, styles, title, navigation(page, {kind: values[-1] if values else None for kind, values in reports.items()}),
+                content, article_sidebar(tokens, report),
+            )))
+    index_entries = {"brief": [], "audit": []}
+    for mode in ("brief", "audit"):
+        for report in reversed(reports[mode]):
+            source = METADATA.sub("", report_path(report).read_text(encoding="utf-8"), count=1)
+            title = title_from(source, mode, report)
+            target = output_path(report)
+            index_entries[mode].append(
+                '<article class="archive-item"><p class="metadata">'
+                f'{html.escape(listing_date(report))} · {html.escape(mode)}</p><h2>'
+                f'<a href="{target.as_posix()}">{html.escape(title)}</a></h2><p>'
+                f'{html.escape(excerpt(source))}</p></article>'
+            )
+    index_page = Path("index.html")
+    index_content = (
+        "<h1>Engineering Brief Archive</h1><section><h2>Briefs</h2>"
+        + ("".join(index_entries["brief"]) or "<p>No completed briefs yet.</p>")
+        + "</section><section><h2>Source audits</h2>"
+        + ("".join(index_entries["audit"]) or "<p>No completed source audits yet.</p>")
+        + "</section>"
+    )
+    index_sidebar = (
+        "<h2>About</h2><p>Private local reading copies of completed briefs and "
+        "source audits.</p>"
+    )
+    rendered.append((index_page, page_html(
+        template, styles, "Engineering Brief Archive", navigation(index_page, {kind: values[-1] if values else None for kind, values in reports.items()}),
+        index_content, index_sidebar,
+    )))
+    site = output_directory(archive)
+    site.mkdir(mode=0o700, exist_ok=True)
+    atomic_write(site / "style.css", styles)
+    for relative, content in rendered:
+        atomic_write(site / relative, content)
+    latest = {
+        mode: str(site / output_path(rows[-1])) if rows else None
+        for mode, rows in reports.items()
+    }
+    return {"index": str(site / "index.html"), "latest": latest}
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.parse_args()
+    try:
+        result = build(archive_root())
+    except (OSError, ValueError, KeyError, TypeError, json.JSONDecodeError) as error:
+        parser.exit(1, f"render: {error}\n")
+    print(json.dumps(result, indent=2))
+
+
+if __name__ == "__main__":
+    main()
