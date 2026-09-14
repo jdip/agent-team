@@ -13,7 +13,8 @@ The label avoids `]`; escape double quotes inside `prompt` and keep the directiv
 an unescaped Markdown list item. Replace the example request with actual topic
 content. This is a rendered output directive, not a callable MCP tool or a URL.
 Keep the corresponding complete copyable request in the saved report’s supporting
-notes, preferably under a labeled Markdown details block. The HTML reader hides
+notes under a details block titled `Copyable requests for separate topic tasks`.
+The renderer omits this duplicate block after extracting each topic directive. The HTML reader hides
 the full dispatch instructions until its discussion panel is expanded. Label that
 panel as a discussion prompt; it does not open a task. When native controls are
 unavailable, provide a link to the complete fallback and direct source links.

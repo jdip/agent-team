@@ -3,7 +3,8 @@
 The completed Markdown reports remain canonical history. The reusable templates
 in `templates/` generate a derived, private blog archive with article pages, source
 links, a history index, previous/next navigation, and collapsed discussion prompts.
-No server, public hosting, or browser JavaScript is needed.
+No server, public hosting, or browser JavaScript is needed. The shell entrypoint
+currently supports macOS and other POSIX hosts; native Windows is not verified.
 
 After saving a checked brief or audit, run the package's `scripts/render.sh` from
 inside Agent Team, selecting Python 3.11+ through `AGENT_TEAM_PYTHON` when needed.
@@ -22,8 +23,9 @@ For a new edition, inspect its main article and topic panels before reporting it
 ready. Disclose missing browser coverage rather than claiming visual verification.
 
 The renderer reads validated completed history and does not alter its metadata,
-coverage boundaries, or canonical Markdown. Rebuild pages after correcting an
-edition or explicitly removing an archived report. A failed render leaves the
+coverage boundaries, or canonical Markdown. Rebuild the index after correcting an edition or explicitly removing an archived
+report. Previously generated pages remain on disk; when the operator requests
+disposal, include those exact derived pages in the approved removal. A failed render leaves the
 completed Markdown intact; fix the rendering problem and rebuild, never save a
 second completed brief merely to retry presentation. Preserve private archive and
 environment state during task cleanup.

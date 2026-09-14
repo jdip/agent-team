@@ -12,9 +12,13 @@ import posixpath
 import re
 from string import Template
 import tempfile
+import subprocess
 from urllib.parse import urlsplit
 
 import markdown
+
+from markdown.extensions import Extension
+from markdown.preprocessors import Preprocessor
 
 from history import archive_root, completed_reports, timestamp
 
@@ -32,8 +36,6 @@ COPYABLE = re.compile(r"(?m)^\*\*Copyable request:\*\*[^\n]*(?:\n|$)")
 COPYABLE_DETAILS = re.compile(
     r"(?is)<details>\s*<summary>Copyable requests for separate topic tasks</summary>.*?</details>\s*"
 )
-RAW_HTML = re.compile(r"(?is)<(?:(?:/)?[a-z][^>]*|!--.*?--)>")
-SAFE_DETAILS = re.compile(r"(?is)</?(?:details|summary)(?:\s+[^>]*)?>")
 
 
 def safe_url(value):
@@ -75,7 +77,7 @@ class Sanitizer(HTMLParser):
                 allowed.append(("title", attributes["title"]))
         elif tag in {"h1", "h2", "h3", "h4", "h5", "h6"}:
             identifier = attributes.get("id")
-            if identifier and re.fullmatch(r"[A-Za-z][A-Za-z0-9_.:-]*", identifier):
+            if identifier and re.fullmatch(r"[A-Za-z0-9_][A-Za-z0-9_.:-]*", identifier):
                 allowed.append(("id", identifier))
         elif tag == "code":
             language = attributes.get("class")
@@ -122,7 +124,7 @@ class Sanitizer(HTMLParser):
 def discussion_html(prompt):
     prompt = re.sub(r"\\([\\\"])", r"\1", prompt)
     return (
-        '<details class="discussion"><summary>Discussion prompt</summary><pre>'
+        '<details class="discussion"><summary>Copyable discussion prompt</summary><pre>'
         f"{html.escape(prompt)}</pre></details>"
     )
 
@@ -130,21 +132,11 @@ def discussion_html(prompt):
 def protect_discussions(source):
     discussions = {}
 
-    def preserve_details(match):
-        raw = match.group()
-        if not SAFE_DETAILS.fullmatch(raw):
-            return html.escape(raw)
-        if raw.startswith("</"):
-            return raw
-        name = "details" if raw.lower().startswith("<details") else "summary"
-        return f'<{name} markdown="1">'
-
     def replace(match):
         token = f"ENGINEERING_BRIEF_DISCUSSION_{len(discussions)}_END"
         discussions[token] = discussion_html(match.group("prompt"))
         return f"\n\n{token}\n\n"
 
-    source = RAW_HTML.sub(preserve_details, source)
     source = FOLLOWUP.sub(replace, source)
     source = COPYABLE.sub("", source)
     source = COPYABLE_DETAILS.sub("", source)
@@ -167,21 +159,29 @@ def title_from(source, mode, report):
     return f"{mode.title()} {report['coverage_end'][:10]}"
 
 
-def ensure_single_h1(source, title):
-    matches = list(H1.finditer(source))
-    if not matches:
-        return f"# {title}\n\n{source.lstrip()}"
-    first = matches[0]
-    start = source[:first.start()]
-    rest = source[first.end():]
-    rest = H1.sub(lambda item: f"## {item.group(1)}", rest)
-    return f"{start}{first.group(0)}{rest}"
+class ReportMarkdown(Extension):
+    """Enable Markdown in report note panels after fenced code has been stashed."""
+
+    def __init__(self, discussions):
+        super().__init__()
+        self.discussions = discussions
+
+    def extendMarkdown(self, md):
+        discussions = self.discussions
+
+        class Panels(Preprocessor):
+            def run(self, lines):
+                source, panels = protect_discussions("\n".join(lines))
+                discussions.update(panels)
+                return [re.sub(r"^<(details|summary)>$", r'<\1 markdown="1">', line)
+                        for line in source.splitlines()]
+        md.preprocessors.register(Panels(md), "report_panels", 24)
 
 
 def render_markdown(source):
-    protected, discussions = protect_discussions(source)
-    renderer = markdown.Markdown(extensions=["extra", "sane_lists", "toc"])
-    rendered = sanitize(renderer.convert(protected))
+    discussions = {}
+    renderer = markdown.Markdown(extensions=["fenced_code", "tables", "md_in_html", "sane_lists", "toc", ReportMarkdown(discussions)])
+    rendered = sanitize(renderer.convert(source))
     for token, panel in discussions.items():
         rendered = rendered.replace(f"<p>{token}</p>", panel)
     return rendered, renderer.toc_tokens
@@ -303,7 +303,7 @@ def page_html(template, styles, title, navigation_html, content, sidebar):
 def atomic_write(target, content):
     if target.is_symlink():
         raise ValueError(f"preserve symlinked output: {target}")
-    target.parent.mkdir(parents=True, exist_ok=True)
+    target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
     descriptor, temporary = tempfile.mkstemp(prefix=".render-", dir=target.parent)
     try:
         with os.fdopen(descriptor, "w", encoding="utf-8") as output:
@@ -338,7 +338,7 @@ def build(archive):
             source = report_path(report).read_text(encoding="utf-8")
             source = METADATA.sub("", source, count=1)
             title = title_from(source, mode, report)
-            body, tokens = render_markdown(ensure_single_h1(source, title))
+            body, tokens = render_markdown(source if H1.search(source) else f"# {title}\n\n{source}")
             page = output_path(report)
             content = (
                 f'<p class="metadata">{html.escape(date_label(report))} · '
@@ -378,7 +378,6 @@ def build(archive):
     )))
     site = output_directory(archive)
     site.mkdir(mode=0o700, exist_ok=True)
-    atomic_write(site / "style.css", styles)
     for relative, content in rendered:
         atomic_write(site / relative, content)
     latest = {
@@ -393,7 +392,7 @@ def main():
     parser.parse_args()
     try:
         result = build(archive_root())
-    except (OSError, ValueError, KeyError, TypeError, json.JSONDecodeError) as error:
+    except (OSError, ValueError, KeyError, TypeError, subprocess.CalledProcessError) as error:
         parser.exit(1, f"render: {error}\n")
     print(json.dumps(result, indent=2))
 

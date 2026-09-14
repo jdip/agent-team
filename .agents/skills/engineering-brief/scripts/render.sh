@@ -17,7 +17,10 @@ if [[ -e "$archive_dir" && ! -d "$archive_dir" ]]; then
 fi
 
 "$python_bin" -c 'import sys; sys.exit("render: Python 3.11 or newer is required") if sys.version_info < (3, 11) else None'
-mkdir -p "$archive_dir"
+if [[ ! -d "$archive_dir" ]]; then
+  printf 'render: no existing archive; save a completed report first\n' >&2
+  exit 1
+fi
 venv_dir="$archive_dir/.render-venv"
 if [[ -L "$venv_dir" ]]; then
   printf 'render: preserve symlinked render environment\n' >&2
