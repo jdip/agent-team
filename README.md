@@ -146,6 +146,19 @@ Verified test delivery completes ordinary implementation;
 
 ## Skill guide
 
+### Agent Team engineering intelligence
+
+In Codex desktop, invoke the repository-local
+[engineering-brief](.agents/skills/engineering-brief/SKILL.md) skill for a brief or
+source audit. It compares primary engineering evidence with this repository and
+proposes small measurable experiments. Briefs cover since the last completed run,
+with a two-week cutoff; source audits examine about thirty days. Both run on demand.
+Topic controls request separate read-only investigations. Reports and watch history
+stay local and untracked in the Git common directory; the source list changes only
+through review. This repository-only skill is outside the Machine Profile inventory.
+
+### Managed skill guide
+
 Ask the agent to use a skill by name and supply the target and intended outcome,
 for example **“Use dependency-review for this repository's TOML editor.”** Use
 whats-next for coordination; invoke a specialist directly when you already know

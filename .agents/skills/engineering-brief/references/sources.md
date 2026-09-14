@@ -1,0 +1,144 @@
+# Curated sources
+
+Use this catalog to find leads for an Agent Team engineering brief or source
+audit. It is a maintained search-priority policy, not a claim-evidence ledger.
+Source tiers say where to look first; they do not determine whether a claim is
+well supported. Grade each reported claim from its direct evidence.
+
+Prefer a maintainer's code, release notes, technical writing, experiment, or
+postmortem over commentary about that work. A run is deliberately bounded: it
+does not claim that every entry or coverage lane was checked. Follow a useful
+lead to its primary source before treating it as reportable evidence.
+
+## Tier A — builders and empirical engineers
+
+These people are watched because they build, maintain, measure, or document
+software systems. Their inclusion is not an endorsement of every claim or post.
+Aliases are grouped so one person's material is not counted as independent
+corroboration.
+
+| Source and canonical links | Relevant specialties | Reason for attention |
+| --- | --- | --- |
+| [Thorsten Ball](https://thorstenball.com/) — [Register Spill](https://registerspill.thorstenball.com/) | Programming tools, agent-assisted software work | A practicing engineer writing concrete observations about how agents change software work. |
+| [Armin Ronacher](https://lucumr.pocoo.org/) / [mitsuhiko](https://github.com/mitsuhiko) | Language/runtime design, open-source maintenance, coding agents | Maintainer perspective on agent harnesses, abstractions, and production tradeoffs. |
+| [Mario Zechner](https://mariozechner.at/) / [badlogic](https://github.com/badlogic) | Pi, agent loops, tool design | Builds and publicly iterates on agent tooling; follow implementation and release artifacts. |
+| [Mitchell Hashimoto](https://mitchellh.com/) | Developer tools, terminal UX, isolated environments | Long-running maintainer with practical evidence about developer workflows and tool ergonomics. |
+| [Jesse Vincent](https://blog.fsck.com/) | Production operations, workflow systems, durable software | Useful counterweight from a maintainer of long-lived production systems. |
+| [Peter Steinberger](https://steipete.me/) / [steipete](https://github.com/steipete) | Mobile engineering, developer tooling, agent workflows | Publishes hands-on agent experiments and open-source tooling. |
+| [Boris Cherny](https://github.com/bcherny) | Claude Code, coding-agent product work | Firsthand product and workflow observations; seek the underlying release or documentation where available. |
+| [Matt Pocock](https://www.mattpocock.com/) / [mattpocock](https://github.com/mattpocock) | TypeScript, skills, engineering workflows | Maintains reusable workflow material and explains implementation choices in public. |
+| [Lauren "poteto" Tan](https://github.com/poteto) | Developer workflow, production software, agent tooling | Follow the practitioner's own projects and firsthand observations; verify authorship before associating separate projects with this source. |
+| [Addy Osmani](https://addyosmani.com/) | Web engineering, developer productivity, agent guidance | Combines production engineering experience with accessible technical guidance; prefer code and measured work. |
+| [Nicholas Carlini](https://nicholas.carlini.com/) | ML security, adversarial testing, agent security | High-value source for threat models and evidence-led security claims. |
+| [Hamel Husain](https://hamel.dev/) | LLM evaluation, production AI systems | Documents evaluation and operational practice with an empirical orientation. |
+| [Shreya Shankar](https://www.shreyashankar.com/) | ML systems, evaluation, data quality | Useful for rigorous evaluation methodology and production failure modes. |
+| [Kent Beck](https://tidyfirst.substack.com/) | Software design, testing, incremental delivery | Offers an experienced counterpoint for testing, design, and change discipline. |
+| [Simon Willison](https://simonwillison.net/) | LLM tooling, prompt injection, reproducible experiments | Publishes reproducible technical investigations and security-relevant observations. |
+| [Geoffrey Huntley](https://ghuntley.com/) / [ghuntley](https://github.com/ghuntley) | Developer infrastructure, remote development, agent work | Builder perspective on execution environments and software delivery. |
+| [Andrej Karpathy](https://karpathy.ai/) | Model behavior, training, coding-agent practice | Useful for technically grounded model and harness observations; distinguish demos from measured outcomes. |
+| [ThePrimeagen](https://github.com/ThePrimeagen) | Developer tooling, editor/terminal workflow | Practitioner commentary can surface workflow leads; verify important claims elsewhere. |
+| [Theo Browne](https://t3.gg/) / [t3.gg](https://github.com/t3-oss) | Web platforms, developer experience, coding agents | Follow concrete builds, repositories, and experiments rather than announcement content. |
+| [Steve Yegge](https://steve-yegge.blogspot.com/) / [beads](https://github.com/steveyegge/beads) | Developer workflow, task systems, agent coordination | Maintains agent-adjacent workflow tools and supplies a long-horizon engineering viewpoint. |
+| [swyx](https://www.swyx.io/) / [Latent Space](https://www.latent.space/) | AI engineering ecosystem, practitioner discovery | A discovery bridge to practitioners and projects; promote only primary evidence into substantive findings. |
+
+### Tier A discovery criteria
+
+Propose a new Tier A entry when primary material shows sustained engineering work:
+maintaining production or open-source systems, publishing code or measurements,
+documenting a reproducible workflow, or writing a useful postmortem. Seek
+experienced maintainers applying agents to ordinary software work, including
+software supply-chain, operations, security, testing, and developer-experience
+specialties. Popularity, a large audience, or repeated commentary alone is not a
+reason to add an entry.
+
+## Tier B — official product sources
+
+Use official documentation, release notes, source repositories, issue trackers,
+and discussions to establish a product change. Report behavioral or architectural
+changes, not version-number churn.
+
+| Product or ecosystem | Canonical primary sources | Why this lane matters |
+| --- | --- | --- |
+| OpenAI Codex | [Codex documentation](https://developers.openai.com/codex/) | Coding-agent behavior, harnesses, worktrees, skills, and desktop UX. |
+| OpenAI Agents API | [Agents guide](https://platform.openai.com/docs/guides/agents) | Agent tool use, orchestration primitives, and evaluation-adjacent API patterns. |
+| OpenAI plugins and Agent Skills | [Build skills](https://learn.chatgpt.com/docs/build-skills) | Skill packaging and discovery relevant to this repository's local skill. |
+| Anthropic Claude Code | [Claude Code documentation](https://docs.anthropic.com/en/docs/claude-code/overview) | A major coding-agent harness and workflow comparator. |
+| Anthropic Skills | [Agent Skills documentation](https://docs.anthropic.com/en/docs/agents-and-tools/agent-skills/overview) | Cross-host skill conventions and implementation evidence. |
+| Cursor | [changelog](https://cursor.com/changelog) | Editor-integrated agent behavior and product workflow changes. |
+| GitHub Copilot | [official documentation](https://docs.github.com/en/copilot) | Repository-hosted agent workflow and reviewer/automation capabilities. |
+| GitHub Agentic Workflows / gh-aw | [gh-aw repository](https://github.com/github/gh-aw) | GitHub-native agent workflow implementation and discussions. |
+| Gemini CLI | [source repository](https://github.com/google-gemini/gemini-cli) | Open coding-agent CLI implementation and release evidence. |
+| Jules | [official site](https://jules.google/) | Remote/asynchronous coding-agent workflow changes. |
+| OpenCode | [source repository](https://github.com/anomalyco/opencode) | Open agent harness design and extension patterns. |
+| Cline | [source repository](https://github.com/cline/cline) | Agent tool use, MCP integration, and IDE workflow evidence. |
+| Roo Code | [source repository](https://github.com/RooCodeInc/Roo-Code) | Open IDE-agent product and configuration patterns. |
+| Windsurf | [documentation](https://docs.windsurf.com/) | Editor-agent UX, workflow, and product-change evidence. |
+| Amp / Sourcegraph | [Amp](https://ampcode.com/) and [Sourcegraph](https://sourcegraph.com/) | Coding-agent UX and code-intelligence workflow comparison. |
+| Aider | [documentation](https://aider.chat/) / [source](https://github.com/Aider-AI/aider) | Terminal agent workflow, benchmarks, and transparent open-source implementation. |
+| Devin | [documentation](https://docs.devin.ai/) | Persistent and remote-agent workflow claims; inspect product docs carefully. |
+| Factory | [official site](https://www.factory.ai/) | Agent product and enterprise workflow developments. |
+| Pi | [source repository](https://github.com/earendil-works/pi) | Lean agent-loop design, skills, extensions, and model-provider abstractions. |
+| Superpowers | [source repository](https://github.com/obra/superpowers) | Reusable engineering workflow skill design. |
+| Beads / Gas Town | [Beads](https://github.com/steveyegge/beads) and [Gas Town](https://github.com/steveyegge/gastown) | Task tracking and multi-agent coordination mechanisms. |
+| OpenHands | [source repository](https://github.com/All-Hands-AI/OpenHands) | Open agent platform, remote execution, and evaluation discussions. |
+
+## Tier C — skills and tooling ecosystem
+
+Treat every reusable skill, plugin, MCP server, workflow library, evaluation
+framework, observability product, sandbox, or remote environment as a software
+supply-chain input. Before recommending one, inspect its owner, source, release
+history, permissions, evaluation/validation practice, and compatibility with
+Agent Team.
+
+| Ecosystem or coverage lane | Canonical starting points | What to investigate |
+| --- | --- | --- |
+| Agent Skills / `SKILL.md` | [Agent Skills specification](https://agentskills.io/specification) | Portability, composition, versioning, and security boundaries. |
+| skills.sh | [skills.sh](https://skills.sh/) | Discovery lead only; follow packages to their maintained repositories. |
+| Model Context Protocol | [MCP specification](https://modelcontextprotocol.io/) | Protocol changes, permission boundaries, and tool-server security. |
+| Official MCP Registry | [registry](https://registry.modelcontextprotocol.io/) | Publisher identity, release provenance, and server capabilities. |
+| Matt Pocock's skills | [source repository](https://github.com/mattpocock/skills) | Reusable engineering workflow implementation and instruction design. |
+| poteto / PStack | [poteto profile](https://github.com/poteto) / [source repository](https://github.com/backnotprop/pstack) | Agent-aware developer workflow and collaboration mechanics. |
+| Addy Osmani's agent skills | [source repository](https://github.com/addyosmani/agent-skills) | Portable skill design; confirm scope and maintenance activity per proposed use. |
+| Superpowers | [source repository](https://github.com/obra/superpowers) | Workflow composition, tests/evals, and adoption constraints. |
+| NVIDIA skills | [NVIDIA-Verified Agent Skills](https://docs.nvidia.com/skills) / [source repository](https://github.com/nvidia/skills) | Supply-chain controls, evaluation, signing, and portability practices for skills. |
+| Reusable agent workflow and orchestration libraries | [LangGraph](https://github.com/langchain-ai/langgraph) | State, coordination, observability, and deterministic-vs-agent boundaries. |
+| Evaluation frameworks | [OpenAI evaluation guide](https://platform.openai.com/docs/guides/evals) | Methodology, task realism, harness/model details, and reproducibility. |
+| Plugin systems | No universal canonical source | Start from the product's documented plugin mechanism, then inspect ownership, permissions, isolation, and supply-chain review. |
+| Agent observability | [OpenTelemetry GenAI conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/) | Trace fidelity, privacy, cost, and operational usefulness. |
+| Sandbox infrastructure | [E2B documentation](https://e2b.dev/docs) | Isolation model, network/filesystem permissions, lifecycle, and escape risks. |
+| Persistent remote execution | [Daytona documentation](https://www.daytona.io/docs) | Workspace lifecycle, identity, state, and cleanup/retention controls. |
+
+The named sources are starting points, not a closed ecosystem list. Keep an eye on
+whether a candidate has tests or evals, versioning and release discipline,
+observability, portability and composition, and documented security controls.
+
+## Tier D — discovery sources
+
+Use these to surface leads, not to establish claims. Community posts, videos,
+podcasts, newsletters, and discussion threads often omit the code, conditions, or
+measurement needed for an engineering conclusion.
+
+| Discovery source | Canonical entry point | Required next step |
+| --- | --- | --- |
+| Hacker News | [news.ycombinator.com](https://news.ycombinator.com/) | Find the linked repository, release, experiment, or author account. |
+| Reddit | [reddit.com](https://www.reddit.com/) | Treat discussion as anecdotal until a primary source supports the claim. |
+| GitHub Trending | [GitHub Trending](https://github.com/trending) | Inspect the repository, maintainer, releases, issues, and actual implementation. |
+| GitHub Discussions | [GitHub Explore](https://github.com/explore) | Follow discussion to the owning project and its authoritative decision record. |
+| YouTube | [YouTube](https://www.youtube.com/) | Locate demos, code, benchmarks, or accompanying technical writing. |
+| X / social posts | [X](https://x.com/) | Seek the source code, release, experiment, or firsthand write-up behind the post. |
+| Podcasts and newsletters | No single canonical source | Treat each episode or issue as a lead; attribute it and seek supporting primary material. |
+| Discord and other community discussions | No public universal source | Use only accessible, authorized material; do not imply access to private communities. |
+
+## Catalog maintenance
+
+The source audit may recommend **PROMOTE**, **KEEP**, **DEMOTE**, **DROP**, or
+**ADD** based on observed engineering work, reproducibility/evidence, practical
+usefulness, technical depth, signal-to-noise, and independence from vendor
+marketing. It proposes changes; it does not edit this standing policy. Deduplicate
+aliases and syndications so repeated coverage of one original claim is never
+misrepresented as independent confirmation.
+
+When a listed link no longer resolves, retain the source name, mark the canonical
+link unresolved, and investigate a replacement through the source owner's own
+published profile or repository. Do not substitute a search result, a mirror, or
+a social repost as canonical without evidence that the source owner controls it.
