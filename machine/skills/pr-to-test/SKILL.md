@@ -32,6 +32,33 @@ checkout. Review every submitted change. Reuse completed review only when eviden
 clearly covers all changes and findings are resolved or explicitly accepted; doubt
 means perform the needed review. Do not create a review ledger.
 
+## Execution ownership
+
+Before starting a long-running gate or delivery wait, explicitly choose its
+execution and observation owner. Normally assign a test verifier to run validation,
+or a workflow monitor to execute or observe a predefined bounded sequence, using
+the host's existing roles and their authority boundaries. Short checks may stay
+with the primary; when delegation is unavailable, state that limit and own the
+bounded operation directly.
+
+The assignment names the exact command and checkout/revision or existing run,
+required success evidence, failure and overall/stall boundaries, permitted
+task-owned cleanup, and reporting conditions: the delegate reports terminal
+evidence, actionable failure, required input or target drift, and stays quiet on
+unchanged healthy progress. Authorize any successful-path mutations explicitly
+within the task's scope. Before temporary compute starts, the primary uses
+`cleanup-task-artifacts` to establish resource ownership and teardown.
+
+For work already running, transfer observation with its run/session identity,
+current state and log/status location, preserving the operation without restarting
+it. One owner observes each run: the primary uses delegated evidence for required
+progress updates rather than independently polling the same logs or status.
+The primary retains interpretation, discretionary recovery, scope decisions and
+final acceptance. A delegate returns failures and partial effects for that
+decision; a recovery assignment must precede further corrective execution.
+
+## Validate and deliver
+
 Perform actual local gates: rigorous lint/type/validation/meaningful high-coverage
 checks for Application Code; successful real use for Tooling. Do not build a fake
 forge, fixture machine, orchestration suite, or tests of tests. Resolve routine
