@@ -3,7 +3,8 @@
 The completed Markdown reports remain canonical history. The reusable templates
 in `templates/` generate a derived, private blog archive with article pages, source
 links, a history index, previous/next navigation, and collapsed discussion prompts.
-No server, public hosting, or browser JavaScript is needed. The shell entrypoint
+A small browser-only JavaScript handler copies discussion prompts. It requires
+no Node/npm, new package, server, or public hosting. The shell entrypoint
 currently supports macOS and other POSIX hosts; native Windows is not verified.
 
 After saving a checked brief or audit, run the package's `scripts/render.sh` from
@@ -35,7 +36,9 @@ environment state during task cleanup.
 Return a short editorial summary, a link to the current HTML article, a link to
 the archive, and native topic controls using [topic actions](topic-actions.md).
 Do not paste the full article and fallback prompts into chat. Source links remain
-in the article. The HTML discussion panel contains selectable, copyable text;
-selecting it does not create a task. Actual native task requests live in the chat
+in the article. Each HTML discussion panel includes a Copy prompt button. It
+copies only that panel’s text, reports completion after clipboard success, and
+selects the text for manual copying when access is unavailable. Copying does not
+create a task. Actual native task requests live in the chat
 summary, where Codex can interpret them. Do not invent desktop deep-link URLs or
 introduce a bridge/service to simulate direct HTML task creation.

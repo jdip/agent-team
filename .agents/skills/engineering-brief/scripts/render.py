@@ -124,7 +124,9 @@ class Sanitizer(HTMLParser):
 def discussion_html(prompt):
     prompt = re.sub(r"\\([\\\"])", r"\1", prompt)
     return (
-        '<details class="discussion"><summary>Copyable discussion prompt</summary><pre>'
+        '<details class="discussion"><summary>Discussion prompt</summary>'
+        '<div class="copy-toolbar"><button type="button" class="copy-prompt" hidden>Copy prompt</button>'
+        '<span class="copy-status" role="status" aria-live="polite"></span></div><pre>'
         f"{html.escape(prompt)}</pre></details>"
     )
 
