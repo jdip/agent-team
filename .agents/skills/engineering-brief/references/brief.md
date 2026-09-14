@@ -41,8 +41,8 @@ whether it challenges or reinforces current practice. Name the engineer whose
 work is being discussed. Put compact impact/evidence labels beside the headline;
 make the claim type clear in prose or a short label. Cite direct sources near claims.
 Place its topic directive after the explanation in the saved Markdown; the HTML
-reader converts it to a collapsed prompt. Present native controls in the short
-chat summary, following [topic actions](topic-actions.md).
+reader converts it to a collapsed, copyable context seed, following
+[topic actions](topic-actions.md).
 
 Aim for an 8–12 minute read for a substantial edition, not a word-count quota.
 A quiet interval warrants a short update. Use paragraphs for explanation and

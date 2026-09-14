@@ -34,11 +34,10 @@ environment state during task cleanup.
 ## Conversation handoff
 
 Return a short editorial summary, a link to the current HTML article, a link to
-the archive, and native topic controls using [topic actions](topic-actions.md).
+the archive. Topic context follows [discussion seeds](topic-actions.md).
 Do not paste the full article and fallback prompts into chat. Source links remain
 in the article. Each HTML discussion panel includes a Copy prompt button. It
 copies only that panel’s text, reports completion after clipboard success, and
 selects the text for manual copying when access is unavailable. Copying does not
-create a task. Actual native task requests live in the chat
-summary, where Codex can interpret them. Do not invent desktop deep-link URLs or
+create a task; the user creates a new Agent Team task and pastes the context. Do not invent desktop deep-link URLs or
 introduce a bridge/service to simulate direct HTML task creation.

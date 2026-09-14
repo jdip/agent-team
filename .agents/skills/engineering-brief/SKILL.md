@@ -60,7 +60,7 @@ supporting notes; later editions refresh affected conclusions. Keep repository
 paths, research bookkeeping, and implementation-validation status out of the news
 narrative. Propose zero to three experiments only where a real uncertainty remains.
 
-Use [topic actions](references/topic-actions.md) for contextual native controls
+Use [topic actions](references/topic-actions.md) for concise context seeds
 under substantive topics. Store full copyable seeds in the report's supporting
 notes so they do not interrupt the article. Producing a brief creates no tasks.
 
@@ -83,7 +83,7 @@ as citation checks. A valid file or resolved URL does not establish a useful bri
 Save only the finished, checked edition through the history helper. Follow
 [HTML presentation](references/presentation.md) to rebuild the local blog archive
 and inspect the resulting article. Present a short summary, article/archive links,
-and native topic controls in conversation. The HTML article is the primary reader;
+in conversation. Topic contexts are copied from the HTML into user-created tasks. The HTML article is the primary reader;
 keep generated reports and observations local and untracked. Standing source
 changes and proposed experiments enter the repository workflow when selected;
 invocation authorizes neither adoption nor scheduling.
