@@ -152,7 +152,8 @@ In Codex desktop, invoke the repository-local
 [engineering-brief](.agents/skills/engineering-brief/SKILL.md) skill for a brief or
 source audit. It follows thoughtful agentic engineers and major AI developments,
 reads their social posts and blogs, and connects useful lessons to this repository.
-Briefs cover since the last completed run, with a two-week cutoff. A watchlist review
+Briefs track developments since the last run and discover previously uncovered
+contributions from the past two weeks, broadening the search on frequent runs. A watchlist review
 runs when no completed source audit exists or the last one is at least seven days
 old; ordinary briefs never reset that clock. Source audits assess about thirty days of evidence and can also be requested directly.
 Runs remain on demand.
