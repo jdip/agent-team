@@ -46,8 +46,7 @@ toward reaction, speculation or promotion.
 7. **Proposed source-list changes:** precise proposed additions/removals/tier or
    rationale changes, with supporting evidence and uncertainty.
 
-Give substantive audit topics the same native investigation action and complete
-fallback prompt as brief topics; follow [topic actions](topic-actions.md).
+Give substantive audit topics the same collapsed discussion context seed as brief topics; follow [topic actions](topic-actions.md).
 
 Archive the complete audit locally with its coverage and completion metadata.
 It does not advance the brief's time boundary. Archived audits carry the evolving

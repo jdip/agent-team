@@ -80,7 +80,7 @@ experiments where understanding the development is the useful outcome.
 ## Supporting notes
 
 Put revision/path evidence, first-edition hypothesis baseline, coverage limits,
-and complete fallback task seeds at the end of the same saved report, preferably
+and optional duplicate discussion seeds at the end of the same saved report, preferably
 inside Markdown `details` blocks. The main prose should stand alone. Include
 inaccessible sources and uninvestigated domains here rather than twelve empty
 status sections. Links to notes should identify what the reader will find.

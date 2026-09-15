@@ -29,6 +29,7 @@ fi
 if [[ ! -x "$venv_dir/bin/python" ]]; then
   "$python_bin" -m venv "$venv_dir"
 fi
+"$venv_dir/bin/python" -c 'import sys; sys.exit("render: existing environment requires Python 3.11 or newer") if sys.version_info < (3, 11) else None'
 PIP_DISABLE_PIP_VERSION_CHECK=1 "$venv_dir/bin/pip" install --quiet --require-hashes --requirement "$skill_dir/requirements.txt"
 
 exec "$venv_dir/bin/python" "$skill_dir/scripts/render.py" "$@"

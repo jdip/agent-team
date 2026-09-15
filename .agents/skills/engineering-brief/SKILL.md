@@ -69,8 +69,8 @@ paths, research bookkeeping, and implementation-validation status out of the new
 narrative. Propose zero to three experiments only where a real uncertainty remains.
 
 Use [topic actions](references/topic-actions.md) for concise context seeds
-under substantive topics. Store full copyable seeds in the report's supporting
-notes so they do not interrupt the article. Producing a brief creates no tasks.
+under substantive topics. Put the complete seed in each topic directive; the renderer collapses it.
+Supporting notes may retain duplicate seeds. Producing a brief creates no tasks.
 
 ## Weekly watchlist review
 

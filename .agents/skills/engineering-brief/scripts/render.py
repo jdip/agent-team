@@ -13,7 +13,7 @@ import re
 from string import Template
 import tempfile
 import subprocess
-from urllib.parse import urlsplit
+from urllib.parse import unquote, urlsplit
 
 import markdown
 
@@ -57,20 +57,28 @@ class Sanitizer(HTMLParser):
     }
     void = {"br", "hr"}
 
-    def __init__(self):
+    def __init__(self, report_links=None, source_path=None):
         super().__init__(convert_charrefs=True)
+        self.report_links = report_links or {}
+        self.source_path = source_path
         self.parts = []
         self.stack = []
 
     def handle_starttag(self, tag, attrs):
         if tag not in self.tags:
             self.parts.append(html.escape(self.get_starttag_text()))
-            self.stack.append(None)
             return
         allowed = []
         attributes = dict(attrs)
         if tag == "a":
-            href = safe_url(attributes.get("href", ""))
+            value = attributes.get("href", "")
+            href = safe_url(value)
+            parsed = urlsplit(value)
+            if not href and self.source_path and parsed.scheme in {"", "file"} and not parsed.netloc and not parsed.query:
+                target = (self.source_path.parent / unquote(parsed.path)).resolve()
+                href = self.report_links.get(target)
+                if href and parsed.fragment:
+                    href += "#" + parsed.fragment
             if href:
                 allowed.append(("href", href))
             if attributes.get("title"):
@@ -94,16 +102,14 @@ class Sanitizer(HTMLParser):
             self.handle_endtag(tag)
 
     def handle_endtag(self, tag):
-        if not self.stack:
+        if tag not in self.stack:
             self.parts.append(html.escape(f"</{tag}>"))
             return
-        opened = self.stack.pop()
-        if opened == tag:
-            self.parts.append(f"</{tag}>")
-        elif opened is None:
-            self.parts.append(html.escape(f"</{tag}>"))
-        else:
-            self.parts.append(html.escape(f"</{tag}>"))
+        while self.stack:
+            opened = self.stack.pop()
+            self.parts.append(f"</{opened}>")
+            if opened == tag:
+                break
 
     def handle_data(self, data):
         self.parts.append(html.escape(data))
@@ -115,9 +121,11 @@ class Sanitizer(HTMLParser):
         self.parts.append(f"&#{name};")
 
     def handle_comment(self, data):
-        self.parts.append(html.escape(f"<!--{data}-->"))
+        pass
 
     def result(self):
+        while self.stack:
+            self.parts.append(f"</{self.stack.pop()}>")
         return "".join(self.parts)
 
 
@@ -146,13 +154,13 @@ def protect_discussions(source):
     source = FOLLOWUP.sub(replace, source)
     source = COPYABLE.sub("", source)
     source = COPYABLE_DETAILS.sub("", source)
-    if ":codex-followup" in source:
+    if re.search(r"(?m)^[ \t]*(?:[-*+]\s+)?:codex-followup\[", source):
         raise ValueError("unrecognized native follow-up directive; preserve the source report")
     return source, discussions
 
 
-def sanitize(value):
-    parser = Sanitizer()
+def sanitize(value, report_links=None, source_path=None):
+    parser = Sanitizer(report_links, source_path)
     parser.feed(value)
     parser.close()
     return parser.result()
@@ -184,12 +192,14 @@ class ReportMarkdown(Extension):
         md.preprocessors.register(Panels(md), "report_panels", 24)
 
 
-def render_markdown(source):
+def render_markdown(source, report_links=None, source_path=None):
     discussions = {}
     renderer = markdown.Markdown(extensions=["fenced_code", "tables", "md_in_html", "sane_lists", "toc", ReportMarkdown(discussions)])
-    rendered = sanitize(renderer.convert(source))
+    rendered = sanitize(renderer.convert(source), report_links, source_path)
     for token, panel in discussions.items():
         rendered = rendered.replace(f"<p>{token}</p>", panel)
+    if any(token in rendered for token in discussions):
+        raise ValueError("discussion panel could not be rendered; preserve the source report")
     return rendered, renderer.toc_tokens
 
 
@@ -211,7 +221,7 @@ def excerpt(source):
     paragraphs = re.split(r"\n\s*\n", cleaned)
     for paragraph in paragraphs:
         line = paragraph.strip()
-        if (not line or line.startswith("#") or line.startswith("**Copyable request:")
+        if (not line or "ENGINEERING_BRIEF_DISCUSSION_" in line or line.startswith("#") or line.startswith("**Copyable request:")
                 or re.fullmatch(r"\*\*[^*]+\*\*", line)):
             continue
         line = re.sub(r"\[([^\]]+)\]\([^)]*\)", r"\1", line)
@@ -344,8 +354,15 @@ def build(archive):
             source = report_path(report).read_text(encoding="utf-8")
             source = METADATA.sub("", source, count=1)
             title = title_from(source, mode, report)
-            body, tokens = render_markdown(source if H1.search(source) else f"# {title}\n\n{source}")
             page = output_path(report)
+            report_links = {
+                report_path(item).resolve(): relative_href(page, output_path(item))
+                for values in reports.values() for item in values
+            }
+            body, tokens = render_markdown(
+                source if H1.search(source) else f"# {title}\n\n{source}",
+                report_links, report_path(report),
+            )
             content = (
                 f'<p class="metadata">{html.escape(date_label(report))} · '
                 f'{html.escape(mode)}</p>{body}{pagination(page, rows, index)}'
