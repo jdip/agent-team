@@ -66,7 +66,8 @@ Inspect actual repository behavior for proposed implications or experiments. Rea
 to confirm. The first edition includes a compact nine-hypothesis baseline in its
 supporting notes; later editions refresh affected conclusions. Keep repository
 paths, research bookkeeping, and implementation-validation status out of the news
-narrative. Propose zero to three experiments only where a real uncertainty remains.
+narrative. Apply the brief format's Collection notes boundary while writing.
+Propose zero to three experiments only where a real uncertainty remains.
 
 Use [topic actions](references/topic-actions.md) for concise context seeds
 under substantive topics. Put the complete seed in each topic directive; the renderer collapses it.

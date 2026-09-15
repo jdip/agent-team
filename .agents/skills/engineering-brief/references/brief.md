@@ -32,9 +32,12 @@ multipliers do not confer importance. Include informed dissent and failed attemp
 
 ## Write a news briefing
 
-Open with the edition date, a plain-language coverage window, and a short
-**Overall signal** paragraph: the most meaningful pattern across the selected work.
-Make clear when that pattern is your synthesis rather than a demonstrated result.
+Open with a compact dateline containing the edition date, an optional coverage date
+range, and optional reading time. Follow it with a short **Overall signal** paragraph:
+the most meaningful pattern across the selected work. Make clear when that pattern
+is your synthesis rather than a demonstrated result. The next visible section is
+the first substantive story; collection mechanics belong in Collection notes near
+the end.
 
 Use up to five leading stories with descriptive headlines. Give each enough
 connected prose to explain what happened, how the idea or system works, why it
@@ -56,7 +59,7 @@ in the reading flow. A heading promises useful content beneath it.
 
 Consider all of these areas while researching. Organize the edition around the
 material found; combine or omit empty sections and explain coverage limits once
-in supporting notes. Do not repeat a leading story to fill another section.
+in Collection notes. Do not repeat a leading story to fill another section.
 
 - **Leading stories / TOP 5:** the most consequential contributions and developments.
 - **Major releases:** capabilities and tradeoffs, not a version-number inventory.
@@ -79,11 +82,22 @@ experiments where understanding the development is the useful outcome.
 
 ## Supporting notes
 
-Put revision/path evidence, first-edition hypothesis baseline, coverage limits,
-and optional duplicate discussion seeds at the end of the same saved report, preferably
-inside Markdown `details` blocks. The main prose should stand alone. Include
-inaccessible sources and uninvestigated domains here rather than twelve empty
-status sections. Links to notes should identify what the reader will find.
+Put supporting notes at the end of the same saved report inside Markdown `details`
+blocks. The main prose should stand alone. Links to notes should identify what the
+reader will find.
+
+Use one collapsed block titled `Collection notes` for explanations of the coverage
+window or story selection, rolling discovery horizons, source-search reach and
+access limits, audit timing or status, exact timestamps, and correction or
+supersession provenance. A compact coverage date range may remain in the dateline;
+its methodology and bookkeeping belong in Collection notes. Collection notes are
+the only home for these collection mechanics. Every visible section carries the
+briefing itself.
+
+Put revision/path evidence, the first-edition hypothesis baseline, and optional
+duplicate discussion seeds in clearly titled details blocks. Include inaccessible
+sources and uninvestigated domains in Collection notes rather than empty status
+sections.
 
 ## Editorial acceptance before saving
 
@@ -91,6 +105,9 @@ Read the draft as the operator. Can the reader explain the important contributio
 why those particular stories were chosen, and what remains uncertain? Does the
 edition reflect actual practitioner discovery and major-news research? Is every
 leading story more useful than routine tool maintenance? Are the implications
-specific without turning the article into a repository audit? Remove filler and
-repetition; resolve missing research before advancing completed history. Mechanical
-validation and citation correctness cannot substitute for this editorial check.
+specific without turning the article into a repository audit? Does the visible
+opening move from its compact dateline and Overall signal directly into the first
+substantive story, with collection mechanics confined to the collapsed
+Collection notes? Remove filler and repetition; resolve missing research before
+advancing completed history. Mechanical validation and citation correctness cannot
+substitute for this editorial check.
