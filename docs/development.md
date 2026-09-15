@@ -1,8 +1,8 @@
 # Development and verification
 
-Agent Team's `machine/` configuration, skills, reconciliation helpers, `standard/`
-guidance/templates, and `scripts/` delivery helpers are Tooling: they maintain
-machines and repositories. There is no separate application, server, or deployable
+Agent Team's `.agents/skills/` and `machine/` packages, `standard/` guidance and
+templates, and `scripts/` delivery helpers are Tooling: they maintain machines and
+repositories. There is no separate application, server, or deployable
 product runtime here. Classify future code by purpose rather than its language.
 
 Requirements: Git, authenticated `gh` for this repository, Bash, and Python 3.11+.
