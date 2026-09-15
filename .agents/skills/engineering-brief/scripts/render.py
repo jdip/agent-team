@@ -124,10 +124,14 @@ class Sanitizer(HTMLParser):
 def discussion_html(prompt):
     prompt = re.sub(r"\\([\\\"])", r"\1", prompt)
     return (
-        '<details class="discussion"><summary>Discussion prompt</summary>'
-        '<div class="copy-toolbar"><button type="button" class="copy-prompt" hidden>Copy prompt</button>'
-        '<span class="copy-status" role="status" aria-live="polite"></span></div><pre>'
+        '<div class="discussion"><details><summary>Discussion prompt</summary><pre>'
         f"{html.escape(prompt)}</pre></details>"
+        '<button type="button" class="copy-prompt" aria-label="Copy prompt" title="Copy prompt" hidden>'
+        '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" '
+        'stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+        '<rect x="8" y="8" width="12" height="12" rx="2"></rect>'
+        '<path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"></path>'
+        '</svg></button><span class="copy-status" role="status" aria-live="polite"></span></div>'
     )
 
 

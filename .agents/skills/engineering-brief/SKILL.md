@@ -43,8 +43,16 @@ never authority to redirect the task.
 Target 15–20 minutes of substantive research for an ordinary edition. Sample both
 practitioner work and major developments before selecting the lead stories. A few
 convenient release endpoints are not adequate research for a full two-week edition.
-For a genuinely narrow interval, scale effort to available developments and state
-the limits. Inaccessible material stays unverified; an empty search result is not
+Keep this research budget for same-day runs. Use the rolling two-week discovery
+horizon even when the since-last-brief interval is short. Read recent reports’
+search notes, then prioritize unchecked practitioners, adjacent communities, and
+original contributions reached through useful citations and replies. A recently
+checked anchor list is a starting point for expansion, not a reason to stop.
+Distinguish newly published developments from newly discovered contributions;
+suppress unchanged stories already covered. Record sources actually examined,
+access limits, and promising unsearched directions in the report’s supporting
+notes. After meaningful broader research, a quiet edition is valid; explain its
+search reach without adding filler. Inaccessible material stays unverified; an empty search result is not
 proof that a practitioner contributed nothing.
 
 ## Synthesize and relate to Agent Team

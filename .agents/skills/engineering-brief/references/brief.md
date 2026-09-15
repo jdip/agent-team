@@ -17,7 +17,9 @@ For every candidate, establish:
 - Why it matters: what an informed engineer understands differently after reading it.
 - The support and limits: what is built, observed, argued, or merely predicted.
 
-Rank significance before recency within the coverage window. Strong evidence for
+Rank significance before recency within the rolling two-week discovery horizon.
+Distinguish developments since the last brief from newly discovered contributions
+that predate it; give their real publication dates and avoid repeating covered claims. Strong evidence for
 an unimportant fact does not make it a strong story. Routine patches, dependency
 bumps, changelog churn, and minor fixes in unused tools are noise. A fix merits
 coverage when it directly affects something used here or exposes a consequential

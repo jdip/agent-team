@@ -12,7 +12,7 @@ python3.13 <skill-directory>/scripts/history.py context --mode audit
 Select an available supported Python runtime; `python3.13` above is an example.
 `context` is read-only. It resolves `<absolute-git-common-dir>/codex-engineering-brief/`
 and returns the mode, UTC interval, previous report, latest report in each mode,
-recent report paths, draft directory, and any cutoff gap. Inspect the resolved
+recent report paths, a rolling discovery start, draft directory, and any cutoff gap. Inspect the resolved
 location before writing. Git metadata is outside the tracked file set even when
 the primary checkout's `.git` directory is physically inside its root.
 
@@ -20,7 +20,12 @@ the primary checkout's `.git` directory is physically inside its root.
 
 For a **brief**, coverage ends at the captured run-start time and begins at the
 later of the previous completed brief's coverage end and fourteen days earlier.
-The first run covers fourteen days. Favor recent evidence inside that interval.
+The first run covers fourteen days. `discovery_start` is always fourteen days
+before the captured end, independently of the last brief. Search that broader
+horizon on every run, favoring recency. The coverage interval identifies new
+developments; previously uncovered contributions between discovery_start and
+coverage_start remain eligible as newly discovered material, with their actual
+publication dates made clear. Save the original coverage interval unchanged.
 Disclose any older omitted interval after a long gap. Keep publication/event/update
 dates distinct; historical context is labeled as context, not current news.
 
@@ -28,7 +33,11 @@ For an **audit**, inspect approximately thirty days. Audit completion never chan
 the brief boundary. Read relevant recent briefs and the last audit for evidence
 and unresolved source recommendations.
 
-Read the previous reports to suppress unchanged claims, grouping aliases and
+Read all relevant reports within the discovery horizon for both covered stories
+and search notes: sources actually examined, access limits, and promising unchecked
+directions. Rotate into unchecked people and communities on subsequent runs.
+Keep these notes in the existing private reports, not a separate search ledger.
+Suppress unchanged claims, grouping aliases and
 canonical source URLs. A materially changed claim may return with an explanation
 of what is new. Carry unresolved watch questions and curation proposals into the
 next report until resolved or explicitly retired. Archived reports own that

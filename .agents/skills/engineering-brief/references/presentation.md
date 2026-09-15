@@ -36,7 +36,8 @@ environment state during task cleanup.
 Return a short editorial summary, a link to the current HTML article, a link to
 the archive. Topic context follows [discussion seeds](topic-actions.md).
 Do not paste the full article and fallback prompts into chat. Source links remain
-in the article. Each HTML discussion panel includes a Copy prompt button. It
+in the article. Each HTML discussion panel includes a copy icon beside the prompt
+toggle, available while the prompt is collapsed. It
 copies only that panel’s text, reports completion after clipboard success, and
 selects the text for manual copying when access is unavailable. Copying does not
 create a task; the user creates a new Agent Team task and pastes the context. Do not invent desktop deep-link URLs or

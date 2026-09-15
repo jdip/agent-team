@@ -84,6 +84,7 @@ def context(archive, mode, now):
     return {
         "archive": str(archive), "drafts": str(archive / "drafts"), "mode": mode,
         "coverage_start": iso(start), "coverage_end": iso(now),
+        "discovery_start": iso(cutoff),
         "previous_report": previous,
         "cutoff_gap": (
             {"start": iso(previous_end), "end": iso(cutoff)}
