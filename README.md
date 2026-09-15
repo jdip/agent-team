@@ -146,6 +146,25 @@ Verified test delivery completes ordinary implementation;
 
 ## Skill guide
 
+### Agent Team engineering intelligence
+
+In Codex desktop, invoke the repository-local
+[engineering-brief](.agents/skills/engineering-brief/SKILL.md) skill for a brief or
+source audit. It follows thoughtful agentic engineers and major AI developments,
+reads their social posts and blogs, and connects useful lessons to this repository.
+Briefs track developments since the last run and discover previously uncovered
+contributions from the past two weeks, broadening the search on frequent runs. A watchlist review
+runs when no completed source audit exists or the last one is at least seven days
+old; ordinary briefs never reset that clock. Source audits assess about thirty days of evidence and can also be requested directly.
+Runs remain on demand.
+Briefs are read through a local HTML blog archive with source links, history
+navigation, and copyable topic context for discussions in tasks you create.
+The chat summary links to the article and archive. Reports and watch history
+stay local and untracked in the Git common directory; the source list changes only
+through review. This repository-only skill is outside the Machine Profile inventory.
+
+### Managed skill guide
+
 Ask the agent to use a skill by name and supply the target and intended outcome,
 for example **“Use dependency-review for this repository's TOML editor.”** Use
 whats-next for coordination; invoke a specialist directly when you already know

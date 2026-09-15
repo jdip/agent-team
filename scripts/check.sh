@@ -6,7 +6,7 @@ from pathlib import Path
 import ast
 import subprocess
 import tomllib
-for root in ('machine', 'scripts'):
+for root in ('.agents/skills', 'machine', 'scripts'):
     for path in Path(root).rglob('*.toml'):
         tomllib.loads(path.read_text(encoding='utf-8'))
     for path in Path(root).rglob('*.py'):
