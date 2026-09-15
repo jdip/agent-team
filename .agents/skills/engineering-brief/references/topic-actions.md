@@ -32,10 +32,10 @@ the renderer, with a descriptive label and the complete context in `prompt`:
 - :codex-followup[Topic name]{prompt="Topic summary and direct source URLs"}
 ```
 
-Escape double quotes inside the prompt. The HTML reader turns this into a collapsed
+Escape backslashes and double quotes inside the prompt. The HTML reader turns this into a collapsed
 panel with a Copy prompt button. Keep any duplicate fallback seeds in a details
 block titled `Copyable requests for separate topic tasks`; the renderer omits that
-duplicate block from the article.
+duplicate block from the article. Keep that optional duplicate block free of nested details.
 
 Return the article/archive links in chat. Do not emit these directives as native
 actions or create discussion tasks automatically. The user creates the destination

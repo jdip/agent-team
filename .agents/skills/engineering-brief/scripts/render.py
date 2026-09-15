@@ -34,7 +34,7 @@ FOLLOWUP = re.compile(
 )
 COPYABLE = re.compile(r"(?m)^\*\*Copyable request:\*\*[^\n]*(?:\n|$)")
 COPYABLE_DETAILS = re.compile(
-    r"(?is)<details>\s*<summary>Copyable requests for separate topic tasks</summary>.*?</details>\s*"
+    r"(?is)<details\b[^>]*>\s*<summary\b[^>]*>Copyable requests for separate topic tasks</summary>.*?</details>\s*"
 )
 
 
@@ -98,7 +98,7 @@ class Sanitizer(HTMLParser):
 
     def handle_startendtag(self, tag, attrs):
         self.handle_starttag(tag, attrs)
-        if tag not in self.void:
+        if tag in self.tags and tag not in self.void:
             self.handle_endtag(tag)
 
     def handle_endtag(self, tag):
@@ -113,12 +113,6 @@ class Sanitizer(HTMLParser):
 
     def handle_data(self, data):
         self.parts.append(html.escape(data))
-
-    def handle_entityref(self, name):
-        self.parts.append(f"&{name};")
-
-    def handle_charref(self, name):
-        self.parts.append(f"&#{name};")
 
     def handle_comment(self, data):
         pass
@@ -154,7 +148,7 @@ def protect_discussions(source):
     source = FOLLOWUP.sub(replace, source)
     source = COPYABLE.sub("", source)
     source = COPYABLE_DETAILS.sub("", source)
-    if re.search(r"(?m)^[ \t]*(?:[-*+]\s+)?:codex-followup\[", source):
+    if ":codex-followup[" in source:
         raise ValueError("unrecognized native follow-up directive; preserve the source report")
     return source, discussions
 
@@ -216,12 +210,16 @@ def listing_date(report):
 
 
 def excerpt(source):
+    # Reuse Markdown's fence handling so examples never become preview prose.
+    parser = markdown.Markdown(extensions=["fenced_code"])
+    lines = parser.preprocessors["normalize_whitespace"].run(source.splitlines())
+    source = "\n".join(parser.preprocessors["fenced_code_block"].run(lines))
     cleaned = protect_discussions(source)[0]
     cleaned = METADATA.sub("", cleaned)
     paragraphs = re.split(r"\n\s*\n", cleaned)
     for paragraph in paragraphs:
         line = paragraph.strip()
-        if (not line or "ENGINEERING_BRIEF_DISCUSSION_" in line or line.startswith("#") or line.startswith("**Copyable request:")
+        if (not line or "\x02wzxhzdk:" in line or "ENGINEERING_BRIEF_DISCUSSION_" in line or line.startswith("#") or line.startswith("**Copyable request:")
                 or re.fullmatch(r"\*\*[^*]+\*\*", line)):
             continue
         line = re.sub(r"\[([^\]]+)\]\([^)]*\)", r"\1", line)
