@@ -59,7 +59,7 @@ in the reading flow. A heading promises useful content beneath it.
 
 Consider all of these areas while researching. Organize the edition around the
 material found; combine or omit empty sections and explain coverage limits once
-in supporting notes. Do not repeat a leading story to fill another section.
+in Collection notes. Do not repeat a leading story to fill another section.
 
 - **Leading stories / TOP 5:** the most consequential contributions and developments.
 - **Major releases:** capabilities and tradeoffs, not a version-number inventory.
@@ -90,9 +90,9 @@ Use one collapsed block titled `Collection notes` for explanations of the covera
 window or story selection, rolling discovery horizons, source-search reach and
 access limits, audit timing or status, exact timestamps, and correction or
 supersession provenance. A compact coverage date range may remain in the dateline;
-its methodology and bookkeeping belong in Collection notes. Collection notes stay
-out of the Overall signal, story transitions, leading stories, implications, and
-watchlist.
+its methodology and bookkeeping belong in Collection notes. Collection notes are
+the only home for these collection mechanics. Every visible section carries the
+briefing itself.
 
 Put revision/path evidence, the first-edition hypothesis baseline, and optional
 duplicate discussion seeds in clearly titled details blocks. Include inaccessible
@@ -107,7 +107,7 @@ edition reflect actual practitioner discovery and major-news research? Is every
 leading story more useful than routine tool maintenance? Are the implications
 specific without turning the article into a repository audit? Does the visible
 opening move from its compact dateline and Overall signal directly into the first
-substantive story, with explanatory collection prose confined to the collapsed
+substantive story, with collection mechanics confined to the collapsed
 Collection notes? Remove filler and repetition; resolve missing research before
 advancing completed history. Mechanical validation and citation correctness cannot
 substitute for this editorial check.
