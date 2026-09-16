@@ -2,7 +2,7 @@ name = "test_verifier"
 description = "Reproduce behavior and verify changes with relevant checks and evidence."
 model = "gpt-5.6-terra"
 model_reasoning_effort = "medium"
-service_tier = "fast"
+service_tier = "default"
 sandbox_mode = "workspace-write"
 
 developer_instructions = """

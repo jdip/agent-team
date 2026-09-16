@@ -162,12 +162,12 @@ spawn tool's task-name argument. The primary display ID is ORC.
 
 | Selector | Display | Prefix | Model / effort | Tier |
 | --- | --- | --- | --- | --- |
-| explorer | 🧭 EXP | exp_ | gpt-5.6-luna / max | fast |
+| explorer | 🧭 EXP | exp_ | gpt-5.6-luna / max | default |
 | planner | 🗺️ PLN | pln_ | gpt-6-astra / medium | default |
-| worker | 🛠️ WRK | wrk_ | gpt-5.6-terra / high | fast |
-| test_verifier | 🧪 TST | tst_ | gpt-5.6-terra / medium | fast |
-| browser_verifier | 🖥️ BRW | brw_ | gpt-5.6-terra / high | fast |
-| workflow_monitor | ⏳ MON | mon_ | gpt-5.6-luna / high | fast |
+| worker | 🛠️ WRK | wrk_ | gpt-5.6-terra / high | default |
+| test_verifier | 🧪 TST | tst_ | gpt-5.6-terra / medium | default |
+| browser_verifier | 🖥️ BRW | brw_ | gpt-5.6-terra / high | default |
+| workflow_monitor | ⏳ MON | mon_ | gpt-5.6-luna / high | default |
 | sysadmin_operator | 🧰 OPS | ops_ | gpt-5.6-sol / high | default |
 | critical_reviewer | 🔍 REV | rev_ | gpt-6-astra / high | default |
 | deep_specialist | 🧠 DSP | dsp_ | gpt-6-astra / max | default |

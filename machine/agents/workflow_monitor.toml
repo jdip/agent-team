@@ -2,7 +2,7 @@ name = "workflow_monitor"
 description = "Run or observe a bounded deterministic workflow and return terminal evidence."
 model = "gpt-5.6-luna"
 model_reasoning_effort = "high"
-service_tier = "fast"
+service_tier = "default"
 sandbox_mode = "workspace-write"
 
 developer_instructions = """
