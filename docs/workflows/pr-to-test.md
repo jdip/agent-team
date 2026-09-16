@@ -21,6 +21,12 @@ every change and resolved/accepted findings; doubt requires the relevant review.
 Run scripts/check.sh, git diff --check, and the actual changed helper operation.
 No review record framework or Tooling coverage suite is needed.
 
+For an implementation rollup, use the child integration path below until every
+child is complete. Run this canonical test-delivery path once from the completed
+rollup, with final acceptance recorded on the implementation parent. Single-ticket
+work defaults to direct delivery. The shared
+[rollup contract](../../machine/skills/pr-to-test/ROLLUP.md) owns the lifecycle.
+
 Choose the contribution using the shared
 [Version classification](../../machine/skills/pr-to-test/SKILL.md#version-classification)
 guidance, then set `contribution` to `major`, `minor`, `patch` or `none`.
@@ -60,4 +66,67 @@ of opening another PR. Resolve routine problems within the authorized issue. Ext
 approval or a new intent-dependent decision stays pending. Report partial results.
 
 Semver labels are advisory, with none valid. No tag is made on task delivery. This
-workflow does not promote main; verified delivery to test permits the next issue.
+workflow does not promote main; verified direct delivery permits continuation,
+and verified rollup delivery completes the implementation parent's delivery gate.
+
+## Feature PR into an implementation rollup
+
+This is the native integration path for a parent whose specification records the
+rollup. Use Git and `gh`; `scripts/pr-to-test.sh` always targets test and must not be
+used for child integration. Before the first push, inspect `.github/workflows/`
+and relevant hosted deployment configuration. Agent Team currently has only the
+Validate workflow on pushes and PRs, without branch filters, and no deployed app.
+Changes to those triggers require fresh inspection.
+
+Start a child's `codex/` branch in its worktree from the fetched rollup. Review,
+commit and run `scripts/check.sh` and `git diff --check`. Set `rollup` to the exact
+branch recorded on the parent and `feature` to the current child branch. Inspect
+existing PRs before creating one:
+
+```bash
+git push origin "HEAD:refs/heads/${feature:?Set the child branch}"
+gh pr list --base "${rollup:?Set the parent rollup}" --head "$feature" --state open
+gh pr create --base "$rollup" --head "$feature" --title 'Concrete child outcome' --body-file /path/to/child-pr.md
+```
+
+Reuse one matching PR; multiple matches or an unexpected base require investigation.
+Record the intended feature head and current rollup base SHAs. Wait at most fifteen
+minutes for the current PR's Validate run to register and pass, using `gh pr view`,
+`gh pr checks` and `gh run view` to inspect the linked run. Require the `validate`
+job for the current pull_request event and integration revision, not merely an old
+passing push run. All other applicable checks must pass too. No registered checks,
+a skipped required job, or unavailable evidence means stop. The rollup may lack
+branch protection, so `--required` alone and merge readiness alone are insufficient.
+
+```bash
+gh pr checks "$child_pr" --watch --fail-fast --interval 10
+gh pr view "$child_pr" --json state,baseRefName,baseRefOid,headRefName,headRefOid,isDraft,reviewDecision,mergeStateStatus,statusCheckRollup
+```
+
+Before merging, require OPEN, the intended branch names and SHAs, non-draft status,
+satisfied hosted review policy and CLEAN merge readiness. Recheck parent ownership
+and serialize integrations. On base/head drift, merge current rollup into the child
+and repeat affected review/checks. Use the authenticated account's GitHub no-reply
+address for `merge_email`, following the public-work policy above:
+
+```bash
+gh pr merge "$child_pr" --merge --match-head-commit "$child_head" --author-email "$merge_email"
+gh pr view "$child_pr" --json state,mergeCommit,url
+git fetch origin
+```
+
+Verify MERGED, exactly two merge parents matching the intended rollup base and child
+head, and merge reachability in `origin/$rollup`. Inspect author/committer metadata
+against the public-work policy. Run `scripts/check.sh` from a task-owned detached
+worktree at that exact merge revision; remove only this verification worktree after
+success, retaining failed state for investigation. Record review, checks and merge
+evidence on the child before explicitly closing it. Do not rely on issue auto-close
+keywords for a PR into a non-default branch. Keep the parent open for final delivery.
+The PR body links the parent without an auto-close instruction.
+
+For final delivery, fetch the rollup and test, merge any newer test changes into the
+rollup, and validate/review the resulting combined diff. Use the canonical path above
+with one semver classification for the whole result. Promotion already counts only
+first-parent test PR merges, so child integration PRs are excluded without a new
+version ledger. On a failure inspect actual refs, PR state and merge effects before
+resuming; never blindly replay a merge or bypass branch protection.

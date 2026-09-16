@@ -32,6 +32,11 @@ checkout. Review every submitted change. Reuse completed review only when eviden
 clearly covers all changes and findings are resolved or explicitly accepted; doubt
 means perform the needed review. Do not create a review ledger.
 
+For an implementation parent using a rollup, read
+[rollup integration and completion](ROLLUP.md) before child integration or final
+delivery. The canonical test script runs on the completed rollup, once for the
+combined change. Child PRs target the rollup through the local integration path.
+
 ## Execution ownership
 
 Before starting a long-running gate or delivery wait, explicitly choose its
@@ -101,7 +106,10 @@ versus Tooling determines verification requirements, not version contribution.
 - **patch**: corrects existing behavior while preserving supported contracts.
 - **none**: changes no delivered behavior, such as editorial-only wording or links.
 
-For a mixed task PR, choose the highest applicable contribution. A rule that
+For a mixed task PR, choose the highest applicable contribution. A rollup is one
+test-bound contribution classified from the combined behavior and compatibility
+impact; its child PRs are integration events and are not added again. Independent
+test-bound PRs retain the repository's additive version policy. A rule that
 corrects missing teardown is a patch; correcting its spelling without changing
 execution is none. Judge instruction edits by the behavior they direct, not their
 file extension. Apply a repository's explicit compatibility/version policy where

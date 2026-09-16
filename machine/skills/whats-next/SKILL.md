@@ -94,7 +94,7 @@ of a combined proposal and carry it forward across ordinary skill boundaries.
 
 | Selected work | Owning handoff |
 | --- | --- |
-| Almost-delivered code/PR | Establish map/spec coverage, requirements, ownership, and delivery authority; use `code-review` when needed and `pr-to-test` for verified test delivery. Ask about finishing that specific PR if delivery consent is missing. |
+| Almost-delivered code/PR | Establish map/spec coverage, requirements, ownership, and delivery authority; use `code-review` when needed and `next-issue` for a rollup child under its parent's integration boundary; use `pr-to-test` for a completed rollup or direct test delivery. Ask about finishing that specific PR if delivery consent is missing. |
 | Approved Active Backlog | Use `next-issue-loop`, supplying the eligible selection when completion-first ranking changes ordinary order. Preserve the associated map's Design gate and existing claim/delivery rules. |
 | Prepared inactive backlog | Use `triage` for necessary intake/admission and `set-backlog` for approved selection. Present only missing admission, activation, and execution approvals together, then start `next-issue-loop` to the extent approved. |
 | Selected Wayfinder map | Continue `next-waypoint-loop`; research facts and present human decisions. A different map needs an approved select-and-start proposal through `set-map`. |
@@ -107,7 +107,7 @@ of a combined proposal and carry it forward across ordinary skill boundaries.
 ## Refresh and continue
 
 Finish the coherent step and its verification/bookkeeping, then reassess after a
-verified issue delivery, resolved planning ticket, completed assessment, or human
+verified child integration/direct delivery, completed rollup delivery, resolved planning ticket, completed assessment, or human
 answer. Nested loops return here at those boundaries before their next selection;
 this does not require a new invocation from the human. Do not reprioritize between
 ordinary tool calls. New direction, a blocker, or changed ownership can interrupt

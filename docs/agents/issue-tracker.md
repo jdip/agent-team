@@ -137,11 +137,15 @@ reporting completion. Publication alone does not select or execute a backlog.
   Recheck before assigning `@me`, then leave a session-identifying claim comment.
   An existing assignee can belong to another session of the same user; do not
   steal it. Resume only this conversation's claim or an explicit handoff.
-- **Resolution**: record the delivered PR and actual verification evidence, then
-  close the issue when its outcome is met. Verified delivery to `test`, including
-  applicable test deployment, permits the next task. Promotion is separately
-  requested, not a per-issue gate. Close the parent only when its outcome and all
-  children are complete.
+- **Resolution**: in rollup mode, record the reviewed child PR, exact integration
+  revision and applicable verification, then close the child once its integration
+  acceptance is met. Dependent children may proceed without test deployment. The
+  implementation parent remains open for aggregate checks and the one canonical
+  PR-to-test delivery; close it only after its full outcome is verified on test.
+  In direct mode, child closure requires verified test delivery as before. Follow
+  [rollup completion](../../machine/skills/pr-to-test/ROLLUP.md) when all children
+  are closed but the parent still awaits delivery. Planning maps retain the
+  separate planning/handoff lifecycle above. Promotion is separately requested.
 
 ## Ready Backlog and Triage
 

@@ -22,12 +22,13 @@ the stop. Resume only through the authorized selection or handoff owner.
 After resolving an issue, finish all tracker bookkeeping, refresh the bound
 parent's children/dependencies/claims, and recheck next-issue’s Design gate
 before selecting the next eligible issue. Under `whats-next`, return at this
-verified-delivery boundary for reassessment; continue this bound run when that
+verified child-completion boundary (rollup integration or direct test delivery)
+for reassessment; continue this bound run when that
 parent remains the selected action. A different effort needs its own established
 selection and execution authority. An open or reopened associated map
 pauses the whole backlog, even if another child has no blockers. Do not ask
 whether to continue, stop merely because an issue finished, or
-require main promotion before progressing from verified test delivery.
+require main promotion before progressing from the approved child-completion boundary.
 
 Before pausing on the current issue, survey its whole remaining decision set.
 Complete independent work and batch every ready human decision with concrete
@@ -47,10 +48,13 @@ When called by `whats-next`, return the outcome or specific pending decision or
 blocker at a pause or completion. The coordinator can progress unrelated authorized
 work while preserving this issue's claim and unresolved decisions.
 
-At completion, verify the full outcome and Design gate, then close the
-implementation parent. Retain this scope's binding as the completed selection; do
+When all children are complete, recheck the full outcome and Design gate. For a
+rollup, use [rollup completion](../pr-to-test/ROLLUP.md) to deliver and verify the
+combined change through one canonical PR-to-test cycle before closing the parent.
+An all-closed child list does not establish test delivery. Resume a parent awaiting
+that delivery without inventing or claiming another child. Retain this scope's binding as the completed selection; do
 not activate, claim, or start a Ready Backlog parent. Another effort requires a
-new explicit selection and execution authorization. At any pause, keep the
-current issue claimed and open. Give a concise linked account of issues delivered
+new explicit selection and execution authorization. At a pause, keep unfinished child work claimed and open; after
+child integration, keep pending aggregate delivery on the open parent. Give a concise linked account of issues delivered
 and the pending decision or stopping reason. Never mark partial work complete
 because the turn is ending.
