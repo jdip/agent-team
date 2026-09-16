@@ -33,7 +33,10 @@ work or authorize execution. Keep this invocation within the initially selected
 parent; if the selection binding changes, stop and report it rather than following
 another session into a different effort.
 
-Apply the **Design gate** below before selecting or resuming work.
+Apply the **Design gate** below before selecting or resuming work. Read the
+parent's delivery mode and, for rollups,
+[rollup integration and completion](../pr-to-test/ROLLUP.md). The implementation
+parent owns the rollup; the separate planning map keeps its existing lifecycle.
 
 Fetch ALL children in tracker order and their current dependencies and claims.
 For GitHub use `gh` and the repository's issue-tracker conventions: native
@@ -56,7 +59,9 @@ Do not steal a claim, bypass a blocker, or skip a selected human-dependent issue
 
 If no issue is eligible, distinguish completed backlog from blocked or claimed
 work. Name what must change; do not poll indefinitely, invent tasks, or schedule
-a continuation. Close the parent only when its full outcome is actually complete.
+a continuation. If all children are integrated but the rollup is not delivered, complete the
+parent's final delivery under the approved execution authority; this is remaining
+work, not an empty backlog. Close the parent only after its full outcome is verified.
 
 ## Design gate
 
@@ -105,7 +110,9 @@ the approach. Use the issue's required skills and delegate bounded independent
 work when authorized. Make routine implementation choices within the approved
 design; do not turn every detail into a user decision.
 
-Use a suitable branch/worktree while preserving unrelated work. Implement the
+Use a suitable branch/worktree while preserving unrelated work. For a rollup,
+start the child branch from its current verified remote rollup, following the
+shared rollup contract and local runbook. Implement the
 whole authorized outcome, including necessary concrete fixes. Before validation,
 choose execution and observation owners using
 [Execution ownership](../pr-to-test/SKILL.md#execution-ownership). Apply the
@@ -125,26 +132,28 @@ perform the necessary review. Add no review ledger or attestation framework.
 
 ## Deliver
 
-The request to implement the issue includes its ordinary commits, push, PR to
-`test`, applicable gates, merge, and local test-environment verification under the
-approved backlog/runbook scope. When an approved child invokes a workflow with a
-more limited completion boundary, honor that owner: repository preparation ends
-at its verified local documentation handoff; separately scoped adoption/delivery
-work remains open. For test delivery, read `docs/workflows/pr-to-test.md`; use the shared
-`pr-to-test` skill when available and `scripts/pr-to-test.sh` as the canonical
-entry point. Use merge commits, preserving history. Local runbooks define actual
-application/deployment effects and completion evidence. An open PR, a successful
-script launch, or a merge without required test deployment is not completion.
+The request to implement the issue includes its ordinary commits, push, reviewed
+PR, applicable gates and merge under the approved delivery mode. In rollup mode,
+use [rollup integration and completion](../pr-to-test/ROLLUP.md) with the local
+`docs/workflows/pr-to-test.md`: child completion is verified integration into the
+rollup, and the implementation parent owns final test delivery. Do not invoke the
+test-delivery script for each child. In direct mode, use `pr-to-test` and the local
+`scripts/pr-to-test.sh` through actual test-environment verification.
 
-Choose each PR's semver contribution using
-[Version classification](../pr-to-test/SKILL.md#version-classification) and the
-repository's label/tag policy.
-Bookkeeping must not become an artificial release gate; real application and
-delivery requirements remain in force.
+When an approved child invokes a workflow with a more limited completion boundary,
+honor that owner: repository preparation ends at its verified local documentation
+handoff; separately scoped adoption/delivery work remains open. Local runbooks
+define real application/deployment effects. An open PR or script launch alone is
+not completion at either boundary.
 
-**Verified delivery to test is sufficient to continue.** Do not promote to main,
-require a promotion per issue/milestone, or block subsequent work on promotion
-unless the user explicitly requests it as part of the current scope.
+Classify each test-bound PR using
+[Version classification](../pr-to-test/SKILL.md#version-classification). A rollup
+contributes once for the combined change. Bookkeeping stays advisory; review,
+application and delivery gates remain mandatory.
+
+Verified rollup integration permits the next child in that parent; verified direct
+test delivery permits continuation in direct mode. Main promotion remains a
+separately requested action, never a per-child gate.
 
 ### Initial bootstrap
 
@@ -181,7 +190,8 @@ After delivery, use `cleanup-task-artifacts` with local guidance before final
 reporting. Follow its resource and retention policy. Deferred safe cleanup is
 reported honestly and is not a main-promotion gate.
 
-Post a resolution linking the delivered PR, verification/review evidence, and any
+Post a resolution linking the integration or test-delivery PR, its actual
+verification/review evidence, and any
 remaining non-blocking remediation or retained artifacts. Close the issue only
 when its acceptance outcome is met. Do not close dependency-blocking requirements
 as complete merely to advance the queue. Record new material work as scoped
@@ -189,6 +199,9 @@ issues and preserve/wire dependencies; parent inclusion follows the user's scope
 not arbitrary expansion. Avoid duplicate issues.
 
 Refresh the parent/children and record a concise linked outcome without duplicating
-tracker status in a table. If every child is closed, verify the parent outcome
-before closing it. Report delivered work and any blocker or retained cleanup.
-Stop after this one issue unless running under `$next-issue-loop`.
+tracker status in a table. When every child is complete, finish the parent's
+aggregate delivery under the shared rollup contract before closing it. If delivery
+fails after child integration, leave the parent open and report the pending gate;
+do not reopen completed children merely to represent a parent delivery failure.
+Report integrated versus test-delivered work and any blocker or retained cleanup.
+Otherwise stop after this one issue unless running under `$next-issue-loop`.

@@ -47,6 +47,15 @@ specification parent and executable-child workflow through `to-spec`,
 that executor before edits; an already claimed child runs its named skill
 without recursively handing off again.
 
+An implementation parent with multiple executable children defaults to one
+named `codex/` rollup branch from fresh `origin/test`, recorded with its delivery
+mode in the approved specification. Reviewed, checked feature PRs merge with
+merge commits into that branch; verified integration completes a child and lets
+eligible successors continue. The final rollup alone uses canonical PR-to-test,
+receives one semver contribution for the total change, and completes the parent
+after verified test delivery. A one-child parent defaults to direct delivery; earlier test
+delivery for a rollup requires an explicit operator decision. Use the `pr-to-test` skill's rollup reference for the shared branch and CI rules.
+
 Only the operator can explicitly waive planning for a stated scope. Record that
 exception in existing task/tracker context. Size, apparent simplicity, a direct
 skill call or “implement this” is not a waiver. Read-only investigation,
@@ -203,11 +212,12 @@ justify more. Review all submitted changes for correctness and requirement fidel
 Reuse completed review only when its evidence covers every change and findings are
 resolved or explicitly accepted. Doubt means perform the needed review.
 
-Read local delivery runbooks and use canonical shell entry points. Verified test
-delivery includes applicable runtime/deployment evidence and is sufficient to
-continue backlog work. Main promotion is separately requested. Canonical PR flows
-use merge commits; per-PR additive semver allows none and must not manufacture a
-release blocker. Actual application and delivery gates remain mandatory.
+Read local delivery runbooks and use canonical shell entry points. For a named
+rollup, verified feature integration lets the next eligible child continue; the
+final canonical PR-to-test includes applicable runtime/deployment evidence and
+completes the parent. Main promotion is separately requested. Canonical PR flows
+use merge commits; a final rollup contributes one semver result classified from
+the total change. Actual application and delivery gates remain mandatory.
 
 Stop or remove only exact resources proven task-owned and safe for that action;
 preserve active/shared state and checkouts backing tasks. Use supported host

@@ -306,14 +306,22 @@ Keep the primary local checkout on `test`, refreshed from `origin/test` by
 fast-forward only when clean. Reserve `test` for that checkout; never check the
 branch out in a linked worktree. Make all changes, including adoption, upgrades,
 documentation, and small fixes, on `codex/` feature branches in separate worktrees
-based on fresh `origin/test`. Preserve unrelated local work and attached checkouts.
+based on fresh `origin/test` for direct delivery or rollup creation. Rollup child
+branches start from the current rollup. Preserve unrelated local work and attached checkouts.
 Detached revision worktrees are valid for canonical verification.
 
 Root guidance must require the global `pr-to-test` skill with the local
 `docs/workflows/pr-to-test.md` and `scripts/pr-to-test.sh` through checks, merge,
-and verified test delivery. Direct commits or pushes to `test` and protection
-bypasses are not delivery alternatives. Separately requested promotion uses the
-global `promote-to-main` skill, `docs/workflows/promote-to-main.md`, and
+and verified test delivery. A parent with multiple executable children defaults
+to one named `codex/` rollup branch from fresh `origin/test`, recorded in its
+approved specification: reviewed, checked feature PRs merge into it with merge
+commits, then one final rollup PR follows the canonical route. A child can close
+after verified rollup integration; the parent closes only after final verified
+test delivery. A one-child parent defaults to direct delivery, and early test delivery from
+a rollup needs an explicit operator decision. Shared [rollup delivery](../machine/skills/pr-to-test/ROLLUP.md)
+owns detailed branch and CI rules. Direct commits or pushes to `test` and
+protection bypasses are not delivery alternatives. Separately requested promotion
+uses the global `promote-to-main` skill, `docs/workflows/promote-to-main.md`, and
 `scripts/promote-to-main.sh` from the clean primary `test` checkout, completing
 verification and main-to-test synchronization.
 
@@ -348,17 +356,20 @@ Use merge commits for task-to-test, test-to-main, and main-to-test synchronizati
 Review every submitted change; reuse prior evidence only when it covers all changes
 and findings are resolved or explicitly accepted. No review ledger is required.
 Completion means the local runbook's verified result, including real deployment or
-processing when applicable. Verified test delivery permits the next issue; promotion
-is separately requested. Do not make promotion a per-task gate.
+processing when applicable. Verified rollup integration permits the next eligible
+child; final verified test delivery completes its parent. Promotion is separately
+requested. Do not make promotion a per-task gate.
 
 Use semver:major, semver:minor, semver:patch, and semver:none labels. Classify
 delivered behavior through the shared
 [Version classification](../machine/skills/pr-to-test/SKILL.md#version-classification)
 guidance and the repository's explicit compatibility policy. Count each
-applicable merged task PR once in deterministic merge order, with normal resets:
-1.4.2 + patch + minor + patch = 1.5.1. Synchronization contributes none; promotion
-wrappers do not recount component changes. All-none promotion keeps the existing
-version without a new tag. Use existing tags and Git/GitHub evidence, never a ledger.
+applicable direct-delivery PR or final rollup PR once in deterministic merge
+order. A rollup's one contribution reflects its combined delivered change;
+feature-integration PRs contribute none. Synchronization contributes none;
+promotion wrappers do not recount component changes. All-none promotion keeps the
+existing version without a new tag. Use existing tags and Git/GitHub evidence,
+never a ledger.
 
 Bookkeeping is advisory: resolve routine missing/conflicting labels from the actual
 change, otherwise report uncertainty without guessing a version or moving tags.
