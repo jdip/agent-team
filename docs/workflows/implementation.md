@@ -37,8 +37,11 @@ activation only when no parent is active. Explicit `set-backlog` selects an
 existing parent through its shared script. Neither publication nor admission nor
 selection independently authorizes execution.
 
-An authorized `next-issue` executes one child through the canonical
-[PR-to-test workflow](pr-to-test.md). `next-issue-loop` continues across child
+An authorized `next-issue` executes one child through its specification's delivery
+mode. Multi-ticket parents default to reviewed PRs into one implementation rollup;
+single-ticket work defaults to direct delivery. The shared
+[rollup contract](../../machine/skills/pr-to-test/ROLLUP.md) owns child integration
+and aggregate completion; the local [delivery runbook](pr-to-test.md) owns commands. `next-issue-loop` continues across child
 boundaries within the initially selected parent. Next-issue owns the Design gate:
 recheck associated design state before taking or continuing work and before
 delivery/closure. A reopened map pauses the entire backlog, including independent
@@ -46,9 +49,11 @@ tickets; keep the current issue claimed and open. Routine implementation choices
 remain with the agent. Ask all ready human questions together in ordinary text,
 wait for actual answers, and reuse approvals already supplied.
 
-Relevant reviews, actual repository checks, and verified merged-source delivery
-permit the next child; main promotion is separate. Close the parent only when its
-full outcome and children are complete. Keep its scoped binding as the completed
+Relevant reviews, actual checks and verified rollup integration permit the next
+child in that parent. Once all children are complete, deliver the combined rollup
+through one canonical PR to test and verify its full outcome before parent closure.
+Direct-delivery children retain verified test delivery. Main promotion is separate;
+planning maps still close at design resolution and handoff. Keep its scoped binding as the completed
 selection, and wait for explicit selection/execution of another effort. Preserve
 claims, dependencies, unrelated state, and checkouts still backing Codex tasks.
 

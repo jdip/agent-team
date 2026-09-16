@@ -37,11 +37,17 @@ requirements. This policy does not authorize rewriting existing tools.
 Keep the primary local checkout on `test`, refreshed from `origin/test` by
 fast-forward only when clean. Reserve the `test` branch for that checkout; never
 check it out in a linked worktree. Make all changes on `codex/` feature branches
-in separate worktrees based on fresh `origin/test`. Preserve existing local work
+in separate worktrees. Direct-delivery branches and implementation rollups start
+from fresh `origin/test`; rollup child branches start from the current rollup. Preserve existing local work
 before switching or updating a checkout. Detached revision worktrees remain valid
 for the canonical scripts' verification.
 
-Deliver feature changes with the global `pr-to-test` skill and the local
+Multi-ticket implementation parents use reviewed child PRs into their recorded
+rollup branch, then one final PR to `test`; child integration permits continuation,
+and parent closure requires verified test delivery. Single-ticket work defaults
+to direct delivery. Follow the rollup path in the local runbook.
+
+Deliver test-bound changes with the global `pr-to-test` skill and the local
 [PR-to-test runbook](docs/workflows/pr-to-test.md), invoking
 `scripts/pr-to-test.sh` through checks, merge, and verified test delivery.
 Use this path even for documentation or small fixes; do not commit or push changes

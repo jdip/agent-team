@@ -49,7 +49,10 @@ search notes, then prioritize unchecked practitioners, adjacent communities, and
 original contributions reached through useful citations and replies. A recently
 checked anchor list is a starting point for expansion, not a reason to stop.
 Distinguish newly published developments from newly discovered contributions;
-suppress unchanged stories already covered. Record sources actually examined,
+apply the brief format's prior-coverage comparison before suppressing a candidate.
+Give delegated researchers that selection rule and the relevant earlier reports;
+their handoff should identify the prior coverage supporting a repetition exclusion.
+Record sources actually examined,
 access limits, and promising unsearched directions in the report’s supporting
 notes. After meaningful broader research, a quiet edition is valid; explain its
 search reach without adding filler. Inaccessible material stays unverified; an empty search result is not

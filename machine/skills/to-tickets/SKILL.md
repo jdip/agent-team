@@ -31,6 +31,12 @@ acceptance criteria; comments supply decision history and evidence. Update a
 body to incorporate an approved amendment before it becomes the published
 contract.
 
+Confirm the parent's `Delivery` field is part of that approved contract. One-child
+parents default to `direct`. Multiple-child parents use `rollup` by default and name
+the exact `codex/` rollup branch based on fresh `origin/test`; an earlier test
+delivery needs an explicit user decision. Read [rollup delivery](../pr-to-test/ROLLUP.md)
+for the shared branch and CI rules.
+
 Before creating anything, search open `implementation:backlog` parents and their
 native children for the same linked sources and scope. Reuse that same-effort
 parent and approved children when found. Inspect each proposed existing child's
@@ -52,6 +58,8 @@ the `implementation:backlog` label. Include links to the resolved map and
 material decisions, but do not duplicate their history. Do not replace a parent
 from another effort, alter claims or dependencies, or change the saved
 active-backlog pointer. Preserve an existing parent's actual scheduling state.
+For `rollup`, preserve the named branch and final PR-to-test acceptance boundary
+in the parent rather than distributing aggregate delivery across children.
 
 Create the approved child issues in dependency order. Each body contains:
 
@@ -59,6 +67,11 @@ Create the approved child issues in dependency order. Each body contains:
 - the independently verifiable outcome;
 - current acceptance criteria; and
 - specification and relevant decision links.
+
+For a `rollup` parent, every child states that its delivery boundary is reviewed,
+checked merge-commit integration into the named branch. The final canonical
+PR-to-test, verified test delivery, and one semver contribution remain parent
+acceptance criteria.
 
 Set acceptance evidence by purpose: Application Code requires linting, type
 checking, validation, meaningful behavioral tests, and strong coverage; Tooling
