@@ -19,8 +19,18 @@ For every candidate, establish:
 
 Rank significance before recency within the rolling two-week discovery horizon.
 Distinguish developments since the last brief from newly discovered contributions
-that predate it; give their real publication dates and avoid repeating covered claims. Strong evidence for
-an unimportant fact does not make it a strong story. Routine patches, dependency
+that predate it; give their real publication dates. The coverage interval labels
+recency; eligibility extends across the discovery horizon.
+
+Before excluding a candidate as already covered, locate the earlier report's
+specific claim or mechanism and compare the candidate's changed behavior,
+evidence, or consequence. A shared theme alone does not establish repetition.
+Evaluate a substantive difference on its significance; a short mention may be
+enough when it does not warrant a lead. Keep the comparison and exclusion reason
+in Collection notes when relevant to continuity. Without matching prior coverage,
+assess the candidate on its merits rather than treating it as a duplicate.
+
+Strong evidence for an unimportant fact does not make it a strong story. Routine patches, dependency
 bumps, changelog churn, and minor fixes in unused tools are noise. A fix merits
 coverage when it directly affects something used here or exposes a consequential
 engineering failure with a transferable lesson. Explain that consequence.
