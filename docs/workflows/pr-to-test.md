@@ -78,6 +78,20 @@ and relevant hosted deployment configuration. Agent Team currently has only the
 Validate workflow on pushes and PRs, without branch filters, and no deployed app.
 Changes to those triggers require fresh inspection.
 
+For a new rollup, verify that its remote ref is absent, create it from fresh
+`origin/test`, then publish it before creating the first child PR:
+
+```bash
+git ls-remote --heads origin "refs/heads/${rollup:?Set the parent rollup}"
+git branch "$rollup" origin/test
+git push origin "refs/heads/$rollup:refs/heads/$rollup"
+git fetch origin
+```
+
+Run the creation steps only after resolving local refs too. Verify the remote SHA
+matches the intended baseline and record it on the parent. An existing owned
+rollup is fetched and verified, never reset or force-pushed.
+
 Start a child's `codex/` branch in its worktree from the fetched rollup. Review,
 commit and run `scripts/check.sh` and `git diff --check`. Set `rollup` to the exact
 branch recorded on the parent and `feature` to the current child branch. Inspect
@@ -99,9 +113,17 @@ a skipped required job, or unavailable evidence means stop. The rollup may lack
 branch protection, so `--required` alone and merge readiness alone are insufficient.
 
 ```bash
+gh run list --workflow validate.yml --event pull_request --branch "$feature" --commit "$child_head" --json databaseId,status,conclusion,headSha,url
+gh run view "$validation_run" --json event,headSha,status,conclusion,jobs,url
 gh pr checks "$child_pr" --watch --fail-fast --interval 10
 gh pr view "$child_pr" --json state,baseRefName,baseRefOid,headRefName,headRefOid,isDraft,reviewDecision,mergeStateStatus,statusCheckRollup
 ```
+
+Select `validation_run` from the actual check linked to this PR, matching the
+current head and base/integration revision; the list command narrows candidates but
+does not establish that match alone. Inspect the linked run and checkout evidence
+when multiple events/reruns exist. Require successful completion of its `validate`
+job and the whole run. Keep this wait within the same fifteen-minute bound.
 
 Before merging, require OPEN, the intended branch names and SHAs, non-draft status,
 satisfied hosted review policy and CLEAN merge readiness. Recheck parent ownership

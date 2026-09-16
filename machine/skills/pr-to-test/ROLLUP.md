@@ -30,6 +30,10 @@ mechanisms need investigation before mutation, not an invented delivery framewor
 Create the rollup from fresh `origin/test`, preserving existing worktrees. Record
 its initial revision and owning parent in the parent issue. Resolve existing remote
 and local refs before reuse; matching names alone do not establish ownership.
+After confirming the remote ref is absent, push the initial rollup without force,
+fetch it back and verify its SHA against the intended baseline before any child PR.
+For an existing owned rollup, fetch and verify its recorded history instead of
+reinitializing it. Record the remote branch and verified revision on the parent.
 Start each child's isolated feature branch from the current fetched rollup. Keep
 claims, the scoped selection binding and the whole-map Design gate in force.
 
