@@ -43,8 +43,15 @@ not authorize a migration or rewrite.
 Keep the primary local checkout on `test`, refreshed from `origin/test` by
 fast-forward only when clean. Reserve `test` for that checkout; never check it out
 in a linked worktree. Make all changes on `codex/` feature branches in separate
-worktrees based on fresh `origin/test`. Preserve local work and attached checkouts
+worktrees. Direct-delivery branches and implementation rollups start from fresh
+`origin/test`; rollup child branches start from the current rollup. Preserve local work and attached checkouts
 before switching or updating. Detached revision worktrees are valid for verification.
+
+Multi-ticket implementation parents default to reviewed, checked child PRs into
+their recorded rollup branch, then one final PR to `test`. Verified rollup
+integration permits child closure and continuation; parent closure requires the
+combined verified test delivery. Single-ticket work defaults to direct delivery.
+Follow the local runbook's rollup integration path and actual CI/deployment gates.
 
 Use the global `pr-to-test` skill with `docs/workflows/pr-to-test.md` and invoke
 `scripts/pr-to-test.sh` through checks, merge, and verified test delivery, including

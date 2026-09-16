@@ -105,9 +105,11 @@ You do not need to remember their invocation order:
    An implementation request carries through publication, selection and delivery;
    the agent asks only for missing decisions or approvals of concrete scope.
 4. **Let the approved work run.** The implementation owner claims eligible work,
-   makes the change, verifies it, obtains review, and completes the repository's
-   PR-to-test workflow. Existing approval carries across skill handoffs; you do
-   not need to repeat a command for every ticket or ordinary step.
+   makes the change, verifies it, and obtains review. A multi-child parent merges
+   each completed feature into its named rollup, then sends the combined work
+   through one repository PR-to-test workflow. Existing approval carries across
+   skill handoffs; you do not need to repeat a command for every ticket or
+   ordinary step.
 5. **Answer decisions and reassess.** The agent returns with substantive questions
    or blockers, and reassesses after meaningful completion boundaries. You can
    steer or stop it at any time. Work owned by another task needs a verified
@@ -140,8 +142,9 @@ or upgrade other repositories.
 
 For changes to Agent Team, follow [AGENTS.md](AGENTS.md) and
 [development guidance](docs/development.md). Work on feature branches in separate
-worktrees, then use the canonical [PR-to-test workflow](docs/workflows/pr-to-test.md).
-Verified test delivery completes ordinary implementation;
+worktrees. Multi-child implementation parents use their specified rollup before
+the canonical [PR-to-test workflow](docs/workflows/pr-to-test.md); one-child
+parents default to direct delivery. Verified test delivery completes the parent;
 [promotion to main](docs/workflows/promote-to-main.md) is separately requested.
 
 ## Skill guide
@@ -216,7 +219,7 @@ a coordinating workflow does not bypass them.
 | --- | --- | --- |
 | [triage](machine/skills/triage/SKILL.md) | Refines incoming work and maintains ready backlogs. | Use to assess and group issues; approve admission or activation separately from execution. |
 | [set-backlog](machine/skills/set-backlog/SKILL.md) | Selects an existing implementation parent. | Supply the prepared parent URL; selection alone does not authorize execution. |
-| [next-issue](machine/skills/next-issue/SKILL.md) | Implements one eligible child through verified test delivery. | Use with an approved active backlog when you want one implementation issue completed. |
+| [next-issue](machine/skills/next-issue/SKILL.md) | Implements one eligible child to its approved delivery boundary. | Use with an approved active backlog when you want one implementation issue completed. |
 | [next-issue-loop](machine/skills/next-issue-loop/SKILL.md) | Continues eligible implementation within the selected backlog. | Authorize continuous execution; it stops for required decisions or blockers. |
 | [tdd](machine/skills/tdd/SKILL.md) | Fixes bugs and builds behavior through failing tests, minimal implementation and scoped refactoring. | Use for application bug fixes, new or changed behavior, and explicit test-first work; follow real-use verification for Tooling. |
 | [diagnosing-bugs](https://github.com/mattpocock/skills/blob/3cca18b368ae95cdbdebbff572ccafa662551015/skills/engineering/diagnosing-bugs/SKILL.md) | Investigates difficult bugs and performance regressions. | Supply observed behavior, reproduction steps, and the expected result. |
