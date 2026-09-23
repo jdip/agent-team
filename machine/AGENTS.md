@@ -171,24 +171,35 @@ spawn tool's task-name argument. The primary display ID is ORC.
 
 | Selector | Display | Prefix | Model / effort | Tier |
 | --- | --- | --- | --- | --- |
-| explorer | 🧭 EXP | exp_ | gpt-5.6-luna / max | default |
+| explorer | 🧭 EXP | exp_ | gpt-6-luna / max | default |
 | planner | 🗺️ PLN | pln_ | gpt-6-astra / medium | default |
-| worker | 🛠️ WRK | wrk_ | gpt-5.6-terra / high | default |
-| test_verifier | 🧪 TST | tst_ | gpt-5.6-terra / medium | default |
-| browser_verifier | 🖥️ BRW | brw_ | gpt-5.6-terra / high | default |
-| workflow_monitor | ⏳ MON | mon_ | gpt-5.6-luna / high | default |
-| sysadmin_operator | 🧰 OPS | ops_ | gpt-5.6-sol / high | default |
+| worker | 🛠️ WRK | wrk_ | gpt-6-sol / medium | default |
+| test_verifier | 🧪 TST | tst_ | gpt-6-sol / medium | default |
+| browser_verifier | 🖥️ BRW | brw_ | gpt-6-sol / medium | default |
+| workflow_monitor | ⏳ MON | mon_ | gpt-6-luna / high | default |
+| sysadmin_operator | 🧰 OPS | ops_ | gpt-6-sol / high | default |
 | critical_reviewer | 🔍 REV | rev_ | gpt-6-astra / high | default |
 | deep_specialist | 🧠 DSP | dsp_ | gpt-6-astra / max | default |
 | security_specialist | 🛡️ SEC | sec_ | gpt-daybreak-blue-latest / xhigh | default |
 
-The primary model is Astra/medium; the generic subagent fallback is Terra/medium.
-Use deep_specialist exceptionally for difficult analysis. Use Astra/high for a
-concrete miss at medium or an explicitly assigned ambiguous systems diagnosis;
-change standing defaults only after repeated real-use evidence. Verify model and
-effort support on the target. Report unavailable assignments rather than silently
-substituting models. Sol at the same effort is an explicit continuity option for
-Astra; Daybreak Blue unavailability requires a separate decision.
+The primary model is GPT-6 Sol/high; the generic subagent fallback is GPT-6
+Sol/medium. Use Sol/xhigh for task-specific difficult planning or integration,
+and Astra/medium or high for persistent judgment failures or exceptional
+architectural ambiguity. Use deep_specialist exceptionally for the hardest
+technical analysis. Change standing defaults only after repeated real-use
+evidence. Verify model and effort support on the target; report unavailable
+assignments rather than silently substituting models. Daybreak Blue
+unavailability requires a separate decision.
+
+For substantive maps, implementation specifications, and their material revisions,
+normally delegate drafting to planner with the actual operator answers and
+relevant repository evidence. Reuse that planner for material revisions. The
+primary owns the live dialogue, reconciles the proposal, obtains required human
+decisions and approvals, and publishes tracker records through the owning
+workflow. Planner returns proposed text and unresolved decisions; it never
+substitutes for the human's answers or approval. The primary may draft compact,
+fully settled records directly and handles administrative updates without a
+planner assignment.
 
 Read-only roles investigate, plan, and review. Workers implement bounded changes;
 verifiers verify rather than repair unless reassigned. Operators act only within

@@ -1,7 +1,7 @@
 name = "browser_verifier"
 description = "Verify rendered interfaces, interactions, accessibility, responsive layouts, and exported artifacts."
-model = "gpt-5.6-terra"
-model_reasoning_effort = "high"
+model = "gpt-6-sol"
+model_reasoning_effort = "medium"
 service_tier = "default"
 sandbox_mode = "workspace-write"
 

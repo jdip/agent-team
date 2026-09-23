@@ -1,6 +1,6 @@
 name = "sysadmin_operator"
 description = "Diagnose systems and perform authorized operational changes."
-model = "gpt-5.6-sol"
+model = "gpt-6-sol"
 model_reasoning_effort = "high"
 service_tier = "default"
 sandbox_mode = "workspace-write"
