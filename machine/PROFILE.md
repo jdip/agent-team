@@ -84,7 +84,7 @@ trusted repository configuration can tighten them.
 | agents/workflow_monitor.toml | $CODEX_HOME/agents/workflow_monitor.toml | Whole file |
 
 Each role's name, instructions, model, effort, tier, and sandbox move together.
-The current Astra/Daybreak assignments and naming are in [AGENTS.md](AGENTS.md)
+The current roster assignments and naming are in [AGENTS.md](AGENTS.md)
 and those ordinary role files. The code-review package owns the optional Claude CLI
 review preference and native critical_reviewer fallback. Claude installation and
 account authentication remain outside this profile; their absence does not block
