@@ -18,7 +18,7 @@ preserve the bounded review task. This Claude Code route ends here.
 
 ## Codex: Prefer Claude CLI
 
-Use Claude Code with the exact model `claude-fable-5-1` and `--effort high` when
+Use Claude Code with the exact model `claude-opus-5-5` and `--effort xhigh` when
 available on the execution host. Keep the native `critical_reviewer` role configured
 as the fallback; Claude is an external CLI invocation, not a Codex model selector.
 
@@ -45,7 +45,7 @@ Run from the review checkout, with both the assignment file and captured JSON ou
 outside the checkout; pass the assignment on stdin. A supported invocation is:
 
 ```bash
-claude -p --model claude-fable-5-1 --effort high \
+claude -p --model claude-opus-5-5 --effort xhigh \
   --safe-mode --restricted --strict-mcp-config \
   --tools 'Read,Glob,Grep' --allowedTools 'Read,Glob,Grep' \
   --disallowedTools 'mcp__*' --permission-mode dontAsk \
@@ -65,7 +65,7 @@ Allow at most 15 minutes for an invocation; supervise and terminate an unfinishe
 process before falling back. Inspect exit status, JSON error/result fields, reported
 model usage, permission denials, and actual coverage of the assigned axes. A zero
 exit status alone is not review completion. Accept only a complete review from
-Fable 5.1 at the requested effort. Do not configure another Claude fallback model;
+Opus 5.5 at the requested effort. Do not configure another Claude fallback model;
 if automatic substitution occurs, treat that result as unavailable for this route.
 
 ## Fall back to REV
