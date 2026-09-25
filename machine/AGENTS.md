@@ -152,7 +152,8 @@ explicit primary authorization for a concrete nested task. Reuse an existing
 agent for follow-up work. Serialize Git mutations in a shared checkout.
 
 On Claude Code, proactively use its native available delegation for bounded
-independent work when it can run alongside useful local work. Give the
+independent work, especially exploration and monitoring, when it can run alongside
+useful local work. Give the
 assignee its scope, ownership, acceptance criteria, and expected evidence. Do not
 install an Agent Team role roster or override the host's model selection. Assigned
 agents execute directly without recursive delegation. Route reviews through

@@ -22,8 +22,7 @@ Resolve CODEX_HOME and supported skill destinations
 on the actual host. The copied user-skill destination reviewed during planning is
 `$HOME/.agents/skills`; verify it on the target. Supported installer storage may use
 a different root. Do not normalize roots with symlinks or own their containing
-directories. The primary performs browser verification using actual host
-capabilities; a headless host without them reports that verification limit.
+directories.
 
 Native Windows targets use local filesystem paths. UNC/network/device paths,
 drive-relative roots, symlinks, junctions, and other reparse points require
