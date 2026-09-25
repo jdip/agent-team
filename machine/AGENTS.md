@@ -145,14 +145,14 @@ and follow-through; existing edit authority still applies.
 
 ## Delegation
 
-The primary agent remains accountable. Delegate bounded independent work
-proactively, especially exploration and monitoring, when it can run alongside
-useful local work. Define scope, write ownership, acceptance criteria, and the
-expected evidence. Strongly discourage recursive delegation: a subagent requires
+The primary agent remains accountable. Follow the host-specific routing below.
+For each delegated assignment, define scope, write ownership, acceptance criteria,
+and expected evidence. Strongly discourage recursive delegation: a subagent requires
 explicit primary authorization for a concrete nested task. Reuse an existing
 agent for follow-up work. Serialize Git mutations in a shared checkout.
 
-On Claude Code, use its native available delegation for bounded work. Give the
+On Claude Code, proactively use its native available delegation for bounded
+independent work when it can run alongside useful local work. Give the
 assignee its scope, ownership, acceptance criteria, and expected evidence. Do not
 install an Agent Team role roster or override the host's model selection. Assigned
 agents execute directly without recursive delegation. Route reviews through
@@ -164,6 +164,14 @@ This section applies only in Codex. Route code reviews, including delivery revie
 through `code-review`; its restricted Claude CLI preference and
 `critical_reviewer` fallback own reviewer selection.
 
+The primary directly owns the human dialogue, planning, maps, specifications,
+implementation, debugging, ordinary test and browser verification, integration,
+and delivery decisions. Keep this work in the main thread. Delegate only bounded
+exploration, workflow execution or monitoring, independent review, and security
+analysis through the routes below. Use exploration and monitoring when they can
+run alongside useful primary work; retain independent review even when the
+primary has no parallel work.
+
 Use these canonical selectors and `<id>_<purpose>` task names, with one to four
 specific lowercase words after the prefix. Display the emoji, uppercase ID, and
 exact task name: `🧭 EXP exp_auth_flow`. Display IDs and emoji are not part of the
@@ -172,40 +180,20 @@ spawn tool's task-name argument. The primary display ID is ORC.
 | Selector | Display | Prefix | Model / effort | Tier |
 | --- | --- | --- | --- | --- |
 | explorer | 🧭 EXP | exp_ | gpt-6-luna / max | default |
-| planner | 🗺️ PLN | pln_ | gpt-6-astra / medium | default |
-| worker | 🛠️ WRK | wrk_ | gpt-6-sol / medium | default |
-| test_verifier | 🧪 TST | tst_ | gpt-6-sol / medium | default |
-| browser_verifier | 🖥️ BRW | brw_ | gpt-6-sol / medium | default |
 | workflow_monitor | ⏳ MON | mon_ | gpt-6-luna / high | default |
-| sysadmin_operator | 🧰 OPS | ops_ | gpt-6-sol / high | default |
 | critical_reviewer | 🔍 REV | rev_ | gpt-6-astra / high | default |
-| deep_specialist | 🧠 DSP | dsp_ | gpt-6-astra / max | default |
 | security_specialist | 🛡️ SEC | sec_ | gpt-daybreak-blue-latest / xhigh | default |
 
-The primary model is GPT-6 Sol/high; the generic subagent fallback is GPT-6
-Sol/medium. Use Sol/xhigh for task-specific difficult planning or integration,
-and Astra/medium or high for persistent judgment failures or exceptional
-architectural ambiguity. Use deep_specialist exceptionally for the hardest
-technical analysis. Change standing defaults only after repeated real-use
-evidence. Verify model and effort support on the target; report unavailable
-assignments rather than silently substituting models. Daybreak Blue
-unavailability requires a separate decision.
+The primary model is GPT-6 Astra/high. Named delegates use the assignments above.
+Change standing defaults only after repeated real-use evidence. Verify model and
+effort support on the target; report unavailable assignments rather than silently
+substituting models. Daybreak Blue unavailability requires a separate decision.
 
-For substantive maps, implementation specifications, and their material revisions,
-normally delegate drafting to planner with the actual operator answers and
-relevant repository evidence. Reuse that planner for material revisions. The
-primary owns the live dialogue, reconciles the proposal, obtains required human
-decisions and approvals, and publishes tracker records through the owning
-workflow. Planner returns proposed text and unresolved decisions; it never
-substitutes for the human's answers or approval. The primary may draft compact,
-fully settled records directly and handles administrative updates without a
-planner assignment.
-
-Read-only roles investigate, plan, and review. Workers implement bounded changes;
-verifiers verify rather than repair unless reassigned. Operators act only within
-the assigned environment and authority. Monitors execute or observe a predefined,
-bounded workflow, stay quiet while healthy, and return failures to the primary
-agent without discretionary recovery.
+Explorers, reviewers and security specialists are read-only. The primary implements
+their accepted findings. Monitors execute or observe a predefined, bounded
+workflow, stay quiet while healthy, and return failures to the primary without
+discretionary recovery. The primary interprets results, repairs failures and owns
+final acceptance.
 
 ## Validation and delivery
 

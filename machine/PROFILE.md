@@ -22,8 +22,8 @@ Resolve CODEX_HOME and supported skill destinations
 on the actual host. The copied user-skill destination reviewed during planning is
 `$HOME/.agents/skills`; verify it on the target. Supported installer storage may use
 a different root. Do not normalize roots with symlinks or own their containing
-directories. A headless host still receives browser_verifier; ability to execute a
-browser task depends on actual host capabilities.
+directories. The primary performs browser verification using actual host
+capabilities; a headless host without them reports that verification limit.
 
 Native Windows targets use local filesystem paths. UNC/network/device paths,
 drive-relative roots, symlinks, junctions, and other reparse points require
@@ -72,15 +72,9 @@ trusted repository configuration can tighten them.
 | Source relative to machine/ | Destination | Scope |
 | --- | --- | --- |
 | AGENTS.md | $CODEX_HOME/AGENTS.md | Whole file |
-| agents/browser_verifier.toml | $CODEX_HOME/agents/browser_verifier.toml | Whole file |
 | agents/critical_reviewer.toml | $CODEX_HOME/agents/critical_reviewer.toml | Whole file |
-| agents/deep_specialist.toml | $CODEX_HOME/agents/deep_specialist.toml | Whole file |
 | agents/explorer.toml | $CODEX_HOME/agents/explorer.toml | Whole file |
-| agents/planner.toml | $CODEX_HOME/agents/planner.toml | Whole file |
 | agents/security_specialist.toml | $CODEX_HOME/agents/security_specialist.toml | Whole file |
-| agents/sysadmin_operator.toml | $CODEX_HOME/agents/sysadmin_operator.toml | Whole file |
-| agents/test_verifier.toml | $CODEX_HOME/agents/test_verifier.toml | Whole file |
-| agents/worker.toml | $CODEX_HOME/agents/worker.toml | Whole file |
 | agents/workflow_monitor.toml | $CODEX_HOME/agents/workflow_monitor.toml | Whole file |
 
 Each role's name, instructions, model, effort, tier, and sandbox move together.

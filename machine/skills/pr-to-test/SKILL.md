@@ -40,11 +40,12 @@ combined change. Child PRs target the rollup through the local integration path.
 ## Execution ownership
 
 Before starting a long-running gate or delivery wait, explicitly choose its
-execution and observation owner. Normally assign a test verifier to run validation,
-or a workflow monitor to execute or observe a predefined bounded sequence, using
-the host's existing roles and their authority boundaries. Short checks may stay
-with the primary; when delegation is unavailable, state that limit and own the
-bounded operation directly.
+execution and observation owner. On Codex, the primary owns validation and may
+assign a workflow monitor to execute or observe a predefined bounded sequence
+while the primary has useful parallel work. On Claude Code, use its native
+available delegation for validation or observation within the assigned authority.
+Short checks may stay with the primary; when delegation is unavailable, state
+that limit and own the bounded operation directly.
 
 The assignment names the exact command and checkout/revision or existing run,
 required success evidence, failure and overall/stall boundaries, permitted
