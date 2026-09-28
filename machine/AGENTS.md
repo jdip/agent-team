@@ -182,13 +182,18 @@ spawn tool's task-name argument. The primary display ID is ORC.
 | --- | --- | --- | --- | --- |
 | explorer | 🧭 EXP | exp_ | gpt-6-luna / max | default |
 | workflow_monitor | ⏳ MON | mon_ | gpt-6-luna / high | default |
-| critical_reviewer | 🔍 REV | rev_ | gpt-6-astra / high | default |
+| critical_reviewer | 🔍 REV | rev_ | code-review mode selection / high | default |
 | security_specialist | 🛡️ SEC | sec_ | gpt-daybreak-blue-latest / xhigh | default |
 
 The primary model is GPT-6 Astra/high. Named delegates use the assignments above.
 Change standing defaults only after repeated real-use evidence. Verify model and
 effort support on the target; report unavailable assignments rather than silently
 substituting models. Daybreak Blue unavailability requires a separate decision.
+
+For native review fallback, load code-review's `reviewer-routing.md` and
+`reviewer-models.toml`: they own mode evidence, compatible model selection, and
+loaded-role checks. Verify actual reviewer dispatch; roster inventory is not
+proof of a successful independent review.
 
 Explorers, reviewers and security specialists are read-only. The primary implements
 their accepted findings. Monitors execute or observe a predefined, bounded

@@ -76,14 +76,22 @@ trusted repository configuration can tighten them.
 | agents/security_specialist.toml | $CODEX_HOME/agents/security_specialist.toml | Whole file |
 | agents/workflow_monitor.toml | $CODEX_HOME/agents/workflow_monitor.toml | Whole file |
 
-Each role's name, instructions, model, effort, tier, and sandbox move together.
+Each role's name, instructions, model presence, effort, tier, and sandbox move together.
 The current roster assignments and naming are in [AGENTS.md](AGENTS.md)
 and those ordinary role files. The code-review package owns the optional Claude CLI
-review preference and native critical_reviewer fallback. Claude installation and
-account authentication remain outside this profile; their absence does not block
+review preference and native critical_reviewer fallback. Its
+[reviewer routing](skills/code-review/reviewer-routing.md) and
+[model declaration](skills/code-review/reviewer-models.toml) own mode-aware native
+selection; critical_reviewer intentionally omits a fixed model to permit explicit
+dispatch. Claude installation and account authentication remain outside this
+profile; their absence does not block
 Machine Reconciliation. Verify model/effort support during reconciliation;
-never silently substitute. Preserve AGENTS.override.md and surface its interference
-as a supervised conflict. No default role shadow or renderer is included.
+never silently substitute. Inventory validation proves declared model/effort
+support, not current task mode compatibility or successful independent review.
+Verify native dispatch in the established mode on the execution host; loaded roles
+can require restart after reconciliation. Preserve AGENTS.override.md and surface
+its interference as a supervised conflict. No default role shadow or renderer is
+included.
 
 ## Copied local packages
 
