@@ -318,7 +318,17 @@ def models_for_profile(source):
                  config['agents']['default_subagent_reasoning_effort'])}
     for path in (source / 'machine/agents').glob('*.toml'):
         role = tomllib.loads(path.read_text(encoding='utf-8'))
-        required.add((role['model'], role['model_reasoning_effort']))
+        if path.stem == 'critical_reviewer':
+            if 'model' in role:
+                raise ValueError('critical_reviewer must leave model selection to reviewer routing')
+            choices = tomllib.loads((source / 'machine/skills/code-review/reviewer-models.toml')
+                                   .read_text(encoding='utf-8'))
+            if set(choices) != {'standard', 'daybreak'} or any(
+                    not isinstance(model, str) or not model.strip() for model in choices.values()):
+                raise ValueError('reviewer-models.toml must declare standard and daybreak model IDs')
+            required.update((model, role['model_reasoning_effort']) for model in choices.values())
+        else:
+            required.add((role['model'], role['model_reasoning_effort']))
     return required
 
 

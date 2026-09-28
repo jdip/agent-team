@@ -178,11 +178,11 @@ spawn tool's task-name argument. The primary display ID is ORC.
 | browser_verifier | 🖥️ BRW | brw_ | gpt-6-sol / medium | default |
 | workflow_monitor | ⏳ MON | mon_ | gpt-6-luna / high | default |
 | sysadmin_operator | 🧰 OPS | ops_ | gpt-6-sol / high | default |
-| critical_reviewer | 🔍 REV | rev_ | gpt-6-astra / high | default |
+| critical_reviewer | 🔍 REV | rev_ | code-review mode selection / high | default |
 | deep_specialist | 🧠 DSP | dsp_ | gpt-6-astra / max | default |
 | security_specialist | 🛡️ SEC | sec_ | gpt-daybreak-blue-latest / xhigh | default |
 
-The primary model is GPT-6 Sol/high; the generic subagent fallback is GPT-6
+The primary model is GPT-6 Astra/high; the generic subagent fallback is GPT-6
 Sol/medium. Use Sol/xhigh for task-specific difficult planning or integration,
 and Astra/medium or high for persistent judgment failures or exceptional
 architectural ambiguity. Use deep_specialist exceptionally for the hardest
@@ -190,6 +190,11 @@ technical analysis. Change standing defaults only after repeated real-use
 evidence. Verify model and effort support on the target; report unavailable
 assignments rather than silently substituting models. Daybreak Blue
 unavailability requires a separate decision.
+
+For native review fallback, load code-review's `reviewer-routing.md` and
+`reviewer-models.toml`: they own mode evidence, compatible model selection, and
+loaded-role checks. Verify actual reviewer dispatch; roster inventory is not
+proof of a successful independent review.
 
 For substantive maps, implementation specifications, and their material revisions,
 normally delegate drafting to planner with the actual operator answers and
