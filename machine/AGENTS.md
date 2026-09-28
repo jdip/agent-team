@@ -182,7 +182,7 @@ spawn tool's task-name argument. The primary display ID is ORC.
 | deep_specialist | 🧠 DSP | dsp_ | gpt-6-astra / max | default |
 | security_specialist | 🛡️ SEC | sec_ | gpt-daybreak-blue-latest / xhigh | default |
 
-The primary model is GPT-6 Sol/high; the generic subagent fallback is GPT-6
+The primary model is GPT-6 Astra/high; the generic subagent fallback is GPT-6
 Sol/medium. Use Sol/xhigh for task-specific difficult planning or integration,
 and Astra/medium or high for persistent judgment failures or exceptional
 architectural ambiguity. Use deep_specialist exceptionally for the hardest
