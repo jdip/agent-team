@@ -93,13 +93,15 @@ Before native dispatch:
    mode; catalog membership alone does not prove mode compatibility. Preserve the
    orchestrator mode. An unavailable compatible choice blocks review without a
    blind retry, mode switch, or third reviewer.
-3. Verify the loaded `critical_reviewer` role permits the explicit model override.
-   Its managed source omits a fixed model and retains `high` effort, default tier,
-   and read-only sandbox. A loaded fixed model wins over a spawn override on hosts
-   with that precedence. If a stale pin or host restriction prevents selection,
-   report the required reconciliation/restart before dispatching a rejected model;
-   source changes alone do not refresh an already loaded role.
-4. Spawn that role with the selected explicit model and `high` effort. Generic
+3. Verify the loaded `critical_reviewer` role will execute the selected model at
+   the required effort. Its managed source omits a fixed model; a loaded fixed
+   model can still win over a spawn override. An identical loaded pin satisfies
+   model selection, so use that verified assignment if an override is unnecessary
+   or unsupported. A conflicting pin or host restriction blocks dispatch until
+   reconciliation/restart resolves it; source changes alone do not refresh a
+   loaded role. Preserve the role's configured read-only authority.
+4. Spawn that role with the selected explicit model (or verified identical pin)
+   and `high` effort. Generic
    subagent defaults are not reviewer selection. Where full-history forks forbid
    model overrides, use `fork_turns="none"` and supply the bounded review packet
    explicitly, or a supported bounded-history fork with the complete packet.
