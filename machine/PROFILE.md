@@ -11,7 +11,7 @@ source while preserving local work, select one concrete Git revision, and read a
 assets from it throughout the run. Report the revision. Investigate detached,
 unpublished, ambiguous, divergent, or unavailable source; do not silently switch
 branches or fall back to stale content. There is no separate manifest, lockfile,
-generator, or profile version.
+or profile version.
 
 The Codex inventory applies to macOS desktop, headless Linux, native Windows
 11 x64 desktop/CLI, and WSL 2 Ubuntu 24.04 LTS x64 with Linux Codex CLI.
@@ -36,6 +36,20 @@ including DrvFS mounted outside the usual `/mnt` locations. Use Linux-native
 Python, Git, gh, Bash, and Codex inside the distribution. A launcher symlink may
 resolve within Linux storage, but must not redirect execution onto Windows storage.
 Authentication is established independently inside each environment.
+
+## Host rendering
+
+Codex and Claude Code each receive a host rendering of the repository-authored
+whole files and copied local packages. The Codex config projection and upstream
+packages are never rendered. A host block opens with a line containing only
+`<!-- agent-team:host=codex -->` or `<!-- agent-team:host=claude -->` (in YAML or
+TOML use `# agent-team:host=codex`) and closes with `<!-- agent-team:end -->` or
+`# agent-team:end`. Unmarked lines reach both hosts; block lines reach only the
+named host; marker lines reach neither. Blocks do not nest. Unknown hosts, stray or
+missing ends, nested blocks and any other line mentioning a marker stop
+reconciliation before managed writes. Receipts fingerprint the rendered bytes, and
+rendered output is never committed. `scripts/check.sh` renders every source for
+both hosts.
 
 ## Shared configuration and whole files
 
@@ -90,8 +104,7 @@ never silently substitute. Inventory validation proves declared model/effort
 support, not current task mode compatibility or successful independent review.
 Verify native dispatch in the established mode on the execution host; loaded roles
 can require restart after reconciliation. Preserve AGENTS.override.md and surface
-its interference as a supervised conflict. No default role shadow or renderer is
-included.
+its interference as a supervised conflict. No default role shadow is included.
 
 ## Copied local packages
 
