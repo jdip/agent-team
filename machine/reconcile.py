@@ -395,9 +395,9 @@ def inventory(source, home, skills, upstream, upstream_root=None, claude_root=No
                      {'kind': 'directory'}, None))
     if claude_root is not None:
         copied, claude_upstream = claude_packages(profile)
-        codex_upstream = dict(packages)
-        if any(codex_upstream.get(name) != path for name, path in claude_upstream):
-            raise ValueError('Claude upstream package is not an exact subset of the staged Codex upstream inventory')
+        codex_local = table(profile.split('## Copied local packages\n')[1].split('## Upstream packages\n')[0])
+        if set(copied) != set(codex_local) or dict(claude_upstream) != dict(packages):
+            raise ValueError('Claude package inventory must match the Codex inventory')
         rows.append((source / 'machine/AGENTS.md', claude_root / 'rules/agent-team.md', {'kind': 'file'}, 'claude'))
         for name, destination in claude_files(profile):
             candidate = source / 'machine' / name
