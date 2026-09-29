@@ -42,7 +42,7 @@ not authorize a migration or rewrite.
 
 Keep the primary local checkout on `test`, refreshed from `origin/test` by
 fast-forward only when clean. Reserve `test` for that checkout; never check it out
-in a linked worktree. Make all changes on `codex/` feature branches in separate
+in a linked worktree. Make all changes on `agent/` feature branches in separate
 worktrees. Direct-delivery branches and implementation rollups start from fresh
 `origin/test`; rollup child branches start from the current rollup. Preserve local work and attached checkouts
 before switching or updating. Detached revision worktrees are valid for verification.

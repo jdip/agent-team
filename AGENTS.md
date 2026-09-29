@@ -36,7 +36,7 @@ requirements. This policy does not authorize rewriting existing tools.
 
 Keep the primary local checkout on `test`, refreshed from `origin/test` by
 fast-forward only when clean. Reserve the `test` branch for that checkout; never
-check it out in a linked worktree. Make all changes on `codex/` feature branches
+check it out in a linked worktree. Make all changes on `agent/` feature branches
 in separate worktrees. Direct-delivery branches and implementation rollups start
 from fresh `origin/test`; rollup child branches start from the current rollup. Preserve existing local work
 before switching or updating a checkout. Detached revision worktrees remain valid

@@ -58,7 +58,7 @@ later. Direct contradiction is not required to retire unjustified process.
 Use the standard's target-checkout executor handoff to claim the approved
 documentation child in the target tracker, preserving Agent Team's own selection.
 Recheck target state and plan coverage, then create a local
-`codex/prepare-repository…` branch when changes can be isolated. Preserve unrelated
+`agent/prepare-repository…` branch when changes can be isolated. Preserve unrelated
 work; unresolved isolation leaves readiness incomplete. Apply the approved
 documentation cleanup and fix inbound references. File later machinery removal
 under the standard's retirement outcome, keeping current executable constraints

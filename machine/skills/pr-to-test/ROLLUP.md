@@ -8,7 +8,7 @@ and closes at its normal handoff before implementation.
 ## Establish the delivery boundary
 
 Multi-ticket implementation parents default to one rollup; single-ticket parents
-default to direct PR-to-test. Record the mode, exact repository and named `codex/`
+default to direct PR-to-test. Record the mode, exact repository and named `agent/`
 rollup branch in the approved specification. Reuse an established mode on resume;
 do not silently convert an active backlog because its remaining child count changed.
 Early test delivery or a change to an approved delivery boundary requires an
