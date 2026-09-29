@@ -548,7 +548,8 @@ def run_prepared(args):
             preflight.extend(['--claude-config-root', str(claude_root)])
         for target, observation in args.resolve:
             preflight.extend(['--resolve', f'{target}={observation}'])
-        command(*preflight, env={**os.environ, 'PYTHONDONTWRITEBYTECODE': '1'})
+        for line in command(*preflight, env={**os.environ, 'PYTHONDONTWRITEBYTECODE': '1'}).splitlines():
+            print(line, flush=True)
         if args.apply:
             apply = [*preflight, '--candidate-config', str(candidate), '--models-verified', '--apply']
             publication = command(*apply, env={**os.environ, 'PYTHONDONTWRITEBYTECODE': '1'}).splitlines()

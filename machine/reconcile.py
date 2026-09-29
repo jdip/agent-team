@@ -185,15 +185,29 @@ def flatten(value, prefix=()):
     return result
 
 
-def projection(path, fields):
-    data = flatten(tomllib.loads(path.read_text(encoding='utf-8'))) if path.exists() else {}
+PROJECTED = ('toml', 'json')
+
+
+def load_document(path, kind):
+    """Parse a whole shared TOML or JSON document; callers project its owned fields."""
+    if not path.exists():
+        return {}
+    text = path.read_text(encoding='utf-8')
+    data = tomllib.loads(text) if kind == 'toml' else json.loads(text)
+    if not isinstance(data, dict):
+        raise ValueError(f'expected a {kind} table/object: {path}')
+    return data
+
+
+def projection(path, fields, kind='toml'):
+    data = flatten(load_document(path, kind))
     # Types matter: true, 1, and "1" must not compare equal.
     return {key: [type(data[tuple(key.split('.'))]).__name__, repr(data[tuple(key.split('.'))])]
             if tuple(key.split('.')) in data else ['absent'] for key in sorted(fields)}
 
 
 def fingerprint(path, scope):
-    if scope.get('kind') not in ('file', 'directory', 'toml'):
+    if scope.get('kind') not in ('file', 'directory', *PROJECTED):
         raise ValueError('unknown scope requires its target-specific adapter before filesystem inspection')
     path = plain_path(path)
     if not path.exists():
@@ -206,8 +220,8 @@ def fingerprint(path, scope):
         if not path.is_dir():
             raise ValueError(f'expected directory: {path}')
         return digest(encoded({name: digest(data) for name, data in files(path).items()}))
-    if scope['kind'] == 'toml':
-        return digest(encoded(projection(path, scope['fields'])))
+    if scope['kind'] in PROJECTED:
+        return digest(encoded(projection(path, scope['fields'], scope['kind'])))
     raise ValueError(f'unsupported scope requires its target-specific adapter: {path}')
 
 
@@ -250,8 +264,67 @@ def atomic_file(path, data, mode=0o600):
             print(f'File replacement retained for investigation: {temporary}', flush=True)
 
 
+HOSTS = ('codex', 'claude')
+HOST_MARKER = re.compile(r'[ \t]*(?:<!--[ \t]*agent-team:(host=[\w-]+|end)[ \t]*-->'
+                         r'|#[ \t]*agent-team:(host=[\w-]+|end))[ \t]*(?:\r?\n)?')
+MARKER_MENTION = re.compile(r'agent-team\s*:\s*(?:host|end)\b', re.IGNORECASE)
+
+
+def render(data, host, label):
+    """Keep shared lines and this host's marked blocks, dropping every marker line."""
+    if MARKER_MENTION.search(data.decode('utf-8', errors='replace')) is None:
+        return data
+    try:
+        text = data.decode('utf-8')
+    except UnicodeDecodeError as error:
+        raise ValueError(f'{label}: host markers require UTF-8 text') from error
+    kept, active, opened = [], None, 0
+    for number, line in enumerate(re.split(r'(?<=\n)', text), 1):
+        match = HOST_MARKER.fullmatch(line)
+        if match is None:
+            if MARKER_MENTION.search(line):
+                raise ValueError(f'{label}:{number}: malformed host marker')
+            if active in (None, host):
+                kept.append(line)
+            continue
+        directive = match.group(1) or match.group(2)
+        if directive == 'end':
+            if active is None:
+                raise ValueError(f'{label}:{number}: host marker end without an open block')
+            active = None
+            continue
+        name = directive.removeprefix('host=')
+        if name not in HOSTS:
+            raise ValueError(f'{label}:{number}: unknown host {name!r}')
+        if active is not None:
+            raise ValueError(f'{label}:{number}: nested host marker')
+        active, opened = name, number
+    if active is not None:
+        raise ValueError(f'{label}:{opened}: unclosed host marker')
+    return ''.join(kept).encode('utf-8')
+
+
+def render_source(source, destination, host):
+    """Materialize one repository-authored file or package as the host receives it."""
+    if source.is_dir():
+        for name, data in files(source).items():
+            path = destination / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(render(data, host, f'{source.name}/{name}'))
+            shutil.copymode(source / name, path)
+    else:
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_bytes(render(source.read_bytes(), host, source.name))
+
+
 def table(section):
     return [line.split('|')[1].strip() for line in section.splitlines()
+            if line.startswith('| ') and not line.startswith('| ---')][1:]
+
+
+def claude_files(profile):
+    section = profile.split('### Claude agents and settings\n')[1].split('### Claude copied packages\n')[0]
+    return [tuple(cell.strip() for cell in line.split('|')[1:3]) for line in section.splitlines()
             if line.startswith('| ') and not line.startswith('| ---')][1:]
 
 
@@ -282,14 +355,18 @@ def claude_receipt_root(entries):
     anchor = anchors[0]
     root = plain_path(Path(anchor).parent.parent)
     skills = plain_path(root / 'skills')
+    agents = plain_path(root / 'agents')
     rule = plain_path(root / 'rules/agent-team.md')
+    settings = plain_path(root / 'settings.json')
     targets = set()
     for target, entry in entries.items():
         path = Path(target)
         if not path_within(path, root):
             continue
         valid = (same_path(path, rule) and entry['scope'] == {'kind': 'file'}) or (
-            same_path(path.parent, skills) and entry['scope'] == {'kind': 'directory'})
+            same_path(path.parent, skills) and entry['scope'] == {'kind': 'directory'}) or (
+            same_path(path.parent, agents) and path.suffix == '.md' and entry['scope'] == {'kind': 'file'}) or (
+            same_path(path, settings) and entry['scope'].get('kind') == 'json')
         if not valid:
             raise ValueError(f'{target}: unexpected receipted target under Claude configuration root')
         targets.add(target)
@@ -302,28 +379,41 @@ def inventory(source, home, skills, upstream, upstream_root=None, claude_root=No
     profile = (source / 'machine/PROFILE.md').read_text(encoding='utf-8')
     config = source / 'machine/config.toml'
     fields = sorted('.'.join(key) for key in flatten(tomllib.loads(config.read_text(encoding='utf-8'))))
-    rows = [(config, home / 'config.toml', {'kind': 'toml', 'fields': fields})]
+    # Each row names the host whose rendering it receives; upstream and config rows are not rendered.
+    rows = [(config, home / 'config.toml', {'kind': 'toml', 'fields': fields}, None)]
     section = profile.split('## Shared configuration and whole files\n')[1].split('## Copied local packages\n')[0]
     for name in table(section):
-        rows.append((source / 'machine' / name, home / name, {'kind': 'file'}))
+        rows.append((source / 'machine' / name, home / name, {'kind': 'file'}, 'codex'))
     section = profile.split('## Copied local packages\n')[1].split('## Upstream packages\n')[0]
     for name in table(section):
-        rows.append((source / 'machine/skills' / name, skills / name, {'kind': 'directory'}))
+        rows.append((source / 'machine/skills' / name, skills / name, {'kind': 'directory'}, 'codex'))
     section = profile.split('## Upstream packages\n')[1].split('## Optional Claude Code configuration\n')[0]
     pin = re.search(r'Shared reviewed pin: `([0-9a-f]{40})`', section).group(1)
     packages = re.findall(r'^\| ([\w-]+) \| (skills/[\w/-]+) \|$', section, re.M)
     for name, _ in packages:
-        rows.append((upstream / name if upstream else None, (upstream_root or skills) / name, {'kind': 'directory'}))
+        rows.append((upstream / name if upstream else None, (upstream_root or skills) / name,
+                     {'kind': 'directory'}, None))
     if claude_root is not None:
         copied, claude_upstream = claude_packages(profile)
-        codex_upstream = dict(packages)
-        if any(codex_upstream.get(name) != path for name, path in claude_upstream):
-            raise ValueError('Claude upstream package is not an exact subset of the staged Codex upstream inventory')
-        rows.append((source / 'machine/AGENTS.md', claude_root / 'rules/agent-team.md', {'kind': 'file'}))
+        codex_local = table(profile.split('## Copied local packages\n')[1].split('## Upstream packages\n')[0])
+        if set(copied) != set(codex_local) or dict(claude_upstream) != dict(packages):
+            raise ValueError('Claude package inventory must match the Codex inventory')
+        rows.append((source / 'machine/AGENTS.md', claude_root / 'rules/agent-team.md', {'kind': 'file'}, 'claude'))
+        for name, destination in claude_files(profile):
+            candidate = source / 'machine' / name
+            if destination == 'settings.json':
+                owned = sorted('.'.join(key) for key in flatten(load_document(candidate, 'json')))
+                rows.append((candidate, claude_root / destination, {'kind': 'json', 'fields': owned}, None))
+            elif destination.startswith('agents/') and destination.endswith('.md'):
+                rows.append((candidate, claude_root / destination, {'kind': 'file'}, 'claude'))
+            else:
+                raise ValueError(f'unsupported Claude destination: {destination}')
         for name in copied:
-            rows.append((source / 'machine/skills' / name, claude_root / 'skills' / name, {'kind': 'directory'}))
+            rows.append((source / 'machine/skills' / name, claude_root / 'skills' / name,
+                         {'kind': 'directory'}, 'claude'))
         for name, _ in claude_upstream:
-            rows.append((upstream / name if upstream else None, claude_root / 'skills' / name, {'kind': 'directory'}))
+            rows.append((upstream / name if upstream else None, claude_root / 'skills' / name,
+                         {'kind': 'directory'}, None))
     targets = [str(plain_path(row[1])) for row in rows]
     if len(set(targets)) != len(targets):
         raise ValueError('duplicate profile target')
@@ -391,19 +481,53 @@ def unmanaged_projection(data, managed, retired):
 
 def verify_candidate_config(candidate, source, original, scope, previous_scope=()):
     """Prove a complete candidate changes only the owned configuration fields."""
-    candidate_data = flatten(tomllib.loads(candidate.read_text(encoding='utf-8')))
-    original_data = flatten(tomllib.loads(original.read_text(encoding='utf-8'))) if original.exists() else {}
+    kind = scope['kind']
+    candidate_data = flatten(load_document(candidate, kind))
+    original_data = flatten(load_document(original, kind))
     managed = set(scope['fields'])
     retired = set(previous_scope) - managed
     if any(tuple(key.split('.')) in candidate_data for key in retired):
         raise ValueError('candidate config retains retired managed fields')
-    if projection(candidate, managed) != projection(source, managed):
+    if projection(candidate, managed, kind) != projection(source, managed, kind):
         raise ValueError('candidate config does not have the declared managed values')
     if unmanaged_projection(candidate_data, managed, retired) != unmanaged_projection(original_data, managed, retired):
         raise ValueError('candidate config changes unmanaged configuration')
 
 
+def json_candidate(source, actual, output, scope, previous_scope):
+    """Set only the owned JSON fields on the live settings, preserving every other value."""
+    data = load_document(actual, 'json')
+    for key in set(previous_scope) - set(scope['fields']):
+        *parents, name = key.split('.')
+        container = data
+        for part in parents:
+            container = container.get(part) if isinstance(container, dict) else None
+        if isinstance(container, dict):
+            container.pop(name, None)
+    for path, value in flatten(load_document(source, 'json')).items():
+        container = data
+        for part in path[:-1]:
+            container = container.setdefault(part, {})
+            if not isinstance(container, dict):
+                raise ValueError(f'owned settings object is a non-object value: {".".join(path)}')
+        container[path[-1]] = value
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(json.dumps(data, indent=2, ensure_ascii=False) + '\n', encoding='utf-8')
+    verify_candidate_config(output, source, actual, scope, previous_scope)
+
+
 def run(args):
+    # Rendered candidates live outside the source checkout and every target.
+    render_root = Path(tempfile.mkdtemp(prefix='agent-team-render-')).resolve()
+    try:
+        reconcile(args, render_root)
+    finally:
+        shutil.rmtree(render_root, ignore_errors=True)
+        if render_root.exists():
+            print(f'Rendered candidates retained for investigation: {render_root}', flush=True)
+
+
+def reconcile(args, render_root):
     source = plain_path(args.source)
     home = plain_path(args.codex_home)
     skills = plain_path(args.skills_root)
@@ -418,6 +542,24 @@ def run(args):
     if claude_root is not None:
         preserved_claude_targets = set()
     rows, pin, packages = inventory(source, home, skills, stage, upstream_root, claude_root)
+    # Snapshot sources only from a clean checkout; rendering reads them once.
+    if args.apply and subprocess.check_output([str(command_path('git')), '-C', str(source), 'status', '--porcelain']):
+        raise ValueError('source checkout has uncommitted changes; select a clean revision')
+    discovery_roots = [skills, upstream_root, plain_path(home / 'skills')]
+    if claude_root is not None:
+        discovery_roots.append(plain_path(claude_root / 'skills'))
+    if any(same_path(render_root, path) or path_within(render_root, path)
+           for path in [source, *discovery_roots, *(plain_path(row[1]) for row in rows)]):
+        raise ValueError('rendered candidates must be outside the source, skill discovery and managed targets')
+    rendered = []
+    for index, (candidate, target, scope, host) in enumerate(rows):
+        if host is not None and candidate.exists():
+            fingerprint(candidate, scope)  # Reject symlinked or mis-kinded sources before reading them.
+            destination = render_root / str(index) / candidate.name
+            render_source(candidate, destination, host)
+            candidate = destination
+        rendered.append((candidate, target, scope))
+    rows = rendered
     approvals = dict(args.resolve)
     errors, observed, desired = [], {}, {}
     if (home / 'AGENTS.override.md').exists() or (home / 'AGENTS.override.md').is_symlink():
@@ -442,18 +584,19 @@ def run(args):
         gate_scope = scope
         if old and target in desired and old['scope'] != desired[target][1]:
             new_scope = desired[target][1]
-            if scope['kind'] != 'toml' or new_scope['kind'] != 'toml':
+            if scope['kind'] not in PROJECTED or new_scope['kind'] != scope['kind']:
                 errors.append(f'{target}: ownership kind changed; investigate before migration')
             else:
                 added = set(new_scope['fields']) - set(scope['fields'])
-                if any(v != ['absent'] for v in projection(Path(target), added).values()):
+                if any(v != ['absent'] for v in projection(Path(target), added, scope['kind']).values()):
                     conflict = True
-                gate_scope = {'kind': 'toml', 'fields': sorted(set(scope['fields']) | set(new_scope['fields']))}
+                gate_scope = {'kind': scope['kind'],
+                              'fields': sorted(set(scope['fields']) | set(new_scope['fields']))}
         gate_current = fingerprint(Path(target), gate_scope)
         observed[target] = (gate_scope, gate_current)
         if conflict and approvals.get(target) != (gate_current or 'absent'):
             errors.append(f'{target}: scope={scope} saved={expected} observed={gate_current}; supervised decision required')
-        if target not in desired and scope['kind'] == 'toml':
+        if target not in desired and target not in preserved_claude_targets and scope['kind'] in PROJECTED:
             errors.append(f'{target}: retired config target requires supervised relocation; no writes')
     targets = [Path(target) for target in observed]
     if any(not same_path(a, b) and path_within(b, a) for a in targets for b in targets):
@@ -468,6 +611,24 @@ def run(args):
         errors.append('Claude is absent; preserved receipt scopes cannot be resolved or retired')
     if errors:
         raise ValueError('\n'.join(errors))
+    # Claude settings candidates are built from the live file; only owned fields change.
+    json_originals = {}
+    for target, (candidate, scope) in list(desired.items()):
+        if scope['kind'] == 'json':
+            live = Path(target)
+            json_originals[target] = live.read_bytes() if live.exists() else None
+            prepared_json = render_root / 'json' / str(len(json_originals)) / live.name
+            previous = entries.get(target, {}).get('scope', {}).get('fields', [])
+            json_candidate(candidate, live, prepared_json, scope, previous)
+            desired[target] = (prepared_json, scope)
+    for target in sorted(observed) if not args.apply else ():
+        if target in preserved_claude_targets:
+            continue
+        if target not in desired:
+            print(f'Would retire {target}', flush=True)
+        elif fingerprint(Path(target), desired[target][1]) != fingerprint(*desired[target]):
+            fields = f" {', '.join(desired[target][1]['fields'])}" if 'fields' in desired[target][1] else ''
+            print(f"Would publish {target} ({desired[target][1]['kind']}{fields})", flush=True)
     if not args.apply:
         print('All declared sources and live target/retirement scopes passed preflight; no writes.')
         return
@@ -475,9 +636,6 @@ def run(args):
         raise ValueError('supervisor must verify target model/effort availability before applying')
     if stage is None:
         raise ValueError('verified upstream staging is required')
-    discovery_roots = [skills, upstream_root, plain_path(home / 'skills')]
-    if claude_root is not None:
-        discovery_roots.append(plain_path(claude_root / 'skills'))
     if any(same_path(stage, root) or path_within(stage, root) or same_path(stage.parent, root)
            for root in discovery_roots):
         raise ValueError('upstream staging must be outside skill discovery')
@@ -493,10 +651,7 @@ def run(args):
     verify_candidate_config(candidate_config, source_config, original_config, config_scope,
                             previously_managed)
     desired[config_target] = (candidate_config, config_scope)
-    # Snapshot candidates before mutation. The source worktree must represent the
-    # single revision selected by the supervisor, with no uncommitted edits.
-    if subprocess.check_output([str(command_path('git')), '-C', str(source), 'status', '--porcelain']):
-        raise ValueError('source checkout has uncommitted changes; select a clean revision')
+    # Snapshot candidates before mutation; rendering already required a clean source.
     prepared_files = {target: candidate.read_bytes() for target, (candidate, scope) in desired.items()
                       if scope['kind'] != 'directory'}
     prepared = {}
@@ -530,6 +685,10 @@ def run(args):
             scope, expected = observed[target]
             if fingerprint(Path(target), scope) != expected:
                 raise ValueError(f'target changed after preflight: {target}')
+        # Recheck whole shared documents before the first write, not only before their own.
+        for target, original in [(config_target, original_config_bytes), *json_originals.items()]:
+            if (Path(target).read_bytes() if Path(target).exists() else None) != original:
+                raise ValueError(f'{target} changed, including unmanaged fields; prepare it again')
         def publication_order(target):
             path = Path(target)
             if claude_root is not None and same_path(path, plain_path(claude_root / 'rules/agent-team.md')):
@@ -546,11 +705,13 @@ def run(args):
                 raise ValueError(f'state changed immediately before write: {target}')
             if target == config_target and (path.read_bytes() if path.exists() else None) != original_config_bytes:
                 raise ValueError('shared config changed, including unmanaged fields; prepare it again')
+            if target in json_originals and (path.read_bytes() if path.exists() else None) != json_originals[target]:
+                raise ValueError(f'{target} changed, including unmanaged fields; prepare it again')
             if target in preserved_claude_targets:
                 continue
             if target not in desired:
-                if scope['kind'] == 'toml':
-                    raise ValueError('retiring TOML fields requires a reviewed candidate config and scope migration')
+                if scope['kind'] in PROJECTED:
+                    raise ValueError('retiring TOML or JSON fields requires a reviewed candidate config and scope migration')
                 if path.is_dir():
                     shutil.rmtree(path)
                 else:

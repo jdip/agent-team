@@ -11,7 +11,7 @@ source while preserving local work, select one concrete Git revision, and read a
 assets from it throughout the run. Report the revision. Investigate detached,
 unpublished, ambiguous, divergent, or unavailable source; do not silently switch
 branches or fall back to stale content. There is no separate manifest, lockfile,
-generator, or profile version.
+or profile version, and Host rendering below is the only generator.
 
 The Codex inventory applies to macOS desktop, headless Linux, native Windows
 11 x64 desktop/CLI, and WSL 2 Ubuntu 24.04 LTS x64 with Linux Codex CLI.
@@ -36,6 +36,20 @@ including DrvFS mounted outside the usual `/mnt` locations. Use Linux-native
 Python, Git, gh, Bash, and Codex inside the distribution. A launcher symlink may
 resolve within Linux storage, but must not redirect execution onto Windows storage.
 Authentication is established independently inside each environment.
+
+## Host rendering
+
+Codex and Claude Code each receive a host rendering of the repository-authored
+whole files and copied local packages. The Codex config projection and upstream
+packages are never rendered. A host block opens with a line containing only
+`<!-- agent-team:host=codex -->` or `<!-- agent-team:host=claude -->` (in YAML or
+TOML use `# agent-team:host=<host>`) and closes with `<!-- agent-team:end -->` or
+`# agent-team:end`. Unmarked lines reach both hosts; block lines reach only the
+named host; marker lines reach neither. Blocks do not nest. Unknown hosts, stray or
+missing ends, nested blocks and any other line mentioning a marker stop
+reconciliation before managed writes. Receipts fingerprint the rendered bytes, and
+rendered output is never committed. `scripts/check.sh` renders every source for
+both hosts.
 
 ## Shared configuration and whole files
 
@@ -78,8 +92,9 @@ trusted repository configuration can tighten them.
 
 Each role's name, instructions, model presence, effort, tier, and sandbox move together.
 The current roster assignments and naming are in [AGENTS.md](AGENTS.md)
-and those ordinary role files. The code-review package owns the optional Claude CLI
-review preference and native critical_reviewer fallback. Its
+and those ordinary role files. The code-review package owns each host's cross-vendor
+review preference (Claude CLI from Codex, Codex CLI from Claude Code) and its native
+fallback (critical_reviewer on Codex, CriticalReviewer on Claude Code). Its
 [reviewer routing](skills/code-review/reviewer-routing.md) and
 [model declaration](skills/code-review/reviewer-models.toml) own mode-aware native
 selection; critical_reviewer intentionally omits a fixed model to permit explicit
@@ -90,13 +105,13 @@ never silently substitute. Inventory validation proves declared model/effort
 support, not current task mode compatibility or successful independent review.
 Verify native dispatch in the established mode on the execution host; loaded roles
 can require restart after reconciliation. Preserve AGENTS.override.md and surface
-its interference as a supervised conflict. No default role shadow or renderer is
-included.
+its interference as a supervised conflict. No default role shadow is included.
 
 ## Copied local packages
 
-Each listed `machine/skills/<name>/` is one whole directory copied to the supported
-user-skill root under the same name, including its companion metadata and helpers.
+Each listed `machine/skills/<name>/` is one whole directory, host-rendered and
+copied to the supported user-skill root under the same name, including its
+companion metadata and helpers.
 Only the listed package identities are approved; neighbors are not managed.
 
 | Package | Source responsibility |
@@ -172,25 +187,45 @@ Plugins: zero. Existing plugins and caches remain Unmanaged Local State.
 ## Optional Claude Code configuration
 
 When `claude` is available on an actual supported target, probe only its bounded
-`--version` command. Do not authenticate, query models, modify settings, or install
-or update Claude. Resolve its configuration root from `CLAUDE_CONFIG_DIR` when set,
+`--version` command. Do not authenticate, query models, modify settings beyond the
+owned fields below, or install or update Claude. Resolve its configuration root from `CLAUDE_CONFIG_DIR` when set,
 otherwise `$HOME/.claude`. An explicit root, environment root, user or managed
 settings environment override, and prior receipt anchor must agree; ambiguity stops
 before managed writes. Inspect only the known local user settings and platform
 managed-settings files/fragments for that override; do not infer server or MDM
 policy. Do not print settings or environment values.
 
-Agent Team owns only `rules/agent-team.md`, copied from [AGENTS.md](AGENTS.md), and
-the listed complete skill directories beneath `skills/`. CLAUDE.md, settings,
-credentials, plugins, unrelated rules/skills, and containing directories remain
-Unmanaged Local State. The anchor rule is published before skills so the receipt
+Agent Team owns only `rules/agent-team.md`, rendered from [AGENTS.md](AGENTS.md),
+the listed agent files and settings fields below, and the listed complete skill
+directories beneath `skills/`. CLAUDE.md, all other settings, credentials, plugins,
+unrelated agents/rules/skills, and containing directories remain Unmanaged Local
+State. The anchor rule is published before other Claude targets so the receipt
 proves the root. Claude's absence preserves anchored prior targets and their receipt
 entries; it does not retire or repair them. While Claude remains absent, restore
-changed or missing scopes to their receipted bytes before continuing. For normal
+changed or missing scopes to their receipted state before continuing. For normal
 supervised repair, re-establish Claude availability and resolve each conflict. A
 deliberate root move requires investigation before writes; reconciliation never
 relocates Claude state or edits its receipt to make a move appear managed. Filesystem reconciliation
 is separate from native Claude session usability.
+
+### Claude agents and settings
+
+Destinations are relative to the Claude configuration root. Agent files are
+host-rendered whole files; each agent's name, description, model, effort and tool
+limits move together, and [AGENTS.md](AGENTS.md) holds the roster's usage rules.
+The settings row merges only the fields present in its source into
+`settings.json`, as a typed projection like the Codex config; every other setting
+is preserved. It pins the primary model and effort and disables the built-in
+Explore and Plan agents. Claude model availability is verified in a fresh Claude
+session after installation, not by querying models during reconciliation.
+
+| Source relative to machine/ | Destination | Scope |
+| --- | --- | --- |
+| agents/Explore.md | agents/Explore.md | Whole file |
+| agents/WorkflowMonitor.md | agents/WorkflowMonitor.md | Whole file |
+| agents/CriticalReviewer.md | agents/CriticalReviewer.md | Whole file |
+| agents/SecuritySpecialist.md | agents/SecuritySpecialist.md | Whole file |
+| claude-settings.json | settings.json | Owned fields |
 
 ### Claude copied packages
 
@@ -222,18 +257,24 @@ is separate from native Claude session usability.
 | next-issue-loop | Continuous execution within one explicitly active parent |
 | pr-to-test | Canonical shared delivery package |
 | promote-to-main | Canonical shared delivery package |
+| prepare-repository | External guidance preparation and committed local branch handoff |
+| greenfield-init | Canonical shared adoption package |
+| brownfield-adoption | Canonical shared adoption package |
+| standards-upgrade | Canonical shared upgrade package |
 | cleanup-task-artifacts | Canonical shared cleanup package |
 
 ### Claude upstream packages
 
 Use the same reviewed pin and supported staged acquisition as the Codex upstream
-inventory. Complete packages retain companions, licenses, and any upstream-authored
+inventory. Both Claude tables must match their Codex tables; reconciliation stops
+when they differ. Complete packages retain companions, licenses, and any upstream-authored
 manual-invocation settings.
 
 | Identity | Path at the pin |
 | --- | --- |
 | grilling | skills/productivity/grilling |
 | domain-modeling | skills/engineering/domain-modeling |
+| setup-matt-pocock-skills | skills/engineering/setup-matt-pocock-skills |
 | codebase-design | skills/engineering/codebase-design |
 | diagnosing-bugs | skills/engineering/diagnosing-bugs |
 | improve-codebase-architecture | skills/engineering/improve-codebase-architecture |
@@ -252,7 +293,8 @@ unexplained bytes as evidence simply to bypass a stop.
 
 Whole files use exact-byte fingerprints; directory fingerprints account for
 relative paths and bytes, including added, missing, and renamed files. Shared TOML
-uses a canonical typed projection of only the owned fields, including absence.
+and Claude settings JSON use a canonical typed projection of only the owned fields,
+including absence.
 The narrow helper implementation owns the exact encoding.
 
 Upstream installed-directory fingerprints provide change detection without making

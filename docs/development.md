@@ -11,7 +11,7 @@ and macOS use their `bash` as usual.
 Use `AGENT_TEAM_PYTHON=python3.13` when the host's `python3` is older. CI uses 3.12.
 
 Stage intended changes, then run `scripts/check.sh` for native Python/TOML/shell
-syntax checks and narrow Git-index credential and personal-path checks (see [SECURITY.md](../SECURITY.md)).
+syntax checks, host-marker rendering of managed sources, and narrow Git-index credential and personal-path checks (see [SECURITY.md](../SECURITY.md)).
 Use
 `git diff --check` for the actual change. Verify each changed helper through its
 actual authorized operation. Source parsing is not evidence of machine agreement,
