@@ -51,7 +51,36 @@ should become the standard is a separate question.
 
 Done when every conflict has an approved resolution or is reported as retained.
 
-## 3. Apply
+## 3. Desktop app settings
+
+<!-- agent-team:host=claude -->
+When this session exposes the Code tab's settings tool, set `branch_prefix` to
+`agent` through it now, with the user's approval, and rerun preparation so the helper
+sees the matching value. Otherwise the helper writes the Claude desktop app's
+Code-tab branch prefix during apply; when it reports changed preferences, ask the user
+to restart the Claude desktop app, because the running app keeps its cached
+preferences until restart and a later run reports drift if the app saved over them.
+
+The Codex app's branch prefix belongs to the Codex app. Read `git-branch-prefix` in the
+Codex home's `.codex-global-state.json` without editing it. Report it as pending
+unless it reads `agent/`, and ask the user to set Settings, Git, Branch prefix once or
+to run this skill from a Codex app task.
+<!-- agent-team:end -->
+<!-- agent-team:host=codex -->
+In the Codex desktop app, set this app's Git branch prefix to `agent/` through the
+app's own settings, never by editing its state files, and read it back. From the CLI,
+report that setting as pending when the desktop app is installed on this machine
+(its `.codex-global-state.json` exists in the Codex home) and as not applicable
+otherwise.
+
+The helper owns the Claude desktop app's Code-tab branch prefix; when apply reports
+changed preferences, ask the user to restart the Claude desktop app.
+<!-- agent-team:end -->
+
+Done when each installed desktop app's branch prefix is set in-app, left to the
+helper, or reported as pending.
+
+## 4. Apply
 
 Rerun the same command with `--apply` and the exact approved `--resolve` arguments.
 The helper rechecks every observation, publishes atomically, writes the narrow
@@ -61,33 +90,6 @@ receipt evidence, enroll existing bytes, blindly retry, or roll back unrelated w
 
 Done when the helper reports "reconciled and verified" or you have inspected and
 reported a partial failure.
-
-## 4. Desktop app settings
-
-<!-- agent-team:host=claude -->
-The helper owns the Claude desktop app's Code-tab branch prefix. When it reports
-that it changed that app's preferences, ask the user to restart the Claude desktop
-app: the running app keeps its cached preferences until restart, and a later run
-reports drift if the app saved over the value first. When this session exposes the
-Code tab's settings tool, set `branch_prefix` to `agent` through it first; the file
-then already matches.
-
-The Codex app's branch prefix belongs to the Codex app. Report it as pending unless
-it already reads `agent/`, and ask the user to set Settings, Git, Branch prefix once
-or to run this skill from a Codex app task.
-<!-- agent-team:end -->
-<!-- agent-team:host=codex -->
-In the Codex desktop app, set this app's Git branch prefix to `agent/` through the
-app's own settings, never by editing its state files, and read it back. From the CLI
-or a headless host, report the Codex app setting as not applicable.
-
-The helper owns the Claude desktop app's Code-tab branch prefix. When it reports
-that it changed that app's preferences, ask the user to restart the Claude desktop
-app.
-<!-- agent-team:end -->
-
-Done when each installed desktop app's branch prefix is verified, pending a restart,
-or reported as pending.
 
 ## 5. Verify and report
 

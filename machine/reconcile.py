@@ -734,6 +734,7 @@ def reconcile(args, render_root):
                 print(f'Retired {target}', flush=True)
             else:
                 candidate, new_scope = desired[target]
+                written = True
                 if new_scope['kind'] == 'directory':
                     path.parent.mkdir(parents=True, exist_ok=True)
                     if os.name == 'nt':
@@ -747,7 +748,9 @@ def reconcile(args, render_root):
                     print(f'Published directory {target}; verification and receipt pending', flush=True)
                     if os.name == 'nt':
                         finish_directory(path, directory_security[target])
-                elif path.exists() and path.read_bytes() == prepared_files[target]:
+                elif target in entries and path.exists() and path.read_bytes() == prepared_files[target]:
+                    # A receipted file already holding the intended bytes needs no rewrite.
+                    written = False
                     print(f'Unchanged {target}', flush=True)
                 else:
                     mode = stat.S_IMODE(path.stat().st_mode) if path.exists() else 0o600
@@ -760,7 +763,8 @@ def reconcile(args, render_root):
                     raise ValueError(f'installed result mismatch: {target}')
                 entries[target] = {'target': target, 'scope': new_scope,
                                    'algorithm': 'sha256', 'fingerprint': actual}
-                print(f'Wrote {target}', flush=True)
+                if written:
+                    print(f'Wrote {target}', flush=True)
             atomic_file(receipt_path, encoded({'version': 1, 'entries': list(entries.values())}) + b'\n')
             raw_receipt = receipt_path.read_bytes()
         completed = True
