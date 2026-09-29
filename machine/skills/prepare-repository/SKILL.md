@@ -76,9 +76,13 @@ selected; a model-selection check or a reference to the skill is insufficient.
 Record the official sources and resulting findings or supported no-change result.
 <!-- agent-team:host=claude -->
 Claude Code lacks that skill: run the same invocation through the Codex CLI with
-live web search in a read-only, ephemeral session (`codex --search exec -s read-only
---ephemeral -C <prepared checkout> -o <result file> '<prompt naming $openai-docs>'`),
-supplying the same inputs, and record its sources and findings from the result file.
+live web search in a read-only, ephemeral session started from the Agent Team
+checkout, never the target (`codex --search exec -s read-only --ephemeral -C <Agent
+Team checkout> -o <private result file> '<prompt>'`). The prompt names
+`$openai-docs`, supplies the same inputs, names the prepared checkout as read-only
+material under review, and asks for the official sources and findings in the final
+message. Keep the result file outside the target checkout and record its sources and
+findings.
 <!-- agent-team:end -->
 
 Use `audit-agent-instructions` to reconcile that evidence with the prepared
@@ -165,7 +169,7 @@ already appears in the app's project list.
 Create or update a deduplicated preparation handoff issue in the target repository's
 tracker using its tracker conventions. Record the target identity, intended workflow,
 Agent Team baseline, target-owned map/spec links, prepared branch and full commit,
-findings, preserved decisions, remaining prerequisites, verification, and the verified continuation steps and
+findings, preserved decisions, remaining prerequisites, verification, and any verified continuation steps and
 opening prompt above. Publish only sanitized continuation
 context: keep private paths, host/project labels and other private navigation details
 in the private user handoff, with portable references in the issue. Review both the
