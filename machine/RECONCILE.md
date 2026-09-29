@@ -122,7 +122,10 @@ The preparation command passes its resolved paths to the read-only gate; agents 
 not assemble an alternate preparation command.
 
 The helper reads PROFILE.md's tables directly; there is no parallel manifest. It
-checks every declared target plus every previously receipted retirement candidate.
+renders every repository-authored candidate for its host under PROFILE.md's Host
+rendering rules; a marker error names the source line and stops before any managed
+write. It then checks every declared target plus every previously receipted
+retirement candidate.
 It reports absent source packages and conflicting target/scope/saved/observed
 fingerprints without printing configuration values. No receipt for an existing
 target, changed/missing receipted state, symlinks, or unknown scope stops all writes.

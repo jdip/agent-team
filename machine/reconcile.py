@@ -250,6 +250,59 @@ def atomic_file(path, data, mode=0o600):
             print(f'File replacement retained for investigation: {temporary}', flush=True)
 
 
+HOSTS = ('codex', 'claude')
+HOST_MARKER = re.compile(r'[ \t]*(?:<!--[ \t]*agent-team:(host=[\w-]+|end)[ \t]*-->'
+                         r'|#[ \t]*agent-team:(host=[\w-]+|end))[ \t]*(?:\r?\n)?')
+MARKER_MENTION = re.compile(r'agent-team\s*:\s*(?:host|end)\b', re.IGNORECASE)
+
+
+def render(data, host, label):
+    """Keep shared lines and this host's marked blocks, dropping every marker line."""
+    if MARKER_MENTION.search(data.decode('utf-8', errors='replace')) is None:
+        return data
+    try:
+        text = data.decode('utf-8')
+    except UnicodeDecodeError as error:
+        raise ValueError(f'{label}: host markers require UTF-8 text') from error
+    kept, active, opened = [], None, 0
+    for number, line in enumerate(re.split(r'(?<=\n)', text), 1):
+        match = HOST_MARKER.fullmatch(line)
+        if match is None:
+            if MARKER_MENTION.search(line):
+                raise ValueError(f'{label}:{number}: malformed host marker')
+            if active in (None, host):
+                kept.append(line)
+            continue
+        directive = match.group(1) or match.group(2)
+        if directive == 'end':
+            if active is None:
+                raise ValueError(f'{label}:{number}: host marker end without an open block')
+            active = None
+            continue
+        name = directive.removeprefix('host=')
+        if name not in HOSTS:
+            raise ValueError(f'{label}:{number}: unknown host {name!r}')
+        if active is not None:
+            raise ValueError(f'{label}:{number}: nested host marker')
+        active, opened = name, number
+    if active is not None:
+        raise ValueError(f'{label}:{opened}: unclosed host marker')
+    return ''.join(kept).encode('utf-8')
+
+
+def render_source(source, destination, host):
+    """Materialize one repository-authored file or package as the host receives it."""
+    if source.is_dir():
+        for name, data in files(source).items():
+            path = destination / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(render(data, host, f'{source.name}/{name}'))
+            shutil.copymode(source / name, path)
+    else:
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_bytes(render(source.read_bytes(), host, source.name))
+
+
 def table(section):
     return [line.split('|')[1].strip() for line in section.splitlines()
             if line.startswith('| ') and not line.startswith('| ---')][1:]
@@ -302,28 +355,32 @@ def inventory(source, home, skills, upstream, upstream_root=None, claude_root=No
     profile = (source / 'machine/PROFILE.md').read_text(encoding='utf-8')
     config = source / 'machine/config.toml'
     fields = sorted('.'.join(key) for key in flatten(tomllib.loads(config.read_text(encoding='utf-8'))))
-    rows = [(config, home / 'config.toml', {'kind': 'toml', 'fields': fields})]
+    # Each row names the host whose rendering it receives; upstream and config rows are not rendered.
+    rows = [(config, home / 'config.toml', {'kind': 'toml', 'fields': fields}, None)]
     section = profile.split('## Shared configuration and whole files\n')[1].split('## Copied local packages\n')[0]
     for name in table(section):
-        rows.append((source / 'machine' / name, home / name, {'kind': 'file'}))
+        rows.append((source / 'machine' / name, home / name, {'kind': 'file'}, 'codex'))
     section = profile.split('## Copied local packages\n')[1].split('## Upstream packages\n')[0]
     for name in table(section):
-        rows.append((source / 'machine/skills' / name, skills / name, {'kind': 'directory'}))
+        rows.append((source / 'machine/skills' / name, skills / name, {'kind': 'directory'}, 'codex'))
     section = profile.split('## Upstream packages\n')[1].split('## Optional Claude Code configuration\n')[0]
     pin = re.search(r'Shared reviewed pin: `([0-9a-f]{40})`', section).group(1)
     packages = re.findall(r'^\| ([\w-]+) \| (skills/[\w/-]+) \|$', section, re.M)
     for name, _ in packages:
-        rows.append((upstream / name if upstream else None, (upstream_root or skills) / name, {'kind': 'directory'}))
+        rows.append((upstream / name if upstream else None, (upstream_root or skills) / name,
+                     {'kind': 'directory'}, None))
     if claude_root is not None:
         copied, claude_upstream = claude_packages(profile)
         codex_upstream = dict(packages)
         if any(codex_upstream.get(name) != path for name, path in claude_upstream):
             raise ValueError('Claude upstream package is not an exact subset of the staged Codex upstream inventory')
-        rows.append((source / 'machine/AGENTS.md', claude_root / 'rules/agent-team.md', {'kind': 'file'}))
+        rows.append((source / 'machine/AGENTS.md', claude_root / 'rules/agent-team.md', {'kind': 'file'}, 'claude'))
         for name in copied:
-            rows.append((source / 'machine/skills' / name, claude_root / 'skills' / name, {'kind': 'directory'}))
+            rows.append((source / 'machine/skills' / name, claude_root / 'skills' / name,
+                         {'kind': 'directory'}, 'claude'))
         for name, _ in claude_upstream:
-            rows.append((upstream / name if upstream else None, claude_root / 'skills' / name, {'kind': 'directory'}))
+            rows.append((upstream / name if upstream else None, claude_root / 'skills' / name,
+                         {'kind': 'directory'}, None))
     targets = [str(plain_path(row[1])) for row in rows]
     if len(set(targets)) != len(targets):
         raise ValueError('duplicate profile target')
@@ -404,6 +461,17 @@ def verify_candidate_config(candidate, source, original, scope, previous_scope=(
 
 
 def run(args):
+    # Rendered candidates live outside the source checkout and every target.
+    render_root = Path(tempfile.mkdtemp(prefix='agent-team-render-')).resolve()
+    try:
+        reconcile(args, render_root)
+    finally:
+        shutil.rmtree(render_root, ignore_errors=True)
+        if render_root.exists():
+            print(f'Rendered candidates retained for investigation: {render_root}', flush=True)
+
+
+def reconcile(args, render_root):
     source = plain_path(args.source)
     home = plain_path(args.codex_home)
     skills = plain_path(args.skills_root)
@@ -418,6 +486,24 @@ def run(args):
     if claude_root is not None:
         preserved_claude_targets = set()
     rows, pin, packages = inventory(source, home, skills, stage, upstream_root, claude_root)
+    # Snapshot sources only from a clean checkout; rendering reads them once.
+    if args.apply and subprocess.check_output([str(command_path('git')), '-C', str(source), 'status', '--porcelain']):
+        raise ValueError('source checkout has uncommitted changes; select a clean revision')
+    discovery_roots = [skills, upstream_root, plain_path(home / 'skills')]
+    if claude_root is not None:
+        discovery_roots.append(plain_path(claude_root / 'skills'))
+    if any(same_path(render_root, path) or path_within(render_root, path)
+           for path in [source, *discovery_roots, *(plain_path(row[1]) for row in rows)]):
+        raise ValueError('rendered candidates must be outside the source, skill discovery and managed targets')
+    rendered = []
+    for index, (candidate, target, scope, host) in enumerate(rows):
+        if host is not None and candidate.exists():
+            fingerprint(candidate, scope)  # Reject symlinked or mis-kinded sources before reading them.
+            destination = render_root / str(index) / candidate.name
+            render_source(candidate, destination, host)
+            candidate = destination
+        rendered.append((candidate, target, scope))
+    rows = rendered
     approvals = dict(args.resolve)
     errors, observed, desired = [], {}, {}
     if (home / 'AGENTS.override.md').exists() or (home / 'AGENTS.override.md').is_symlink():
@@ -475,9 +561,6 @@ def run(args):
         raise ValueError('supervisor must verify target model/effort availability before applying')
     if stage is None:
         raise ValueError('verified upstream staging is required')
-    discovery_roots = [skills, upstream_root, plain_path(home / 'skills')]
-    if claude_root is not None:
-        discovery_roots.append(plain_path(claude_root / 'skills'))
     if any(same_path(stage, root) or path_within(stage, root) or same_path(stage.parent, root)
            for root in discovery_roots):
         raise ValueError('upstream staging must be outside skill discovery')
@@ -493,10 +576,7 @@ def run(args):
     verify_candidate_config(candidate_config, source_config, original_config, config_scope,
                             previously_managed)
     desired[config_target] = (candidate_config, config_scope)
-    # Snapshot candidates before mutation. The source worktree must represent the
-    # single revision selected by the supervisor, with no uncommitted edits.
-    if subprocess.check_output([str(command_path('git')), '-C', str(source), 'status', '--porcelain']):
-        raise ValueError('source checkout has uncommitted changes; select a clean revision')
+    # Snapshot candidates before mutation; rendering already required a clean source.
     prepared_files = {target: candidate.read_bytes() for target, (candidate, scope) in desired.items()
                       if scope['kind'] != 'directory'}
     prepared = {}
