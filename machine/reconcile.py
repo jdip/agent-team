@@ -253,21 +253,22 @@ def atomic_file(path, data, mode=0o600):
 HOSTS = ('codex', 'claude')
 HOST_MARKER = re.compile(r'[ \t]*(?:<!--[ \t]*agent-team:(host=[\w-]+|end)[ \t]*-->'
                          r'|#[ \t]*agent-team:(host=[\w-]+|end))[ \t]*(?:\r?\n)?')
+MARKER_MENTION = re.compile(r'agent-team\s*:\s*(?:host|end)\b', re.IGNORECASE)
 
 
 def render(data, host, label):
     """Keep shared lines and this host's marked blocks, dropping every marker line."""
-    if b'agent-team:' not in data:
+    if MARKER_MENTION.search(data.decode('utf-8', errors='replace')) is None:
         return data
     try:
         text = data.decode('utf-8')
     except UnicodeDecodeError as error:
         raise ValueError(f'{label}: host markers require UTF-8 text') from error
     kept, active, opened = [], None, 0
-    for number, line in enumerate(text.splitlines(keepends=True), 1):
+    for number, line in enumerate(re.split(r'(?<=\n)', text), 1):
         match = HOST_MARKER.fullmatch(line)
         if match is None:
-            if 'agent-team:host' in line or 'agent-team:end' in line:
+            if MARKER_MENTION.search(line):
                 raise ValueError(f'{label}:{number}: malformed host marker')
             if active in (None, host):
                 kept.append(line)
@@ -465,7 +466,9 @@ def run(args):
     try:
         reconcile(args, render_root)
     finally:
-        shutil.rmtree(render_root)
+        shutil.rmtree(render_root, ignore_errors=True)
+        if render_root.exists():
+            print(f'Rendered candidates retained for investigation: {render_root}', flush=True)
 
 
 def reconcile(args, render_root):
@@ -483,9 +486,19 @@ def reconcile(args, render_root):
     if claude_root is not None:
         preserved_claude_targets = set()
     rows, pin, packages = inventory(source, home, skills, stage, upstream_root, claude_root)
+    # Snapshot sources only from a clean checkout; rendering reads them once.
+    if args.apply and subprocess.check_output([str(command_path('git')), '-C', str(source), 'status', '--porcelain']):
+        raise ValueError('source checkout has uncommitted changes; select a clean revision')
+    discovery_roots = [skills, upstream_root, plain_path(home / 'skills')]
+    if claude_root is not None:
+        discovery_roots.append(plain_path(claude_root / 'skills'))
+    if any(same_path(render_root, path) or path_within(render_root, path)
+           for path in [*discovery_roots, *(plain_path(row[1]) for row in rows)]):
+        raise ValueError('rendered candidates must be outside skill discovery and managed targets')
     rendered = []
     for index, (candidate, target, scope, host) in enumerate(rows):
         if host is not None and candidate.exists():
+            fingerprint(candidate, scope)  # Reject symlinked or mis-kinded sources before reading them.
             destination = render_root / str(index) / candidate.name
             render_source(candidate, destination, host)
             candidate = destination
@@ -548,9 +561,6 @@ def reconcile(args, render_root):
         raise ValueError('supervisor must verify target model/effort availability before applying')
     if stage is None:
         raise ValueError('verified upstream staging is required')
-    discovery_roots = [skills, upstream_root, plain_path(home / 'skills')]
-    if claude_root is not None:
-        discovery_roots.append(plain_path(claude_root / 'skills'))
     if any(same_path(stage, root) or path_within(stage, root) or same_path(stage.parent, root)
            for root in discovery_roots):
         raise ValueError('upstream staging must be outside skill discovery')
@@ -566,10 +576,7 @@ def reconcile(args, render_root):
     verify_candidate_config(candidate_config, source_config, original_config, config_scope,
                             previously_managed)
     desired[config_target] = (candidate_config, config_scope)
-    # Snapshot candidates before mutation. The source worktree must represent the
-    # single revision selected by the supervisor, with no uncommitted edits.
-    if subprocess.check_output([str(command_path('git')), '-C', str(source), 'status', '--porcelain']):
-        raise ValueError('source checkout has uncommitted changes; select a clean revision')
+    # Snapshot candidates before mutation; rendering already required a clean source.
     prepared_files = {target: candidate.read_bytes() for target, (candidate, scope) in desired.items()
                       if scope['kind'] != 'directory'}
     prepared = {}
