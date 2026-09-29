@@ -162,6 +162,12 @@ owned values match the source and its unowned values match the actual config. It
 rechecks the full original config immediately before replacement to avoid losing
 concurrent unmanaged edits. Never copy the fragment over the shared config.
 
+When Claude is present, the helper builds the Claude settings candidate itself from
+the live `settings.json`, changing only the fields declared in
+`machine/claude-settings.json`, proves the same owned/unowned split, and rechecks
+the original bytes immediately before replacement. First management of an existing
+settings file is a supervised conflict like any unreceipted target.
+
 ## Apply and verify
 
 Repeat the canonical preparation command with `--apply` and the exact approved

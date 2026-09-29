@@ -186,18 +186,19 @@ Plugins: zero. Existing plugins and caches remain Unmanaged Local State.
 ## Optional Claude Code configuration
 
 When `claude` is available on an actual supported target, probe only its bounded
-`--version` command. Do not authenticate, query models, modify settings, or install
-or update Claude. Resolve its configuration root from `CLAUDE_CONFIG_DIR` when set,
+`--version` command. Do not authenticate, query models, modify settings beyond the
+owned fields below, or install or update Claude. Resolve its configuration root from `CLAUDE_CONFIG_DIR` when set,
 otherwise `$HOME/.claude`. An explicit root, environment root, user or managed
 settings environment override, and prior receipt anchor must agree; ambiguity stops
 before managed writes. Inspect only the known local user settings and platform
 managed-settings files/fragments for that override; do not infer server or MDM
 policy. Do not print settings or environment values.
 
-Agent Team owns only `rules/agent-team.md`, rendered from [AGENTS.md](AGENTS.md), and
-the listed complete skill directories beneath `skills/`. CLAUDE.md, settings,
-credentials, plugins, unrelated rules/skills, and containing directories remain
-Unmanaged Local State. The anchor rule is published before skills so the receipt
+Agent Team owns only `rules/agent-team.md`, rendered from [AGENTS.md](AGENTS.md),
+the listed agent files and settings fields below, and the listed complete skill
+directories beneath `skills/`. CLAUDE.md, all other settings, credentials, plugins,
+unrelated agents/rules/skills, and containing directories remain Unmanaged Local
+State. The anchor rule is published before skills so the receipt
 proves the root. Claude's absence preserves anchored prior targets and their receipt
 entries; it does not retire or repair them. While Claude remains absent, restore
 changed or missing scopes to their receipted bytes before continuing. For normal
@@ -205,6 +206,25 @@ supervised repair, re-establish Claude availability and resolve each conflict. A
 deliberate root move requires investigation before writes; reconciliation never
 relocates Claude state or edits its receipt to make a move appear managed. Filesystem reconciliation
 is separate from native Claude session usability.
+
+### Claude agents and settings
+
+Destinations are relative to the Claude configuration root. Agent files are
+host-rendered whole files; each agent's name, description, model, effort and tool
+limits move together, and [AGENTS.md](AGENTS.md) holds the roster's usage rules.
+The settings row merges only the fields present in its source into
+`settings.json`, as a typed projection like the Codex config; every other setting
+is preserved. It pins the primary model and effort and disables the built-in
+Explore and Plan agents. Claude model availability is verified in a fresh Claude
+session after installation, not by querying models during reconciliation.
+
+| Source relative to machine/ | Destination | Scope |
+| --- | --- | --- |
+| agents/Explore.md | agents/Explore.md | Whole file |
+| agents/WorkflowMonitor.md | agents/WorkflowMonitor.md | Whole file |
+| agents/CriticalReviewer.md | agents/CriticalReviewer.md | Whole file |
+| agents/SecuritySpecialist.md | agents/SecuritySpecialist.md | Whole file |
+| claude-settings.json | settings.json | Owned fields |
 
 ### Claude copied packages
 
