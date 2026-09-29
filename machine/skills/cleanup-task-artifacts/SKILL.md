@@ -41,8 +41,14 @@ by the supervisor or daily sweep, not a claim that exit handlers always ran.
 ## Discover participating repositories
 
 For a daily sweep, obtain exact known project roots from the host's supported project
-inventory, or use roots explicitly supplied by the supervising agent. On Codex, use
-the supported Codex project inventory. Pass those roots to this package's
+inventory, or use roots explicitly supplied by the supervising agent.
+<!-- agent-team:host=codex -->
+On Codex, use the supported Codex project inventory.
+<!-- agent-team:end -->
+<!-- agent-team:host=claude -->
+Claude Code exposes no supported project inventory; use supervisor-supplied roots.
+<!-- agent-team:end -->
+Pass those roots to this package's
 `scripts/discover.py` with Python 3.9+ (resolve the script relative to this skill).
 It parses only the root AGENTS.md Repository Standard section and verifies the exact
 Agent Team source and adopted commit through gh. It checks each distinct revision
@@ -86,10 +92,20 @@ users before considering a worktree. Never blanket-prune branches, worktrees,
 containers, or logs. Reinspect the exact resource immediately before mutation.
 
 Never remove a checkout still backing a task. Use supported host lifecycle
-operations for app-owned worktrees. On Codex, use Handoff only when supported,
-appropriate, and safe for both checkouts; the calling task cannot hand itself off,
-and shell cd does not change task attachment. Do not create helper tasks or edit
-internal app storage to evade this limitation. On a host without supported lifecycle
+operations for app-owned worktrees.
+<!-- agent-team:host=codex -->
+On Codex, use Handoff only when supported, appropriate, and safe for both
+checkouts; the calling task cannot hand itself off, and shell cd does not change
+task attachment. Do not create helper tasks or edit internal app storage to evade
+this limitation.
+<!-- agent-team:end -->
+<!-- agent-team:host=claude -->
+On Claude Code, archiving a session removes its app-created worktree by default.
+Archive only a session the user explicitly agreed to archive, and leave a worktree
+backing an open session in place. Do not create helper sessions or edit internal
+app storage to evade this limitation.
+<!-- agent-team:end -->
+On a host without supported lifecycle
 evidence or handling, retain the checkout. Report actual cleanup separately from
 delivery completion.
 

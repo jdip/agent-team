@@ -155,7 +155,14 @@ before implementation rule and its explicit-waiver boundary.
    it still precedes the spec unless the operator explicitly waived planning.
 3. **Create or reuse the map** (label `wayfinder:map`): record Destination, Notes, settled direction and only real remaining fog. Keep it open until its resolution and implementation handoff are recorded.
 4. **Create the tickets you can specify now** as child issues of the map, then wire blocking edges in a **second pass** (issues need ids before they can reference each other). Wiring sorts them into the frontier and the blocked; everything you can't yet specify stays in the fog: the **Not yet specified** section.
-5. **Research actual open questions.** When research tickets exist, use the `research` skill to assign independent research with bounded questions and evidence requirements. On Codex, assign canonical `explorer` agents. On Claude Code, use its native available subagents without an Agent Team role or model override. Prepare artifacts in a separate worktree on an `agent/research-<name>` branch from fresh `origin/test`, following the target repository's checkout and delivery rules. Each assigned researcher investigates directly and returns cited findings; the primary owns any repository artifact and tracker resolution. Link the retained findings from the ticket. The primary serializes shared Git mutations and resolves the research tickets from the returned evidence.
+5. **Research actual open questions.** When research tickets exist, use the `research` skill to assign independent research with bounded questions and evidence requirements.
+   <!-- agent-team:host=codex -->
+   Assign canonical `explorer` agents.
+   <!-- agent-team:end -->
+   <!-- agent-team:host=claude -->
+   Assign `Explore` agents.
+   <!-- agent-team:end -->
+   Prepare artifacts in a separate worktree on an `agent/research-<name>` branch from fresh `origin/test`, following the target repository's checkout and delivery rules. Each assigned researcher investigates directly and returns cited findings; the primary owns any repository artifact and tracker resolution. Link the retained findings from the ticket. The primary serializes shared Git mutations and resolves the research tickets from the returned evidence.
 6. For a chart-only request, return the map. When the request includes continuation
    or implementation, select the open map through `set-map` before closure, then
    use `next-waypoint-loop` under that authority. Reusing an already resolved map

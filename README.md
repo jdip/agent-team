@@ -181,9 +181,10 @@ remains the authoritative installation inventory. Links below point to Agent
 Team's maintained packages or the profile's pinned upstream source. Host-bundled
 and separately installed plugin skills are outside this inventory.
 
-The optional Claude installation shares most skills. `prepare-repository`,
-`greenfield-init`, `brownfield-adoption`, `standards-upgrade`, and
-`setup-matt-pocock-skills` are distributed to Codex only. Actual tool availability
+The optional Claude installation receives every skill, rendered for Claude Code.
+Only Claude's copy of `promote-to-main` is manual-only there: Claude's flag also
+blocks one skill from invoking another, so the other Codex manual-only skills stay
+model-invocable on Claude to keep workflow chaining intact. Actual tool availability
 still governs what a skill can do. Preserve upstream manual-only invocation rules;
 a coordinating workflow does not bypass them.
 

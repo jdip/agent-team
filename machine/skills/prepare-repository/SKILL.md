@@ -101,10 +101,11 @@ resolved and references checked. Distinguish that readiness from deferred machin
 retirement and pending adoption or upgrade. A material unresolved
 documentation mismatch leaves preparation incomplete and names the decision needed.
 
-For a Codex desktop handoff, make continuation actionable before publishing it.
+For a desktop handoff, make continuation actionable before publishing it.
 Read the handoff issue's current status and comments; if continuation is already
 underway or complete, point to that work instead of proposing a duplicate run.
 
+<!-- agent-team:host=codex -->
 - Resolve the saved project on the intended host through supported project inventory.
   Verify its Git common directory matches the preparation checkout and the exact
   prepared branch still resolves to the reported commit. Preserve both checkouts.
@@ -113,10 +114,23 @@ underway or complete, point to that work instead of proposing a duplicate run.
   starting branch. This creates a new app-managed checkout from the commit; it does
   not attach to the retained preparation directory or advance its branch. Subsequent
   work follows the target's branch and delivery rules.
+<!-- agent-team:end -->
+<!-- agent-team:host=claude -->
+- Verify that the repository the user opens in Claude Code shares the preparation
+  checkout's Git common directory and that the exact prepared branch still resolves
+  to the reported commit. Preserve both checkouts.
+- Give concrete steps using those verified names: start a new Claude Code session in
+  that repository and have it create a fresh worktree on a new `agent/` branch from
+  the prepared branch (`git worktree add -b <branch> .claude/worktrees/<name>
+  <prepared-branch>`), then enter it with EnterWorktree's `path`. This does not
+  attach to the retained preparation directory or advance its branch. Subsequent
+  work follows the target's branch and delivery rules.
+<!-- agent-team:end -->
 - Include a ready-to-paste opening prompt naming the handoff issue, branch, expected
   commit, and intended workflow. Have the receiving task verify its starting state
   and read the handoff before changes. Explain which work the prompt authorizes;
   use a read-only handoff check when adoption or upgrade is not yet authorized.
+<!-- agent-team:host=codex -->
 - If the user wants the original checkout, verify a supported way to open that
   exact directory as a project and use Local. If project/host/branch availability
   cannot be verified, report that concrete limitation; distinguish preparation
@@ -126,6 +140,14 @@ underway or complete, point to that work instead of proposing a duplicate run.
 Use current [official worktree guidance](https://learn.chatgpt.com/docs/environments/git-worktrees)
 and actual host evidence for the navigation steps; do not assume a retained path
 already appears in the app's project list.
+<!-- agent-team:end -->
+<!-- agent-team:host=claude -->
+- If the user wants the original checkout, have them open a Claude Code session in
+  that exact directory. If project/host/branch availability cannot be verified,
+  report that concrete limitation; distinguish preparation readiness from
+  unverified app access. Never create a session, switch the original checkout, or
+  start adoption merely to complete handoff instructions.
+<!-- agent-team:end -->
 
 Create or update a deduplicated preparation handoff issue in the target repository's
 tracker using its tracker conventions. Record the target identity, intended workflow,
