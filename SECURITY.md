@@ -6,7 +6,9 @@ API tokens, cookies, private keys, environment secrets, session transcripts,
 databases, caches, and private MCP configuration. Keep employer-specific information
 in its owning repository. A private GitHub repository is not a credential store.
 
-Machine Reconciliation owns only the scopes declared in machine/PROFILE.md.
+Machine Reconciliation, run through the user-invoked
+[machine-reconciliation](machine/skills/machine-reconciliation/SKILL.md) skill, owns only
+the scopes declared in machine/PROFILE.md.
 It preserves unrelated configuration and credentials; a successful reconciliation
 does not establish that repository content is safe to publish.
 

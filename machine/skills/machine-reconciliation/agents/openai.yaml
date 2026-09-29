@@ -1,0 +1,6 @@
+interface:
+  display_name: "Machine Reconciliation"
+  short_description: "Reconcile this machine with the Agent Team Machine Profile"
+  default_prompt: "Use $machine-reconciliation to reconcile this machine."
+policy:
+  allow_implicit_invocation: false

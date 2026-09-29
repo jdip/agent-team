@@ -18,16 +18,18 @@ machine changes or upgrade other repositories.
 2. Clone this repository with your own GitHub access, or open an existing checkout.
    See [development requirements](docs/development.md) for the local tools.
 3. Ask Codex from this checkout: **“Reconcile this machine with the current Agent
-   Team Machine Profile, following machine/RECONCILE.md.”**
+   Team Machine Profile, following machine/skills/machine-reconciliation/SKILL.md.”**
+   Afterwards the installed `machine-reconciliation` skill runs later reconciliations
+   when you invoke it by name.
 
-[Machine Reconciliation](machine/RECONCILE.md) is explicitly user-requested. The
-agent selects a concrete source revision, checks the actual host and managed
-state, investigates conflicts, and verifies what it publishes. Credentials,
-account history, and unrelated local configuration stay on the machine; see
-[security boundaries](SECURITY.md). Keep operator-specific repository and host
-inventories local and untracked, using the supported host project inventory where
-available. The profile and reconciliation runbook own the exact installation
-inventory and commands.
+[Machine Reconciliation](machine/skills/machine-reconciliation/SKILL.md) is
+explicitly user-requested. The agent selects a concrete source revision, checks the
+actual host and managed state, investigates conflicts, and verifies what it
+publishes. Credentials, account history, and unrelated local configuration stay on
+the machine; see [security boundaries](SECURITY.md). Keep operator-specific
+repository and host inventories local and untracked, using the supported host
+project inventory where available. The profile and the machine-reconciliation skill
+own the exact installation inventory and commands.
 
 ## Existing installations
 
@@ -182,9 +184,10 @@ Team's maintained packages or the profile's pinned upstream source. Host-bundled
 and separately installed plugin skills are outside this inventory.
 
 The optional Claude installation receives every skill, rendered for Claude Code.
-Among Agent Team's packages, only Claude's copy of `promote-to-main` is manual-only
-there: Claude's flag also blocks one skill from invoking another, so the other Codex
-manual-only packages stay model-invocable on Claude to keep workflow chaining intact.
+Among Agent Team's packages, `machine-reconciliation` is manual-only on both hosts,
+and on Claude only `promote-to-main` joins it: Claude's flag also blocks one skill
+from invoking another, so the other Codex manual-only packages stay model-invocable
+on Claude to keep workflow chaining intact.
 Upstream packages keep their own manual-invocation settings. Actual tool availability
 still governs what a skill can do. Preserve upstream manual-only invocation rules;
 a coordinating workflow does not bypass them.
@@ -230,6 +233,7 @@ a coordinating workflow does not bypass them.
 | [pr-to-test](machine/skills/pr-to-test/SKILL.md) | Delivers reviewed work through the repository's canonical test workflow. | Use for authorized delivery; it follows required checks through verified merge. |
 | [promote-to-main](machine/skills/promote-to-main/SKILL.md) | Promotes verified test work through the main workflow. | Explicitly request promotion after reviewing the delivered result. |
 | [cleanup-task-artifacts](machine/skills/cleanup-task-artifacts/SKILL.md) | Removes only task artifacts proven associated and safe. | Use after delivery or for an authorized cleanup sweep; active or uncertain resources are retained. |
+| [machine-reconciliation](machine/skills/machine-reconciliation/SKILL.md) | Reconciles this machine's Codex and Claude Code configuration with the Machine Profile. | Invoke it by name when you want the machine updated; it never runs on its own. |
 
 ### Maintenance and supporting skills
 

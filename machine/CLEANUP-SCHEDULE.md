@@ -20,7 +20,7 @@ match desired settings.
 
 The schedule helper preflights all other receipted file scopes before operations.
 For a full Machine Reconciliation, also prepare and inspect every declared file,
-package, model, and retirement scope before writes, as RECONCILE.md requires. Batch
+package, model, and retirement scope before writes, as the machine-reconciliation skill requires. Batch
 all ready conflicts. An explicit `--resolve target=observed-hash` can carry an
 approved file conflict through a schedule operation while preserving its old receipt;
 the subsequent fresh file publication must still resolve that conflict. An approval

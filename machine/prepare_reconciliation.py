@@ -278,6 +278,17 @@ def resolve_claude_root(explicit, platform):
     return root
 
 
+def claude_desktop_root(platform):
+    """Return the Claude desktop app's existing data directory, or None when it is not installed."""
+    if platform == 'macos':
+        root = Path.home() / 'Library/Application Support/Claude'
+    elif platform == 'windows' and os.environ.get('APPDATA'):
+        root = Path(os.environ['APPDATA']) / 'Claude'
+    else:
+        return None
+    return plain_path(root) if root.is_dir() else None
+
+
 def existing_ancestor(path):
     path = plain_path(path)
     while not path.exists():
@@ -508,8 +519,9 @@ def run_prepared(args):
         upstream_root = resolve_root('upstream installer destination', args.upstream_root, upstream_names,
                                      codex_receipt, discovered)
         verify_models(models_for_profile(source), models)
+        desktop_root = claude_desktop_root(initialized['platformOs'])
         rows, pin, packages = inventory(source, home, skills_root, Path('/upstream-stage'), upstream_root,
-                                        claude_root)
+                                        claude_root, desktop_root)
         stage_parent = Path(args.staging_root) if args.staging_root else skills_root.parent
         stage_parent = plain_path(stage_parent)
         stage_parent.mkdir(parents=True, exist_ok=True)
@@ -546,6 +558,8 @@ def run_prepared(args):
                      '--upstream-root', str(upstream_root), '--upstream-stage', str(stage)]
         if claude_root is not None:
             preflight.extend(['--claude-config-root', str(claude_root)])
+        if desktop_root is not None:
+            preflight.extend(['--claude-desktop-root', str(desktop_root)])
         for target, observation in args.resolve:
             preflight.extend(['--resolve', f'{target}={observation}'])
         for line in command(*preflight, env={**os.environ, 'PYTHONDONTWRITEBYTECODE': '1'}).splitlines():
@@ -563,6 +577,7 @@ def run_prepared(args):
                           'upstream_root': str(upstream_root),
                           'claude_config_root': str(claude_root) if claude_root else None,
                           'claude_discovery': 'verified' if claude_executable else 'not-discovered',
+                          'claude_desktop_root': str(desktop_root) if desktop_root else None,
                           'platform': initialized['platformOs'],
                           'result': 'reconciled and verified' if args.apply else 'prepared and preflighted; no managed writes'},
                          sort_keys=True))

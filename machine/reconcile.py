@@ -375,7 +375,7 @@ def claude_receipt_root(entries):
     return root, targets
 
 
-def inventory(source, home, skills, upstream, upstream_root=None, claude_root=None):
+def inventory(source, home, skills, upstream, upstream_root=None, claude_root=None, desktop_root=None):
     profile = (source / 'machine/PROFILE.md').read_text(encoding='utf-8')
     config = source / 'machine/config.toml'
     fields = sorted('.'.join(key) for key in flatten(tomllib.loads(config.read_text(encoding='utf-8'))))
@@ -414,6 +414,12 @@ def inventory(source, home, skills, upstream, upstream_root=None, claude_root=No
         for name, _ in claude_upstream:
             rows.append((upstream / name if upstream else None, claude_root / 'skills' / name,
                          {'kind': 'directory'}, None))
+    if desktop_root is not None:
+        section = profile.split('## Claude desktop app settings\n')[1].split('## Preflight, publication, and retirement\n')[0]
+        for name in table(section):
+            candidate = source / 'machine' / name
+            owned = sorted('.'.join(key) for key in flatten(load_document(candidate, 'json')))
+            rows.append((candidate, desktop_root / 'claude_desktop_config.json', {'kind': 'json', 'fields': owned}, None))
     targets = [str(plain_path(row[1])) for row in rows]
     if len(set(targets)) != len(targets):
         raise ValueError('duplicate profile target')
@@ -534,6 +540,7 @@ def reconcile(args, render_root):
     upstream_root = plain_path(args.upstream_root) if args.upstream_root else skills
     stage = plain_path(args.upstream_stage) if args.upstream_stage else None
     claude_root = plain_path(args.claude_config_root) if args.claude_config_root else None
+    desktop_root = plain_path(args.claude_desktop_root) if args.claude_desktop_root else None
     receipt_path = plain_path(home / '.agent-team/reconciliation-receipts-v1.json')
     raw_receipt, entries = read_receipt(receipt_path)
     anchored_claude_root, preserved_claude_targets = claude_receipt_root(entries)
@@ -541,7 +548,12 @@ def reconcile(args, render_root):
         raise ValueError('Claude configuration root disagrees with the receipt anchor; investigate before writes')
     if claude_root is not None:
         preserved_claude_targets = set()
-    rows, pin, packages = inventory(source, home, skills, stage, upstream_root, claude_root)
+    if desktop_root is None:
+        # An undiscovered desktop app preserves its receipted settings like an absent Claude.
+        preserved_claude_targets |= {target for target, entry in entries.items()
+                                     if Path(target).name == 'claude_desktop_config.json'
+                                     and entry['scope'].get('kind') == 'json'}
+    rows, pin, packages = inventory(source, home, skills, stage, upstream_root, claude_root, desktop_root)
     # Snapshot sources only from a clean checkout; rendering reads them once.
     if args.apply and subprocess.check_output([str(command_path('git')), '-C', str(source), 'status', '--porcelain']):
         raise ValueError('source checkout has uncommitted changes; select a clean revision')
@@ -608,7 +620,7 @@ def reconcile(args, render_root):
         errors.append(f'authorization refers to unknown targets: {sorted(unknown)}')
     preserved_approvals = approvals.keys() & preserved_claude_targets
     if preserved_approvals:
-        errors.append('Claude is absent; preserved receipt scopes cannot be resolved or retired')
+        errors.append('Claude or its desktop app is absent; preserved receipt scopes cannot be resolved or retired')
     if errors:
         raise ValueError('\n'.join(errors))
     # Claude settings candidates are built from the live file; only owned fields change.
@@ -722,6 +734,7 @@ def reconcile(args, render_root):
                 print(f'Retired {target}', flush=True)
             else:
                 candidate, new_scope = desired[target]
+                written = True
                 if new_scope['kind'] == 'directory':
                     path.parent.mkdir(parents=True, exist_ok=True)
                     if os.name == 'nt':
@@ -735,16 +748,25 @@ def reconcile(args, render_root):
                     print(f'Published directory {target}; verification and receipt pending', flush=True)
                     if os.name == 'nt':
                         finish_directory(path, directory_security[target])
+                elif (entries.get(target, {}).get('scope') == new_scope
+                      and entries[target]['fingerprint'] == fingerprint(path, new_scope)
+                      and path.read_bytes() == prepared_files[target]):
+                    # A file already receipted for this exact scope and holding the intended bytes needs no rewrite.
+                    written = False
+                    print(f'Unchanged {target}', flush=True)
                 else:
                     mode = stat.S_IMODE(path.stat().st_mode) if path.exists() else 0o600
                     atomic_file(path, prepared_files[target], mode)
                     print(f'Replaced file {target}; verification and receipt pending', flush=True)
+                    if path.name == 'claude_desktop_config.json':
+                        print('Restart the Claude desktop app to load its changed preferences.', flush=True)
                 actual = fingerprint(path, new_scope)
                 if actual != fingerprint(candidate, new_scope):
                     raise ValueError(f'installed result mismatch: {target}')
                 entries[target] = {'target': target, 'scope': new_scope,
                                    'algorithm': 'sha256', 'fingerprint': actual}
-                print(f'Wrote {target}', flush=True)
+                if written:
+                    print(f'Wrote {target}', flush=True)
             atomic_file(receipt_path, encoded({'version': 1, 'entries': list(entries.values())}) + b'\n')
             raw_receipt = receipt_path.read_bytes()
         completed = True
@@ -763,6 +785,7 @@ def main():
     parser.add_argument('--skills-root', required=True)
     parser.add_argument('--upstream-root', help='resolved installer destination, if different from copied skills')
     parser.add_argument('--claude-config-root', help='proven effective Claude configuration root')
+    parser.add_argument('--claude-desktop-root', help='existing Claude desktop app data directory')
     parser.add_argument('--upstream-stage')
     parser.add_argument('--candidate-config')
     parser.add_argument('--models-verified', action='store_true')

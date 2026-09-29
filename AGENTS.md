@@ -4,7 +4,8 @@ Agent Team maintains portable Codex machine configuration and Repository Standar
 sources. For Repository Standard changes or adoption, use
 [standard/README.md](standard/README.md). For managed configuration or package
 ownership, use [machine/PROFILE.md](machine/PROFILE.md). Machine Reconciliation
-uses [machine/RECONCILE.md](machine/RECONCILE.md).
+uses the user-invoked [machine-reconciliation](machine/skills/machine-reconciliation/SKILL.md)
+skill.
 
 The canonical GitHub repository is public and is intended to remain public.
 Changing visibility or licensing requires explicit owner approval.
