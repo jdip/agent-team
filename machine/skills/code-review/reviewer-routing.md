@@ -4,18 +4,67 @@ The primary agent owns this selection. An assigned reviewer executes its assignm
 without selecting another reviewer. Use one reviewer for both Standards and Spec
 unless independent assignments are useful; apply the same routing to each assignment.
 
-## Claude Code native review
+<!-- agent-team:host=claude -->
+## Claude Code: Prefer Codex CLI
 
-When Claude Code is the host, the primary assigns one native available subagent the
-complete bounded review packet: exact repository and immutable comparison, complete
-requested diff (including WIP when applicable), requirements, applicable
-instructions, the code-review skill's axes and smell baseline, and verification
-evidence. The reviewer performs its assigned axes directly and does not reroute or
-delegate the review. The assignment is read-only. Use the host's ordinary model
-selection; do not install an Agent Team reviewer role or override a model. If native
-delegation is unavailable, report the missing independent-review capability and
-preserve the bounded review task. This Claude Code route ends here.
+Use the Codex CLI with the exact model `gpt-6-astra` and `xhigh` reasoning effort
+when available on the execution host. Keep the native `CriticalReviewer` agent as the
+fallback; Codex is an external CLI invocation, not a Claude model selector. Claude
+Code has no Daybreak mode, so this route always uses Astra.
 
+Resolve `codex` on the host, inspect `codex --version` and `codex exec --help`, and
+check `codex login status` without exposing account details or secrets. It must
+report a ChatGPT login. An API-key login, provider environment overrides, or a custom
+model provider can change billing or routing: inspect only variable presence and
+non-secret metadata, never values. If ChatGPT-login use cannot be established, fall
+back instead of changing the user's environment. Account setup, purchases, API
+billing, and installing or upgrading the CLI require the user's authorization; a
+review must not wait for them. If the CLI, required options, or login is absent, go
+directly to the fallback below.
+
+Prepare the same bounded assignment either reviewer would receive: exact repository
+and immutable comparison, complete requested diff (including WIP when applicable),
+requirements, applicable instructions, the code-review skill's axes and smell
+baseline, and verification evidence. Codex does not automatically receive Claude
+context. Supply this material explicitly and identify which source files/callers it
+should inspect. Keep credentials and unrelated private material out of the packet.
+
+Keep the assignment, event log and result files outside the review checkout; pass
+the assignment on stdin and run the invocation in the background. A supported
+invocation is:
+
+```bash
+codex exec -m gpt-6-astra -c 'model_reasoning_effort="xhigh"' \
+  -s read-only --ephemeral --ignore-user-config --ignore-rules \
+  -C /absolute/path/review-checkout --json \
+  -o /absolute/path/review-result.md - \
+  < /absolute/path/review-input.md > /absolute/path/review-events.jsonl
+```
+
+`--ignore-user-config` drops user MCP servers, profiles and features while keeping
+ChatGPT authentication; `--ignore-rules` drops execpolicy rules. The read-only
+sandbox still lets the reviewer run read-only commands such as `git diff`. Leave
+web search, writable sandboxes, and approval bypasses off.
+
+Terminate the invocation and fall back when its event log gains no new event for 10
+minutes; there is no overall time limit. Inspect the exit status, error events,
+`turn.completed`, and the result file's actual coverage of the assigned axes. A zero
+exit status alone is not review completion. Codex rejects an unsupported pinned
+model instead of substituting one; accept only a complete review from this exact
+invocation.
+
+## Claude Code: Fall back to REV
+
+On missing installation/login/model access, unsupported options, rate or usage
+limits, service/network errors, a stall, malformed output, or an incomplete review,
+report the concrete reason and assign the same comparison and requirements to the
+`CriticalReviewer` agent, with a `🔍 REV` description and no model argument. One
+failed Codex attempt is enough; continue through the fallback without asking for
+permission or retrying Codex. If `CriticalReviewer` is also unavailable, report the
+blocked review; do not claim approval or silently substitute a third reviewer.
+
+<!-- agent-team:end -->
+<!-- agent-team:host=codex -->
 ## Codex: Prefer Claude CLI
 
 Use Claude Code with the exact model `claude-opus-5-5` and `--effort xhigh` when
@@ -49,7 +98,8 @@ claude -p --model claude-opus-5-5 --effort xhigh \
   --safe-mode --restricted --strict-mcp-config \
   --tools 'Read,Glob,Grep' --allowedTools 'Read,Glob,Grep' \
   --disallowedTools 'mcp__*' --permission-mode dontAsk \
-  --no-session-persistence --output-format json < /absolute/path/review-input.md
+  --no-session-persistence --output-format stream-json --verbose \
+  < /absolute/path/review-input.md > /absolute/path/review-events.jsonl
 ```
 
 Use the installed CLI's supported controls to keep hooks and customization disabled
@@ -61,17 +111,18 @@ managed policy prevents these restrictions, use the native reviewer. Do not enab
 Bash, edits, subagents, external connectors, or permission bypasses for this review.
 The primary supplies Git/tracker evidence and runs any required checks separately.
 
-Allow at most 15 minutes for an invocation; supervise and terminate an unfinished
-process before falling back. Inspect exit status, JSON error/result fields, reported
-model usage, permission denials, and actual coverage of the assigned axes. A zero
+Terminate the invocation and fall back when its streamed output gains no new event
+for 10 minutes; there is no overall time limit. Inspect the exit status, the final
+`result` event's error/result fields and `modelUsage`, permission denials, and actual
+coverage of the assigned axes. A zero
 exit status alone is not review completion. Accept only a complete review from
 Opus 5.5 at the requested effort. Do not configure another Claude fallback model;
 if automatic substitution occurs, treat that result as unavailable for this route.
 
-## Fall back to REV
+## Codex: Fall back to REV
 
 On missing installation/login/model access, unsupported controls, rate or usage
-limits, service/network errors, timeout, malformed output, or an incomplete review,
+limits, service/network errors, a stall, malformed output, or an incomplete review,
 report the concrete reason and assign the same comparison and requirements to
 `critical_reviewer` using the mode-aware selection below, `rev_<purpose>`, and display
 `🔍 REV` followed by the exact task name. One failed Claude attempt is enough;
@@ -108,14 +159,18 @@ Before native dispatch:
    Preserve the assigned Standards/Spec axes and read-only limits: repository
    inspection only, no mutations, external connectors, or recursive delegation.
 
-Findings are successful review output, not provider unavailability: return them to
-the implementation owner for resolution. Preserve actionable evidence from partial
-Claude output when completing the fallback review. Report the actual mode, model,
-effort, any fallback reason, and Standards/Spec outcomes. The primary validates findings and
-coverage and remains accountable for delivery.
-
 ## CLI references
 
 Verify options against the installed version and official documentation when they
 change: [CLI reference](https://code.claude.com/docs/en/cli-reference) and
 [model configuration](https://support.claude.com/en/articles/11940350-claude-code-model-configuration).
+
+<!-- agent-team:end -->
+## Report review results
+
+Findings are successful review output, not provider unavailability: return them to
+the implementation owner for resolution. Preserve actionable evidence from partial
+cross-vendor output when completing the fallback review. Report the actual model,
+effort, Codex task mode where it applies, any fallback reason, and Standards/Spec
+outcomes. The primary validates findings and coverage and remains accountable for
+delivery.

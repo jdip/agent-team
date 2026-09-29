@@ -92,8 +92,9 @@ trusted repository configuration can tighten them.
 
 Each role's name, instructions, model presence, effort, tier, and sandbox move together.
 The current roster assignments and naming are in [AGENTS.md](AGENTS.md)
-and those ordinary role files. The code-review package owns the optional Claude CLI
-review preference and native critical_reviewer fallback. Its
+and those ordinary role files. The code-review package owns each host's cross-vendor
+review preference (Claude CLI from Codex, Codex CLI from Claude Code) and its native
+fallback (critical_reviewer on Codex, CriticalReviewer on Claude Code). Its
 [reviewer routing](skills/code-review/reviewer-routing.md) and
 [model declaration](skills/code-review/reviewer-models.toml) own mode-aware native
 selection; critical_reviewer intentionally omits a fixed model to permit explicit
