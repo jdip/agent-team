@@ -748,8 +748,10 @@ def reconcile(args, render_root):
                     print(f'Published directory {target}; verification and receipt pending', flush=True)
                     if os.name == 'nt':
                         finish_directory(path, directory_security[target])
-                elif target in entries and path.exists() and path.read_bytes() == prepared_files[target]:
-                    # A receipted file already holding the intended bytes needs no rewrite.
+                elif (entries.get(target, {}).get('scope') == new_scope
+                      and entries[target]['fingerprint'] == fingerprint(path, new_scope)
+                      and path.read_bytes() == prepared_files[target]):
+                    # A file already receipted for this exact scope and holding the intended bytes needs no rewrite.
                     written = False
                     print(f'Unchanged {target}', flush=True)
                 else:
