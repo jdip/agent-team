@@ -236,18 +236,24 @@ is separate from native Claude session usability.
 | next-issue-loop | Continuous execution within one explicitly active parent |
 | pr-to-test | Canonical shared delivery package |
 | promote-to-main | Canonical shared delivery package |
+| prepare-repository | External guidance preparation and committed local branch handoff |
+| greenfield-init | Canonical shared adoption package |
+| brownfield-adoption | Canonical shared adoption package |
+| standards-upgrade | Canonical shared upgrade package |
 | cleanup-task-artifacts | Canonical shared cleanup package |
 
 ### Claude upstream packages
 
 Use the same reviewed pin and supported staged acquisition as the Codex upstream
-inventory. Complete packages retain companions, licenses, and any upstream-authored
+inventory. Both Claude tables must match their Codex tables; reconciliation stops
+when they differ. Complete packages retain companions, licenses, and any upstream-authored
 manual-invocation settings.
 
 | Identity | Path at the pin |
 | --- | --- |
 | grilling | skills/productivity/grilling |
 | domain-modeling | skills/engineering/domain-modeling |
+| setup-matt-pocock-skills | skills/engineering/setup-matt-pocock-skills |
 | codebase-design | skills/engineering/codebase-design |
 | diagnosing-bugs | skills/engineering/diagnosing-bugs |
 | improve-codebase-architecture | skills/engineering/improve-codebase-architecture |

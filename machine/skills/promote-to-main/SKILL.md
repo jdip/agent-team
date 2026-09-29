@@ -1,6 +1,9 @@
 ---
 name: promote-to-main
 description: Promote verified test work through the repository’s canonical main promotion and synchronization workflow when explicitly requested.
+# agent-team:host=claude
+disable-model-invocation: true
+# agent-team:end
 ---
 
 # Promote to Main
