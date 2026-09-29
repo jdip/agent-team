@@ -186,6 +186,12 @@ Claude Code has no per-agent read-only sandbox equivalent to Codex's role sandbo
 | CriticalReviewer | 🔍 REV | claude-opus-5-5 / xhigh | code-review's native fallback only |
 | SecuritySpecialist | 🛡️ SEC | claude-opus-5-5 / xhigh | Security fallback when Daybreak Blue is unavailable |
 
+Send security analysis to Daybreak Blue through the Codex CLI, following
+code-review's Claude Code Codex CLI checks, isolation and stall limit with
+`-m gpt-daybreak-blue-latest` at `xhigh` and the bounded security assignment. When
+Codex, its ChatGPT login or Daybreak Blue is unavailable, or the run fails or stalls,
+assign `SecuritySpecialist` automatically and report the reason.
+
 The primary model is Claude Opus 5.5/high, pinned in user settings that also
 disable the built-in Explore and Plan agents. Change standing defaults only after
 repeated real-use evidence. Report an unavailable assignment rather than silently
