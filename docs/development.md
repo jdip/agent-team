@@ -15,7 +15,7 @@ syntax checks, host-marker rendering of managed sources, and narrow Git-index cr
 Use
 `git diff --check` for the actual change. Verify each changed helper through its
 actual authorized operation. Source parsing is not evidence of machine agreement,
-a deployment, or successful promotion. Follow machine/RECONCILE.md for the real
+a deployment, or successful promotion. Follow the machine-reconciliation skill for the real
 all-target gate; missing profile assets and unproven state must stop live writes.
 Do not fabricate machine homes, forge services, orchestration tests, or coverage
 apparatus for Tooling. Reported real failures drive concrete fixes.

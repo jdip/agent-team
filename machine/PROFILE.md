@@ -147,6 +147,7 @@ Only the listed package identities are approved; neighbors are not managed.
 | brownfield-adoption | Canonical shared adoption package |
 | standards-upgrade | Canonical shared upgrade package |
 | cleanup-task-artifacts | Canonical shared cleanup package |
+| machine-reconciliation | Original user-invoked Machine Reconciliation procedure |
 
 All declared local packages are present. Reconciliation still preflights
 every source and live target; a complete source inventory is not proof of machine
@@ -262,6 +263,7 @@ session after installation, not by querying models during reconciliation.
 | brownfield-adoption | Canonical shared adoption package |
 | standards-upgrade | Canonical shared upgrade package |
 | cleanup-task-artifacts | Canonical shared cleanup package |
+| machine-reconciliation | Original user-invoked Machine Reconciliation procedure |
 
 ### Claude upstream packages
 
@@ -281,6 +283,21 @@ manual-invocation settings.
 | writing-for-agents | skills/productivity/writing-for-agents |
 | wizard | skills/engineering/wizard |
 | wait-what | skills/productivity/wait-what |
+
+## Claude desktop app settings
+
+When the Claude desktop app's data directory exists on the target (macOS
+`~/Library/Application Support/Claude`, native Windows `%APPDATA%\Claude`), the helper
+merges only the fields present in its source into that directory's
+`claude_desktop_config.json`, as a typed JSON projection. Every other desktop setting,
+including MCP server configuration, is preserved. Without that directory a receipted
+desktop target is preserved. The Codex desktop app's own settings, including its branch
+prefix, remain app-managed: a Codex agent sets them through the app during
+reconciliation, and the helper never writes Codex app state.
+
+| Source relative to machine/ | Destination | Scope |
+| --- | --- | --- |
+| claude-desktop-config.json | claude_desktop_config.json | Owned fields |
 
 ## Preflight, publication, and retirement
 

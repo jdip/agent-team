@@ -1,45 +1,17 @@
-# Machine Reconciliation
+# Helper behavior
 
-Use this procedure only for an explicit reconciliation request. Python 3.11+ and
-Git/gh are needed for the narrow helper; supported skill-installer performs upstream
-acquisition. Read PROFILE.md and the exact target's current instructions first.
-These are Tooling helpers, verified by actual operations. No machine simulator or
-coverage suite is part of this workflow.
+Reference for the machine-reconciliation skill: what the preparation helper checks
+and owns. Paths are relative to the Agent Team checkout.
 
-## Canonical preparation and preflight
+## Preparation
 
-From the current Agent Team checkout, invoke the single preparation command:
-
-```bash
-python3 machine/prepare_reconciliation.py --repository /actual/agent-team
-```
-
-On native Windows, run the same Python helper from PowerShell with an installed
-native Python 3.11+ interpreter and the native checkout path:
-
-```powershell
-& $PythonExecutable machine/prepare_reconciliation.py --repository $RepositoryPath
-```
-
-Resolve those variables to actual local paths first. Do not use a Windows Store
-execution alias or WSL Python for this operation. The Codex app-server must report
-the same operating system as the interpreter. Native Windows paths remain separate
-from WSL roots; symlinks, junctions, and other reparse points stop preparation.
-
-In WSL 2 Ubuntu 24.04, use a separate checkout under the Linux home with its own
-Git common directory. Install and sign in to the Linux Codex CLI inside that
-distribution, then invoke the same Python preparation command there. Do not copy
-Windows authentication or receipts, use a mounted Windows checkout, or invoke a
-Windows executable through WSL interop. The path gate inspects the actual mount
-table so moving a Windows mount does not make it eligible for managed writes.
-Verify native Windows state remains unchanged after WSL reconciliation.
-
-It resolves the checkout's tracked branch and freshest published remote revision,
+The preparation command resolves the checkout's tracked branch and freshest published remote revision,
 uses a temporary detached worktree, discovers the actual Codex home and user-skill
 destinations through the native app-server and existing receipt, and checks the
 target operating system and every declared model/effort. When `claude` is available,
 it runs only a bounded `claude --version` probe and resolves the separate Claude
-configuration root from `CLAUDE_CONFIG_DIR` or its default. It stages the upstream
+configuration root from `CLAUDE_CONFIG_DIR` or its default, and the Claude desktop
+app's data directory when it exists. It stages the upstream
 packages with the installed skill-installer at the declared pin, verifies their Git
 blobs, builds the complete formatting-preserving shared-config candidate, and
 invokes the existing all-target read-only gate. It makes no managed writes. The
@@ -49,7 +21,7 @@ retains failed acquisition staging for inspection. Supply an explicit
 and receipt evidence cannot establish a single destination.
 
 Candidate preparation acquires [tomlkit](https://pypi.org/project/tomlkit/) at the
-exact pin in [requirements.txt](requirements.txt), consumed by the existing Python
+exact pin in `machine/requirements.txt`, consumed by the existing Python
 `pip` or `uv` installer into that run's staging directory with no transitive
 installation. Dependabot alerts cover this same manifest; the installed version is
 checked against it. Preparation never installs a global dependency.
@@ -63,12 +35,11 @@ After specific preflight conflicts have been resolved, run the same command with
 `--apply` and each exact approved `--resolve target=observed-sha256` argument. It
 prepares the candidate config, verifies declared model/effort availability, reruns
 the filesystem gate, publishes, and verifies fresh Codex skill discovery. It manages
-only the Machine Profile's files, configuration, and skill directories. A successful
+only the Machine Profile's declared files, owned configuration fields, and skill
+directories. Unchanged files are left in place. A successful
 Claude filesystem publication is not Claude session usability; record that evidence
 through the separate host verification workflow. The managing agent maintains cleanup
 schedules separately through the native tools and `cleanup_schedule.py`.
-
-## Preparation details
 
 Resolve the repository's current branch and its remote. Fetch that branch,
 preserving dirty work. Select and report one concrete freshest revision. If branch
@@ -76,13 +47,6 @@ identity, detached state, divergence, or unpublished work leaves intent unclear,
 resolve that concrete source question. Use an isolated clean checkout of the chosen
 revision for the run; never silently change the source branch or use stale content.
 Read every declared source there. An incomplete profile stops before live writes.
-
-Machine Bootstrap ends with official Codex acquisition, authentication, obtaining
-this repository, and asking an agent to reconcile it: macOS uses the official
-desktop download; headless Linux uses the supported standalone CLI path; native
-Windows uses the official Windows desktop or native CLI installation. Update
-Codex only when the profile requires a newer version. There is no custom bootstrap
-framework or background update.
 
 On the actual target resolve CODEX_HOME, the supported copied-skill destination,
 and upstream installer destination. Pass `--upstream-root` when the supported installer destination differs from
@@ -107,12 +71,12 @@ Verify every declared model and effort is supported. Preserve credentials, sessi
 unrelated configuration, directories, plugins, and global overrides. An interfering
 AGENTS.override.md requires a concrete supervised decision, never automatic removal.
 
-## Prepare and preflight
+## Preflight gate
 
 Create temporary staging outside every skill-discovery root and on the destination
 filesystem, using a location whose association with this run is known. Read the
 installed system skill-installer and use its `install-skill-from-github.py` with
-`--repo mattpocock/skills`, PROFILE.md's exact `--ref`, all declared `--path`
+`--repo mattpocock/skills`, `machine/PROFILE.md`'s exact `--ref`, all declared `--path`
 values, and `--dest` pointing to that empty staging directory. Do not implement an
 alternate downloader. A failed acquisition leaves live skills unchanged; inspect
 partial staging before retrying. The helper checks every staged relative file and
@@ -121,8 +85,8 @@ Git blob against the pinned upstream tree, including companion files.
 The preparation command passes its resolved paths to the read-only gate; agents do
 not assemble an alternate preparation command.
 
-The helper reads PROFILE.md's tables directly; there is no parallel manifest. It
-renders every repository-authored candidate for its host under PROFILE.md's Host
+The helper reads `machine/PROFILE.md`'s tables directly; there is no parallel manifest. It
+renders every repository-authored candidate for its host under `machine/PROFILE.md`'s Host
 rendering rules; a marker error names the source line and stops before any managed
 write. It then checks every declared target plus every previously receipted
 retirement candidate.
@@ -169,7 +133,20 @@ the live `settings.json`, changing only the fields declared in
 the original bytes immediately before replacement. First management of an existing
 settings file is a supervised conflict like any unreceipted target.
 
-## Apply and verify
+## Claude desktop app settings
+
+When the Claude desktop app's data directory exists (`~/Library/Application Support/Claude`
+on macOS, `%APPDATA%\Claude` on native Windows), the helper owns the fields declared in
+`machine/claude-desktop-config.json` inside that directory's `claude_desktop_config.json`,
+as a typed JSON projection like the Claude settings. It builds the candidate from the
+live file, changing only those fields, and rechecks the original bytes before
+replacement. It writes while the app runs and reports a changed file so the operator
+can restart the app; the app reads preferences at startup and may save its cached copy
+over an externally written value, which a later run reports as drift. Without that
+directory, a receipted desktop target is preserved, not retired. The helper never
+writes the Codex app's state files.
+
+## Publication and receipts
 
 Repeat the canonical preparation command with `--apply` and the exact approved
 `--resolve` arguments only after the supervising agent has resolved each reported
@@ -184,14 +161,6 @@ replacement is renamed into place. A brief absence is permitted; no live partial
 copy or fallback across filesystems is permitted. Directory retirement removes only
 the receipted scope. Unexpected ownership-kind changes or relocation of a retired
 shared config require investigation rather than deleting a shared file.
-
-On native Windows, publication preserves discretionary access restrictions and
-checks owner, group, and mandatory integrity labels before replacement. Existing
-files use the native replacement API; prepared directories receive the intended
-parent inheritance and existing per-path restrictions. A permission mismatch,
-locked file, or denied operation stops the run. Inspect any reported partial
-publication or retained replacement before recovery; never relax permissions to
-make reconciliation pass. POSIX file modes and publication remain unchanged.
 
 After each actual successful publication, the helper fingerprints the installed
 result and atomically writes the existing narrow receipt. A failed write before
@@ -214,7 +183,7 @@ after observing its own successful write. Retirement removes its entry only afte
 observed authorized removal. The filesystem runner preserves schedule receipt
 entries but does not observe, require, modify, or retire native schedules. The
 managing agent resolves changed/missing schedules with the target adapter under
-[CLEANUP-SCHEDULE.md](CLEANUP-SCHEDULE.md). No general external-object engine is
+`machine/CLEANUP-SCHEDULE.md`. No general external-object engine is
 provided.
 
 Finish by checking actual usability, including fresh-session/restart requirements.
@@ -223,35 +192,11 @@ partial failures, and required human action. Clean only the staging and candidat
 proven associated with this run and safe to remove. A local syntax check alone never
 establishes successful use on each supported platform.
 
-## Windows and WSL support handoff
+## Machine bootstrap
 
-The delivered implementation revision is
-`b1fa4662a4794ab85f0c539924cd653cb275b52e` (PR #37). Its sequence includes
-PRs #32/#34, #35, and #36. Reconciliation, WSL boundary, and scheduler evidence
-is recorded with [#27](https://github.com/jdip/agent-team/issues/27),
-[#28](https://github.com/jdip/agent-team/issues/28), and
-[#29](https://github.com/jdip/agent-team/issues/29); [#31](https://github.com/jdip/agent-team/issues/31#issuecomment-5611628172)
-records the owner confirmation.
-
-Native Windows and WSL each reconciled all 51 declared targets using independent
-homes, receipts, native tools, and checkouts; the WSL run left native Windows
-state unchanged. Desktop scheduling preserved uncertain work. The Windows CLI
-scheduler was created, updated, read back, run manually with exit 0, and retired.
-WSL cron invoked the installed native Linux runner; its cron exit was not captured,
-while the equivalent standalone run exited 0. Both preferred schedules are 09:00
-local time and use the fixed stable source revision `1c304e6`. Only the desktop
-automation remains installed for the Windows home; Task Scheduler is the
-CLI-only alternative, not a second Windows schedule.
-
-The operator reported no regressions on macOS or Linux after PR #37; this is a
-compatibility confirmation, not a record of detailed per-command checks. Optional
-Claude session usability was not verified. WSL runs remain skipped while its
-distribution or daemon is stopped. Missed scheduled runs are
-acceptable on Windows too; the owner removed delayed-run verification from
-acceptance in #38. No catch-up behavior is promised.
-
-For a future re-proof, focus on reconciliation update/no-op and conflict
-preservation; skill/config discovery with valid receipt preservation; canonical
-source and delivery; and preservation of existing desktop and cron schedules.
-These are suggested checks, not retrospective command claims or a requirement to
-rerun them now.
+Machine Bootstrap ends with official Codex acquisition, authentication, obtaining
+this repository, and asking an agent to reconcile it: macOS uses the official
+desktop download; headless Linux uses the supported standalone CLI path; native
+Windows uses the official Windows desktop or native CLI installation. Update
+Codex only when the profile requires a newer version. There is no custom bootstrap
+framework or background update.
