@@ -48,7 +48,7 @@ that executor before edits; an already claimed child runs its named skill
 without recursively handing off again.
 
 An implementation parent with multiple executable children defaults to one
-named `codex/` rollup branch from fresh `origin/test`, recorded with its delivery
+named `agent/` rollup branch from fresh `origin/test`, recorded with its delivery
 mode in the approved specification. Reviewed, checked feature PRs merge with
 merge commits into that branch; verified integration completes a child and lets
 eligible successors continue. The final rollup alone uses canonical PR-to-test,

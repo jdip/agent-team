@@ -56,7 +56,7 @@ work. Reuse one follow-up across related decisions rather than creating duplicat
 
 Set the parent's delivery mode before drafting its acceptance criteria. A parent
 with one executable child defaults to `direct`. A parent with multiple executable
-children defaults to `rollup`: name one `codex/` rollup branch based on fresh
+children defaults to `rollup`: name one `agent/` rollup branch based on fresh
 `origin/test` in the parent body. Delivery to `test` before the final rollup
 requires the user's explicit decision. Read [rollup delivery](../pr-to-test/ROLLUP.md)
 for the shared branch and CI rules.
