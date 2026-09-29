@@ -100,10 +100,12 @@ task attachment. Do not create helper tasks or edit internal app storage to evad
 this limitation.
 <!-- agent-team:end -->
 <!-- agent-team:host=claude -->
-On Claude Code, archiving a session removes its app-created worktree by default.
-Archive only a session the user explicitly agreed to archive, and leave a worktree
-backing an open session in place. Do not create helper sessions or edit internal
-app storage to evade this limitation.
+On Claude Code, archiving a session removes its app-created worktree by default,
+and the app may apply it without asking in some permission modes. Archive only a
+session the user explicitly agreed to archive, leave a worktree backing an open
+session in place, and do not create helper sessions or edit internal app storage to
+remove one. Automatic archival below does not apply on Claude Code: report sessions
+meeting its criteria as archival candidates for the user's per-session decision.
 <!-- agent-team:end -->
 On a host without supported lifecycle
 evidence or handling, retain the checkout. Report actual cleanup separately from

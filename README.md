@@ -182,9 +182,10 @@ Team's maintained packages or the profile's pinned upstream source. Host-bundled
 and separately installed plugin skills are outside this inventory.
 
 The optional Claude installation receives every skill, rendered for Claude Code.
-Only Claude's copy of `promote-to-main` is manual-only there: Claude's flag also
-blocks one skill from invoking another, so the other Codex manual-only skills stay
-model-invocable on Claude to keep workflow chaining intact. Actual tool availability
+Among Agent Team's packages, only Claude's copy of `promote-to-main` is manual-only
+there: Claude's flag also blocks one skill from invoking another, so the other Codex
+manual-only packages stay model-invocable on Claude to keep workflow chaining intact.
+Upstream packages keep their own manual-invocation settings. Actual tool availability
 still governs what a skill can do. Preserve upstream manual-only invocation rules;
 a coordinating workflow does not bypass them.
 

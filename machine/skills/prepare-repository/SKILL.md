@@ -74,6 +74,12 @@ approved preparation scope, deliberate model-role assignments and target-documen
 authority boundary. Complete this invocation even when the model is already
 selected; a model-selection check or a reference to the skill is insufficient.
 Record the official sources and resulting findings or supported no-change result.
+<!-- agent-team:host=claude -->
+Claude Code lacks that skill: run the same invocation through the Codex CLI with
+live web search in a read-only, ephemeral session (`codex --search exec -s read-only
+--ephemeral -C <prepared checkout> -o <result file> '<prompt naming $openai-docs>'`),
+supplying the same inputs, and record its sources and findings from the result file.
+<!-- agent-team:end -->
 
 Use `audit-agent-instructions` to reconcile that evidence with the prepared
 instruction set and its original findings, including unchanged guidance and
@@ -101,11 +107,13 @@ resolved and references checked. Distinguish that readiness from deferred machin
 retirement and pending adoption or upgrade. A material unresolved
 documentation mismatch leaves preparation incomplete and names the decision needed.
 
-For a desktop handoff, make continuation actionable before publishing it.
+Make continuation actionable before publishing a handoff.
 Read the handoff issue's current status and comments; if continuation is already
 underway or complete, point to that work instead of proposing a duplicate run.
 
 <!-- agent-team:host=codex -->
+For a Codex desktop handoff:
+
 - Resolve the saved project on the intended host through supported project inventory.
   Verify its Git common directory matches the preparation checkout and the exact
   prepared branch still resolves to the reported commit. Preserve both checkouts.
@@ -116,15 +124,19 @@ underway or complete, point to that work instead of proposing a duplicate run.
   work follows the target's branch and delivery rules.
 <!-- agent-team:end -->
 <!-- agent-team:host=claude -->
-- Verify that the repository the user opens in Claude Code shares the preparation
-  checkout's Git common directory and that the exact prepared branch still resolves
-  to the reported commit. Preserve both checkouts.
+For a Claude Code handoff:
+
+- Name the exact target checkout directory the receiving session should open, and
+  verify now that it shares the preparation checkout's Git common directory and that
+  the exact prepared branch still resolves to the reported commit. Preserve both
+  checkouts.
 - Give concrete steps using those verified names: start a new Claude Code session in
-  that repository and have it create a fresh worktree on a new `agent/` branch from
-  the prepared branch (`git worktree add -b <branch> .claude/worktrees/<name>
-  <prepared-branch>`), then enter it with EnterWorktree's `path`. This does not
-  attach to the retained preparation directory or advance its branch. Subsequent
-  work follows the target's branch and delivery rules.
+  that checkout and have it create a fresh worktree on a new `agent/` branch from the
+  prepared branch, at an absolute path under the checkout's `.claude/worktrees/`
+  (`git worktree add -b <branch> <absolute path> <prepared-branch>`), then enter it
+  with EnterWorktree's `path`. This does not attach to the retained preparation
+  directory or advance its branch. Subsequent work follows the target's branch and
+  delivery rules.
 <!-- agent-team:end -->
 - Include a ready-to-paste opening prompt naming the handoff issue, branch, expected
   commit, and intended workflow. Have the receiving task verify its starting state
@@ -143,7 +155,8 @@ already appears in the app's project list.
 <!-- agent-team:end -->
 <!-- agent-team:host=claude -->
 - If the user wants the original checkout, have them open a Claude Code session in
-  that exact directory. If project/host/branch availability cannot be verified,
+  that exact directory and work there directly, not in a new app-created worktree.
+  If project/host/branch availability cannot be verified,
   report that concrete limitation; distinguish preparation readiness from
   unverified app access. Never create a session, switch the original checkout, or
   start adoption merely to complete handoff instructions.
@@ -153,7 +166,7 @@ Create or update a deduplicated preparation handoff issue in the target reposito
 tracker using its tracker conventions. Record the target identity, intended workflow,
 Agent Team baseline, target-owned map/spec links, prepared branch and full commit,
 findings, preserved decisions, remaining prerequisites, verification, and the verified continuation steps and
-opening prompt above when using the desktop app. Publish only sanitized continuation
+opening prompt above. Publish only sanitized continuation
 context: keep private paths, host/project labels and other private navigation details
 in the private user handoff, with portable references in the issue. Review both the
 issue text and linked evidence under the applicable policy before publication.

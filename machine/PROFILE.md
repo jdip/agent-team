@@ -245,7 +245,8 @@ is separate from native Claude session usability.
 ### Claude upstream packages
 
 Use the same reviewed pin and supported staged acquisition as the Codex upstream
-inventory. Complete packages retain companions, licenses, and any upstream-authored
+inventory. Both Claude tables must match their Codex tables; reconciliation stops
+when they differ. Complete packages retain companions, licenses, and any upstream-authored
 manual-invocation settings.
 
 | Identity | Path at the pin |
