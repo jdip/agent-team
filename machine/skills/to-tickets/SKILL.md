@@ -33,7 +33,7 @@ contract.
 
 Confirm the parent's `Delivery` field is part of that approved contract. One-child
 parents default to `direct`. Multiple-child parents use `rollup` by default and name
-the exact `codex/` rollup branch based on fresh `origin/test`; an earlier test
+the exact `agent/` rollup branch based on fresh `origin/test`; an earlier test
 delivery needs an explicit user decision. Read [rollup delivery](../pr-to-test/ROLLUP.md)
 for the shared branch and CI rules.
 

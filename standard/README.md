@@ -305,7 +305,7 @@ visible without blocking adoption. Actual delivery prerequisites still apply.
 Keep the primary local checkout on `test`, refreshed from `origin/test` by
 fast-forward only when clean. Reserve `test` for that checkout; never check the
 branch out in a linked worktree. Make all changes, including adoption, upgrades,
-documentation, and small fixes, on `codex/` feature branches in separate worktrees
+documentation, and small fixes, on `agent/` feature branches in separate worktrees
 based on fresh `origin/test` for direct delivery or rollup creation. Rollup child
 branches start from the current rollup. Preserve unrelated local work and attached checkouts.
 Detached revision worktrees are valid for canonical verification.
@@ -313,7 +313,7 @@ Detached revision worktrees are valid for canonical verification.
 Root guidance must require the global `pr-to-test` skill with the local
 `docs/workflows/pr-to-test.md` and `scripts/pr-to-test.sh` through checks, merge,
 and verified test delivery. A parent with multiple executable children defaults
-to one named `codex/` rollup branch from fresh `origin/test`, recorded in its
+to one named `agent/` rollup branch from fresh `origin/test`, recorded in its
 approved specification: reviewed, checked feature PRs merge into it with merge
 commits, then one final rollup PR follows the canonical route. A child can close
 after verified rollup integration; the parent closes only after final verified

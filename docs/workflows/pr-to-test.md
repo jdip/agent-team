@@ -92,7 +92,7 @@ Run the creation steps only after resolving local refs too. Verify the remote SH
 matches the intended baseline and record it on the parent. An existing owned
 rollup is fetched and verified, never reset or force-pushed.
 
-Start a child's `codex/` branch in its worktree from the fetched rollup. Review,
+Start a child's `agent/` branch in its worktree from the fetched rollup. Review,
 commit and run `scripts/check.sh` and `git diff --check`. Set `rollup` to the exact
 branch recorded on the parent and `feature` to the current child branch. Inspect
 existing PRs before creating one:
