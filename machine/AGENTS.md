@@ -177,7 +177,7 @@ assignment's description to the agent's display followed by one to four specific
 lowercase words, for example `🧭 EXP auth flow`. Omit the Agent tool's model
 argument: each agent file owns its model and effort. Each agent's tool allowlist
 excludes edits and subagents; read-only shell use rests on its instructions, since
-Claude Code has no read-only sandbox equivalent to Codex's.
+Claude Code has no per-agent read-only sandbox equivalent to Codex's role sandbox.
 
 | Agent | Display | Model / effort | Use |
 | --- | --- | --- | --- |

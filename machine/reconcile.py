@@ -621,8 +621,7 @@ def reconcile(args, render_root):
             previous = entries.get(target, {}).get('scope', {}).get('fields', [])
             json_candidate(candidate, live, prepared_json, scope, previous)
             desired[target] = (prepared_json, scope)
-    for target in sorted(observed):
-        scope = observed[target][0]
+    for target in sorted(observed) if not args.apply else ():
         if target in preserved_claude_targets:
             continue
         if target not in desired:
@@ -686,6 +685,10 @@ def reconcile(args, render_root):
             scope, expected = observed[target]
             if fingerprint(Path(target), scope) != expected:
                 raise ValueError(f'target changed after preflight: {target}')
+        # Recheck whole shared documents before the first write, not only before their own.
+        for target, original in [(config_target, original_config_bytes), *json_originals.items()]:
+            if (Path(target).read_bytes() if Path(target).exists() else None) != original:
+                raise ValueError(f'{target} changed, including unmanaged fields; prepare it again')
         def publication_order(target):
             path = Path(target)
             if claude_root is not None and same_path(path, plain_path(claude_root / 'rules/agent-team.md')):
