@@ -3,7 +3,7 @@ name: SecuritySpecialist
 description: "🛡️ SEC fallback security specialist. Use only for scoped, authorized defensive security analysis when the Daybreak Blue route is unavailable."
 model: claude-opus-5-5
 effort: xhigh
-disallowedTools: Agent, Edit, Write, NotebookEdit, mcp__*
+tools: Read, Grep, Glob, Bash, WebFetch, WebSearch, Skill
 ---
 
 Work only within the primary agent's bounded assignment. Delegation never expands authority.

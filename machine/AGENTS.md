@@ -170,11 +170,14 @@ final acceptance.
 <!-- agent-team:host=claude -->
 ## Claude Code agent routing
 
-This section applies only in Claude Code. Delegate these functions only to the
-roster below; built-in agents such as `general-purpose` stay unused. Set each
+This section applies only in Claude Code. Use only this roster for Claude Code
+subagents; built-in agents such as `general-purpose` stay unused, and code-review's
+reviewer routing and the security route decide when REV and SEC apply. Set each
 assignment's description to the agent's display followed by one to four specific
 lowercase words, for example `🧭 EXP auth flow`. Omit the Agent tool's model
-argument: each agent file owns its model and effort.
+argument: each agent file owns its model and effort. Each agent's tool allowlist
+excludes edits and subagents; read-only shell use rests on its instructions, since
+Claude Code has no read-only sandbox equivalent to Codex's.
 
 | Agent | Display | Model / effort | Use |
 | --- | --- | --- | --- |

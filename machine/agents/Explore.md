@@ -3,7 +3,7 @@ name: Explore
 description: "🧭 EXP read-only explorer. Use for bounded repository mapping, execution-path tracing and targeted evidence gathering assigned by the primary agent."
 model: claude-sonnet-5-5
 effort: high
-disallowedTools: Agent, Edit, Write, NotebookEdit, mcp__*
+tools: Read, Grep, Glob, Bash, WebFetch, WebSearch, Skill
 ---
 
 Work only within the primary agent's bounded assignment. Delegation never expands authority.

@@ -185,8 +185,11 @@ def flatten(value, prefix=()):
     return result
 
 
-def load_owned(path, kind):
-    """Parse a shared TOML or JSON file whose owned fields are projected."""
+PROJECTED = ('toml', 'json')
+
+
+def load_document(path, kind):
+    """Parse a whole shared TOML or JSON document; callers project its owned fields."""
     if not path.exists():
         return {}
     text = path.read_text(encoding='utf-8')
@@ -197,14 +200,14 @@ def load_owned(path, kind):
 
 
 def projection(path, fields, kind='toml'):
-    data = flatten(load_owned(path, kind))
+    data = flatten(load_document(path, kind))
     # Types matter: true, 1, and "1" must not compare equal.
     return {key: [type(data[tuple(key.split('.'))]).__name__, repr(data[tuple(key.split('.'))])]
             if tuple(key.split('.')) in data else ['absent'] for key in sorted(fields)}
 
 
 def fingerprint(path, scope):
-    if scope.get('kind') not in ('file', 'directory', 'toml', 'json'):
+    if scope.get('kind') not in ('file', 'directory', *PROJECTED):
         raise ValueError('unknown scope requires its target-specific adapter before filesystem inspection')
     path = plain_path(path)
     if not path.exists():
@@ -217,7 +220,7 @@ def fingerprint(path, scope):
         if not path.is_dir():
             raise ValueError(f'expected directory: {path}')
         return digest(encoded({name: digest(data) for name, data in files(path).items()}))
-    if scope['kind'] in ('toml', 'json'):
+    if scope['kind'] in PROJECTED:
         return digest(encoded(projection(path, scope['fields'], scope['kind'])))
     raise ValueError(f'unsupported scope requires its target-specific adapter: {path}')
 
@@ -399,7 +402,7 @@ def inventory(source, home, skills, upstream, upstream_root=None, claude_root=No
         for name, destination in claude_files(profile):
             candidate = source / 'machine' / name
             if destination == 'settings.json':
-                owned = sorted('.'.join(key) for key in flatten(load_owned(candidate, 'json')))
+                owned = sorted('.'.join(key) for key in flatten(load_document(candidate, 'json')))
                 rows.append((candidate, claude_root / destination, {'kind': 'json', 'fields': owned}, None))
             elif destination.startswith('agents/') and destination.endswith('.md'):
                 rows.append((candidate, claude_root / destination, {'kind': 'file'}, 'claude'))
@@ -479,8 +482,8 @@ def unmanaged_projection(data, managed, retired):
 def verify_candidate_config(candidate, source, original, scope, previous_scope=()):
     """Prove a complete candidate changes only the owned configuration fields."""
     kind = scope['kind']
-    candidate_data = flatten(load_owned(candidate, kind))
-    original_data = flatten(load_owned(original, kind))
+    candidate_data = flatten(load_document(candidate, kind))
+    original_data = flatten(load_document(original, kind))
     managed = set(scope['fields'])
     retired = set(previous_scope) - managed
     if any(tuple(key.split('.')) in candidate_data for key in retired):
@@ -493,7 +496,7 @@ def verify_candidate_config(candidate, source, original, scope, previous_scope=(
 
 def json_candidate(source, actual, output, scope, previous_scope):
     """Set only the owned JSON fields on the live settings, preserving every other value."""
-    data = load_owned(actual, 'json')
+    data = load_document(actual, 'json')
     for key in set(previous_scope) - set(scope['fields']):
         *parents, name = key.split('.')
         container = data
@@ -501,7 +504,7 @@ def json_candidate(source, actual, output, scope, previous_scope):
             container = container.get(part) if isinstance(container, dict) else None
         if isinstance(container, dict):
             container.pop(name, None)
-    for path, value in flatten(load_owned(source, 'json')).items():
+    for path, value in flatten(load_document(source, 'json')).items():
         container = data
         for part in path[:-1]:
             container = container.setdefault(part, {})
@@ -581,7 +584,7 @@ def reconcile(args, render_root):
         gate_scope = scope
         if old and target in desired and old['scope'] != desired[target][1]:
             new_scope = desired[target][1]
-            if scope['kind'] not in ('toml', 'json') or new_scope['kind'] != scope['kind']:
+            if scope['kind'] not in PROJECTED or new_scope['kind'] != scope['kind']:
                 errors.append(f'{target}: ownership kind changed; investigate before migration')
             else:
                 added = set(new_scope['fields']) - set(scope['fields'])
@@ -593,7 +596,7 @@ def reconcile(args, render_root):
         observed[target] = (gate_scope, gate_current)
         if conflict and approvals.get(target) != (gate_current or 'absent'):
             errors.append(f'{target}: scope={scope} saved={expected} observed={gate_current}; supervised decision required')
-        if target not in desired and scope['kind'] in ('toml', 'json'):
+        if target not in desired and target not in preserved_claude_targets and scope['kind'] in PROJECTED:
             errors.append(f'{target}: retired config target requires supervised relocation; no writes')
     targets = [Path(target) for target in observed]
     if any(not same_path(a, b) and path_within(b, a) for a in targets for b in targets):
@@ -608,6 +611,25 @@ def reconcile(args, render_root):
         errors.append('Claude is absent; preserved receipt scopes cannot be resolved or retired')
     if errors:
         raise ValueError('\n'.join(errors))
+    # Claude settings candidates are built from the live file; only owned fields change.
+    json_originals = {}
+    for target, (candidate, scope) in list(desired.items()):
+        if scope['kind'] == 'json':
+            live = Path(target)
+            json_originals[target] = live.read_bytes() if live.exists() else None
+            prepared_json = render_root / 'json' / str(len(json_originals)) / live.name
+            previous = entries.get(target, {}).get('scope', {}).get('fields', [])
+            json_candidate(candidate, live, prepared_json, scope, previous)
+            desired[target] = (prepared_json, scope)
+    for target in sorted(observed):
+        scope = observed[target][0]
+        if target in preserved_claude_targets:
+            continue
+        if target not in desired:
+            print(f'Would retire {target}', flush=True)
+        elif fingerprint(Path(target), desired[target][1]) != fingerprint(*desired[target]):
+            fields = f" {', '.join(desired[target][1]['fields'])}" if 'fields' in desired[target][1] else ''
+            print(f"Would publish {target} ({desired[target][1]['kind']}{fields})", flush=True)
     if not args.apply:
         print('All declared sources and live target/retirement scopes passed preflight; no writes.')
         return
@@ -630,16 +652,6 @@ def reconcile(args, render_root):
     verify_candidate_config(candidate_config, source_config, original_config, config_scope,
                             previously_managed)
     desired[config_target] = (candidate_config, config_scope)
-    # Claude settings candidates are built here from the live file; only owned fields change.
-    json_originals = {}
-    for target, (candidate, scope) in list(desired.items()):
-        if scope['kind'] == 'json':
-            live = Path(target)
-            json_originals[target] = live.read_bytes() if live.exists() else None
-            prepared_json = render_root / 'json' / str(len(json_originals)) / live.name
-            previous = entries.get(target, {}).get('scope', {}).get('fields', [])
-            json_candidate(candidate, live, prepared_json, scope, previous)
-            desired[target] = (prepared_json, scope)
     # Snapshot candidates before mutation; rendering already required a clean source.
     prepared_files = {target: candidate.read_bytes() for target, (candidate, scope) in desired.items()
                       if scope['kind'] != 'directory'}
@@ -695,7 +707,7 @@ def reconcile(args, render_root):
             if target in preserved_claude_targets:
                 continue
             if target not in desired:
-                if scope['kind'] in ('toml', 'json'):
+                if scope['kind'] in PROJECTED:
                     raise ValueError('retiring TOML or JSON fields requires a reviewed candidate config and scope migration')
                 if path.is_dir():
                     shutil.rmtree(path)

@@ -198,10 +198,10 @@ Agent Team owns only `rules/agent-team.md`, rendered from [AGENTS.md](AGENTS.md)
 the listed agent files and settings fields below, and the listed complete skill
 directories beneath `skills/`. CLAUDE.md, all other settings, credentials, plugins,
 unrelated agents/rules/skills, and containing directories remain Unmanaged Local
-State. The anchor rule is published before skills so the receipt
+State. The anchor rule is published before other Claude targets so the receipt
 proves the root. Claude's absence preserves anchored prior targets and their receipt
 entries; it does not retire or repair them. While Claude remains absent, restore
-changed or missing scopes to their receipted bytes before continuing. For normal
+changed or missing scopes to their receipted state before continuing. For normal
 supervised repair, re-establish Claude availability and resolve each conflict. A
 deliberate root move requires investigation before writes; reconciliation never
 relocates Claude state or edits its receipt to make a move appear managed. Filesystem reconciliation
@@ -286,7 +286,8 @@ unexplained bytes as evidence simply to bypass a stop.
 
 Whole files use exact-byte fingerprints; directory fingerprints account for
 relative paths and bytes, including added, missing, and renamed files. Shared TOML
-uses a canonical typed projection of only the owned fields, including absence.
+and Claude settings JSON use a canonical typed projection of only the owned fields,
+including absence.
 The narrow helper implementation owns the exact encoding.
 
 Upstream installed-directory fingerprints provide change detection without making

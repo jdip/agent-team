@@ -131,14 +131,15 @@ fingerprints without printing configuration values. No receipt for an existing
 target, changed/missing receipted state, symlinks, or unknown scope stops all writes.
 An absent target without prior receipt is eligible for creation.
 
-Claude owns only the Profile's explicit `rules/agent-team.md` anchor and selected
-skill directories. Its root is never inferred from overlapping Codex skill names.
-The anchor must agree with the effective root and is written before Claude skills.
+Claude owns only the Profile's explicit `rules/agent-team.md` anchor, its listed
+agent files and settings fields, and selected skill directories. Its root is never
+inferred from overlapping Codex skill names. The anchor must agree with the
+effective root and is written before other Claude targets.
 Staging stays outside both hosts' discovery roots and on every destination
 filesystem. When Claude is absent, its anchored receipted paths still pass the same
 fingerprint gate but remain untouched; they are not retirement candidates and cannot
 consume a `--resolve` override. While Claude remains absent, restore changed or
-missing scopes to their receipted bytes before continuing. For normal supervised
+missing scopes to their receipted state before continuing. For normal supervised
 repair, re-establish Claude availability and resolve each conflict. A changed
 effective root is a relocation to investigate before writes. Restore the effective
 root to the receipted location to resume ordinary reconciliation; deliberate moves
@@ -201,8 +202,9 @@ unrelated work, or build a recovery journal.
 
 The receipt contains version 1 and entries with only target, scope, algorithm, and
 fingerprint. Whole files hash exact bytes. Whole directories hash canonical sorted
-relative file names and their byte hashes. TOML hashes sorted dotted fields with
-type and value or an absent marker; unrelated values never enter the fingerprint.
+relative file names and their byte hashes. TOML and JSON projections hash sorted
+dotted fields with type and value or an absent marker; unrelated values never enter
+the fingerprint.
 The narrow schedule seam consists of `cleanup_schedule_fingerprint`,
 `cleanup_schedule_preflight`, and `cleanup_schedule_entry`. The schedule adapter
 supplies its exact `automation:<id>`, `cron:<id>`, or `task-scheduler:<name>`

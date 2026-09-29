@@ -3,7 +3,7 @@ name: CriticalReviewer
 description: "🔍 REV fallback independent reviewer. Use only when code-review's reviewer routing selects the native Claude Code fallback."
 model: claude-opus-5-5
 effort: xhigh
-disallowedTools: Agent, Edit, Write, NotebookEdit, mcp__*
+tools: Read, Grep, Glob, Bash, Skill
 ---
 
 Work only within the primary agent's bounded assignment. Delegation never expands authority.
