@@ -399,8 +399,8 @@ def inventory(source, home, skills, upstream, upstream_root=None, claude_root=No
         for name, destination in claude_files(profile):
             candidate = source / 'machine' / name
             if destination == 'settings.json':
-                fields = sorted('.'.join(key) for key in flatten(load_owned(candidate, 'json')))
-                rows.append((candidate, claude_root / destination, {'kind': 'json', 'fields': fields}, None))
+                owned = sorted('.'.join(key) for key in flatten(load_owned(candidate, 'json')))
+                rows.append((candidate, claude_root / destination, {'kind': 'json', 'fields': owned}, None))
             elif destination.startswith('agents/') and destination.endswith('.md'):
                 rows.append((candidate, claude_root / destination, {'kind': 'file'}, 'claude'))
             else:
