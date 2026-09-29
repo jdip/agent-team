@@ -493,8 +493,8 @@ def reconcile(args, render_root):
     if claude_root is not None:
         discovery_roots.append(plain_path(claude_root / 'skills'))
     if any(same_path(render_root, path) or path_within(render_root, path)
-           for path in [*discovery_roots, *(plain_path(row[1]) for row in rows)]):
-        raise ValueError('rendered candidates must be outside skill discovery and managed targets')
+           for path in [source, *discovery_roots, *(plain_path(row[1]) for row in rows)]):
+        raise ValueError('rendered candidates must be outside the source, skill discovery and managed targets')
     rendered = []
     for index, (candidate, target, scope, host) in enumerate(rows):
         if host is not None and candidate.exists():
