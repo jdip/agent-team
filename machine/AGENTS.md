@@ -152,30 +152,51 @@ and expected evidence. Strongly discourage recursive delegation: a subagent requ
 explicit primary authorization for a concrete nested task. Reuse an existing
 agent for follow-up work. Serialize Git mutations in a shared checkout.
 
+The primary directly owns the human dialogue, planning, maps, specifications,
+implementation, debugging, ordinary test and browser verification, integration,
+and delivery decisions. Keep this work in the main thread. Delegate only bounded
+exploration, workflow execution or monitoring, independent review, and security
+analysis through the host routes below. Use exploration and monitoring when they
+can run alongside useful primary work; retain independent review even when the
+primary has no parallel work. Route code reviews, including delivery reviews,
+through `code-review`; its reviewer routing owns reviewer selection.
+
+Explorers, reviewers and security specialists are read-only. The primary implements
+their accepted findings. Monitors execute or observe a predefined, bounded
+workflow, stay quiet while healthy, and return failures to the primary without
+discretionary recovery. The primary interprets results, repairs failures and owns
+final acceptance.
+
 <!-- agent-team:host=claude -->
-On Claude Code, proactively use its native available delegation for bounded
-independent work, especially exploration and monitoring, when it can run alongside
-useful local work. Give the
-assignee its scope, ownership, acceptance criteria, and expected evidence. Do not
-install an Agent Team role roster or override the host's model selection. Assigned
-agents execute directly without recursive delegation. Route reviews through
-`code-review`; its reviewer routing owns host-specific selection.
+## Claude Code agent routing
+
+This section applies only in Claude Code. Use only this roster for Claude Code
+subagents; built-in agents such as `general-purpose` stay unused, and code-review's
+reviewer routing and the security route decide when REV and SEC apply. Set each
+assignment's description to the agent's display followed by one to four specific
+lowercase words, for example `🧭 EXP auth flow`. Omit the Agent tool's model
+argument: each agent file owns its model and effort. Each agent's tool allowlist
+excludes edits and subagents; read-only shell use rests on its instructions, since
+Claude Code has no per-agent read-only sandbox equivalent to Codex's role sandbox.
+
+| Agent | Display | Model / effort | Use |
+| --- | --- | --- | --- |
+| Explore | 🧭 EXP | claude-sonnet-5-5 / high | Exploration |
+| WorkflowMonitor | ⏳ MON | claude-haiku-4-5-20251001 / model default | Workflow execution or monitoring |
+| CriticalReviewer | 🔍 REV | claude-opus-5-5 / xhigh | code-review's native fallback only |
+| SecuritySpecialist | 🛡️ SEC | claude-opus-5-5 / xhigh | Security fallback when Daybreak Blue is unavailable |
+
+The primary model is Claude Opus 5.5/high, pinned in user settings that also
+disable the built-in Explore and Plan agents. Change standing defaults only after
+repeated real-use evidence. Report an unavailable assignment rather than silently
+substituting models.
 
 <!-- agent-team:end -->
 <!-- agent-team:host=codex -->
 ## Codex agent routing
 
-This section applies only in Codex. Route code reviews, including delivery reviews,
-through `code-review`; its restricted Claude CLI preference and
-`critical_reviewer` fallback own reviewer selection.
-
-The primary directly owns the human dialogue, planning, maps, specifications,
-implementation, debugging, ordinary test and browser verification, integration,
-and delivery decisions. Keep this work in the main thread. Delegate only bounded
-exploration, workflow execution or monitoring, independent review, and security
-analysis through the routes below. Use exploration and monitoring when they can
-run alongside useful primary work; retain independent review even when the
-primary has no parallel work.
+This section applies only in Codex. code-review's restricted Claude CLI preference
+and `critical_reviewer` fallback own reviewer selection.
 
 Use these canonical selectors and `<id>_<purpose>` task names, with one to four
 specific lowercase words after the prefix. Display the emoji, uppercase ID, and
@@ -198,12 +219,6 @@ For native review fallback, load code-review's `reviewer-routing.md` and
 `reviewer-models.toml`: they own mode evidence, compatible model selection, and
 loaded-role checks. Verify actual reviewer dispatch; roster inventory is not
 proof of a successful independent review.
-
-Explorers, reviewers and security specialists are read-only. The primary implements
-their accepted findings. Monitors execute or observe a predefined, bounded
-workflow, stay quiet while healthy, and return failures to the primary without
-discretionary recovery. The primary interprets results, repairs failures and owns
-final acceptance.
 
 <!-- agent-team:end -->
 ## Validation and delivery
