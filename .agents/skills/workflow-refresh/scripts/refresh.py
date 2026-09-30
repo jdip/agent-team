@@ -255,7 +255,14 @@ def main():
         if check_url and api(f'repos/{REPOSITORY}/git/ref/heads/test')['object']['sha'] != revision:
             raise ValueError('test changed during refresh; inspect the new revision before refreshing again')
         print(result)
-    except (ValueError, KeyError, IndexError, OSError, subprocess.TimeoutExpired) as error:
+    except OSError:
+        print('error: local source or required command unavailable; inspect the checkout and Git/gh locally',
+              file=sys.stderr)
+        return 1
+    except subprocess.TimeoutExpired:
+        print('error: source read timed out; inspect repository access before refreshing again', file=sys.stderr)
+        return 1
+    except (ValueError, KeyError, IndexError) as error:
         print(f'error: {error}', file=sys.stderr)
         return 1
     return 0
