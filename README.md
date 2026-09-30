@@ -147,6 +147,14 @@ the canonical [PR-to-test workflow](docs/workflows/pr-to-test.md); one-child
 parents default to direct delivery. Verified test delivery completes the parent;
 [promotion to main](docs/workflows/promote-to-main.md) is separately requested.
 
+## Refresh workflow knowledge
+
+Cloud orchestrators and repository agents can use the repository-local
+[workflow-refresh](.agents/skills/workflow-refresh/SKILL.md) skill to retrieve a
+current source-linked reference. Start with the concise
+[orchestration guide](docs/workflows/orchestration.md) for revision freshness,
+workflow owners and actual session capabilities. Snapshots are generated on demand.
+
 ## Skill guide
 
 ### Agent Team engineering intelligence
