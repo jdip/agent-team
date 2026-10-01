@@ -1,6 +1,6 @@
 name = "critical_reviewer"
 description = "Review correctness, regressions, security, and fidelity to the approved outcome."
-model_reasoning_effort = "high"
+model_reasoning_effort = "xhigh"
 service_tier = "default"
 sandbox_mode = "read-only"
 

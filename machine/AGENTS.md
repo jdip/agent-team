@@ -161,8 +161,10 @@ agents execute directly without recursive delegation. Route reviews through
 ## Codex agent routing
 
 This section applies only in Codex. Route code reviews, including delivery reviews,
-through `code-review`; its restricted Claude CLI preference and
-`critical_reviewer` fallback own reviewer selection.
+through `code-review`; its mode-aware native `critical_reviewer` route and optional
+Claude review own reviewer selection. For planner and worker assignments, load
+[Claude delegation](agents/claude-delegation.md) before choosing the preferred
+Opus route or its explicit native Sol fallback.
 
 Use these canonical selectors and `<id>_<purpose>` task names, with one to four
 specific lowercase words after the prefix. Display the emoji, uppercase ID, and
@@ -172,27 +174,28 @@ spawn tool's task-name argument. The primary display ID is ORC.
 | Selector | Display | Prefix | Model / effort | Tier |
 | --- | --- | --- | --- | --- |
 | explorer | 🧭 EXP | exp_ | gpt-6-luna / max | default |
-| planner | 🗺️ PLN | pln_ | gpt-6-astra / medium | default |
-| worker | 🛠️ WRK | wrk_ | gpt-6-sol / medium | default |
-| test_verifier | 🧪 TST | tst_ | gpt-6-sol / medium | default |
-| browser_verifier | 🖥️ BRW | brw_ | gpt-6-sol / medium | default |
+| planner | 🗺️ PLN | pln_ | Opus 5.5 / high; gpt-6.1-sol / high fallback | default |
+| worker | 🛠️ WRK | wrk_ | Opus 5.5 / high; gpt-6.1-sol / high fallback | default |
+| test_verifier | 🧪 TST | tst_ | gpt-6.1-sol / medium | default |
+| browser_verifier | 🖥️ BRW | brw_ | gpt-6.1-sol / medium | default |
 | workflow_monitor | ⏳ MON | mon_ | gpt-6-luna / high | default |
-| sysadmin_operator | 🧰 OPS | ops_ | gpt-6-sol / high | default |
-| critical_reviewer | 🔍 REV | rev_ | code-review mode selection / high | default |
+| sysadmin_operator | 🧰 OPS | ops_ | gpt-6.1-sol / high | default |
+| critical_reviewer | 🔍 REV | rev_ | code-review mode selection / xhigh | default |
 | deep_specialist | 🧠 DSP | dsp_ | gpt-6-astra / max | default |
 | security_specialist | 🛡️ SEC | sec_ | gpt-daybreak-blue-latest / xhigh | default |
 
-The primary model is GPT-6 Astra/high; the generic subagent fallback is GPT-6
-Sol/medium. Use Sol/xhigh for task-specific difficult planning or integration,
-and Astra/medium or high for persistent judgment failures or exceptional
+The primary model is GPT-6.1 Sol/high; the generic subagent default is GPT-6.1
+Sol/medium. Prefer Opus for bounded planning and implementation through the route
+above; the native role files declare its Sol fallbacks. Use Sol/xhigh for difficult
+integration, and Astra/medium or high for persistent judgment failures or exceptional
 architectural ambiguity. Use deep_specialist exceptionally for the hardest
 technical analysis. Change standing defaults only after repeated real-use
 evidence. Verify model and effort support on the target; report unavailable
 assignments rather than silently substituting models. Daybreak Blue
 unavailability requires a separate decision.
 
-For native review fallback, load code-review's `reviewer-routing.md` and
-`reviewer-models.toml`: they own mode evidence, compatible model selection, and
+For default native review or optional additional Opus review, load code-review's
+`reviewer-routing.md` and `reviewer-models.toml`: they own mode evidence, compatible model selection, and
 loaded-role checks. Verify actual reviewer dispatch; roster inventory is not
 proof of a successful independent review.
 
