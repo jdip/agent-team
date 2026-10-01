@@ -74,6 +74,7 @@ trusted repository configuration can tighten them.
 | AGENTS.md | $CODEX_HOME/AGENTS.md | Whole file |
 | agents/browser_verifier.toml | $CODEX_HOME/agents/browser_verifier.toml | Whole file |
 | agents/critical_reviewer.toml | $CODEX_HOME/agents/critical_reviewer.toml | Whole file |
+| agents/claude-delegation.md | $CODEX_HOME/agents/claude-delegation.md | Whole file |
 | agents/deep_specialist.toml | $CODEX_HOME/agents/deep_specialist.toml | Whole file |
 | agents/explorer.toml | $CODEX_HOME/agents/explorer.toml | Whole file |
 | agents/planner.toml | $CODEX_HOME/agents/planner.toml | Whole file |
@@ -85,8 +86,9 @@ trusted repository configuration can tighten them.
 
 Each role's name, instructions, model presence, effort, tier, and sandbox move together.
 The current roster assignments and naming are in [AGENTS.md](AGENTS.md)
-and those ordinary role files. The code-review package owns the optional Claude CLI
-review preference and native critical_reviewer fallback. Its
+and those ordinary role files. [Claude delegation](agents/claude-delegation.md) owns
+preferred Opus planning/implementation and native Sol fallback. The code-review
+package owns default native review and optional additional Claude review. Its
 [reviewer routing](skills/code-review/reviewer-routing.md) and
 [model declaration](skills/code-review/reviewer-models.toml) own mode-aware native
 selection; critical_reviewer intentionally omits a fixed model to permit explicit
