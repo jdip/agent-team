@@ -185,15 +185,19 @@ def flatten(value, prefix=()):
     return result
 
 
-def projection(path, fields):
-    data = flatten(tomllib.loads(path.read_text(encoding='utf-8'))) if path.exists() else {}
+def projection(path, fields, kind='toml'):
+    text = path.read_text(encoding='utf-8') if path.exists() else None
+    document = (tomllib.loads(text) if kind == 'toml' else json.loads(text)) if text is not None else {}
+    if not isinstance(document, dict):
+        raise ValueError(f'expected a {kind} object: {path}')
+    data = flatten(document)
     # Types matter: true, 1, and "1" must not compare equal.
     return {key: [type(data[tuple(key.split('.'))]).__name__, repr(data[tuple(key.split('.'))])]
             if tuple(key.split('.')) in data else ['absent'] for key in sorted(fields)}
 
 
 def fingerprint(path, scope):
-    if scope.get('kind') not in ('file', 'directory', 'toml'):
+    if scope.get('kind') not in ('file', 'directory', 'toml', 'json'):
         raise ValueError('unknown scope requires its target-specific adapter before filesystem inspection')
     path = plain_path(path)
     if not path.exists():
@@ -206,8 +210,8 @@ def fingerprint(path, scope):
         if not path.is_dir():
             raise ValueError(f'expected directory: {path}')
         return digest(encoded({name: digest(data) for name, data in files(path).items()}))
-    if scope['kind'] == 'toml':
-        return digest(encoded(projection(path, scope['fields'])))
+    if scope['kind'] in ('toml', 'json'):
+        return digest(encoded(projection(path, scope['fields'], scope['kind'])))
     raise ValueError(f'unsupported scope requires its target-specific adapter: {path}')
 
 
@@ -261,7 +265,7 @@ def claude_packages(profile):
     return table(copied), re.findall(r'^\| ([\w-]+) \| (skills/[\w/-]+) \|$', upstream, re.M)
 
 
-def claude_receipt_root(entries):
+def claude_receipt_root(entries, migration_scopes=None):
     anchors = []
     for target, entry in entries.items():
         if entry['scope'] != {'kind': 'file'}:
@@ -290,6 +294,9 @@ def claude_receipt_root(entries):
             continue
         valid = (same_path(path, rule) and entry['scope'] == {'kind': 'file'}) or (
             same_path(path.parent, skills) and entry['scope'] == {'kind': 'directory'})
+        if migration_scopes:
+            relative = path.relative_to(root).as_posix()
+            valid |= migration_scopes.get(relative) == entry['scope']
         if not valid:
             raise ValueError(f'{target}: unexpected receipted target under Claude configuration root')
         targets.add(target)
@@ -297,6 +304,62 @@ def claude_receipt_root(entries):
         raise ValueError('Claude receipt anchor requires investigation')
     return root, targets
 
+
+
+def experiment_migration_scopes(source):
+    """Read the explicitly releasable prior ownership from the canonical Profile."""
+    profile = (source / 'machine/PROFILE.md').read_text(encoding='utf-8')
+    section = profile.split('## Experiment-to-test migration\n')[1].split('## Preflight, publication, and retirement\n')[0]
+    scopes = {'Claude': {}, 'Claude desktop': {}}
+    rows = [line.split('|')[1:-1] for line in section.splitlines()
+            if line.startswith('| ') and not line.startswith('| ---')][1:]
+    for row in rows:
+        host, relative, kind, fields = (item.strip() for item in row)
+        if host not in scopes or Path(relative).is_absolute() or '..' in Path(relative).parts:
+            raise ValueError('invalid experiment migration declaration')
+        scope = {'kind': kind}
+        if kind == 'json':
+            scope['fields'] = sorted(item.strip() for item in fields.split(','))
+        elif kind != 'file' or fields != '-':
+            raise ValueError('unsupported experiment migration scope')
+        if relative in scopes[host]:
+            raise ValueError('duplicate experiment migration declaration')
+        scopes[host][relative] = scope
+    return scopes
+
+
+def experiment_release_targets(scopes, entries, claude_root):
+    """Match only exact prior receipt scopes at their established native roots."""
+    roots = {'Claude': claude_root, 'Claude desktop': None}
+    if sys.platform == 'darwin':
+        roots['Claude desktop'] = Path.home() / 'Library/Application Support/Claude'
+    elif os.name == 'nt' and os.environ.get('APPDATA'):
+        roots['Claude desktop'] = Path(os.environ['APPDATA']) / 'Claude'
+    released = set()
+    for host, declarations in scopes.items():
+        root = roots[host]
+        if root is None:
+            continue
+        for relative, scope in declarations.items():
+            target = str(plain_path(root / relative))
+            if target in entries:
+                if entries[target]['scope'] != scope:
+                    raise ValueError(f'{target}: prior scope differs from the approved migration declaration')
+                released.add(target)
+    return released
+
+
+def preserve_installation_record(receipt_path, raw_receipt):
+    """Keep the original installation evidence before releasing any ownership."""
+    record = plain_path(receipt_path.parent / f'receipt-before-test-migration-{digest(raw_receipt)}.json')
+    if record.exists():
+        if record.read_bytes() != raw_receipt:
+            raise ValueError('existing installation record differs; preserve and investigate')
+    else:
+        atomic_file(record, raw_receipt)
+    if record.read_bytes() != raw_receipt:
+        raise ValueError('original installation record verification failed')
+    print(f'Preserved original installation record: {record}', flush=True)
 
 def inventory(source, home, skills, upstream, upstream_root=None, claude_root=None):
     profile = (source / 'machine/PROFILE.md').read_text(encoding='utf-8')
@@ -412,12 +475,16 @@ def run(args):
     claude_root = plain_path(args.claude_config_root) if args.claude_config_root else None
     receipt_path = plain_path(home / '.agent-team/reconciliation-receipts-v1.json')
     raw_receipt, entries = read_receipt(receipt_path)
-    anchored_claude_root, preserved_claude_targets = claude_receipt_root(entries)
+    migration = experiment_migration_scopes(source) if args.migrate_experiment else None
+    anchored_claude_root, preserved_claude_targets = claude_receipt_root(
+        entries, migration['Claude'] if migration else None)
     if claude_root is not None and anchored_claude_root is not None and not same_path(claude_root, anchored_claude_root):
         raise ValueError('Claude configuration root disagrees with the receipt anchor; investigate before writes')
     if claude_root is not None:
         preserved_claude_targets = set()
     rows, pin, packages = inventory(source, home, skills, stage, upstream_root, claude_root)
+    releasing = experiment_release_targets(migration, entries, anchored_claude_root) if migration else set()
+    preserved_claude_targets -= releasing
     approvals = dict(args.resolve)
     errors, observed, desired = [], {}, {}
     if (home / 'AGENTS.override.md').exists() or (home / 'AGENTS.override.md').is_symlink():
@@ -429,12 +496,16 @@ def run(args):
             errors.append(f'missing declared source: {candidate or "upstream staging"}')
         else:
             fingerprint(candidate, scope)
-    # Retired entries remain in the same all-target gate, with their old scope.
+    if releasing & desired.keys():
+        raise ValueError('migration release overlaps a current profile target')
+    # Retired and released entries remain in the same all-target gate, with their old scope.
     for target in desired.keys() | entries.keys():
         old = entries.get(target)
         if old and old['scope'] == {'kind': 'cleanup-schedule'}:
             continue
         scope = old['scope'] if old else desired[target][1]
+        if scope['kind'] == 'json' and target not in releasing:
+            errors.append(f'{target}: JSON scope requires its declared migration owner; no writes')
         current = fingerprint(Path(target), scope)
         observed[target] = (scope, current)
         expected = old['fingerprint'] if old else None
@@ -453,7 +524,7 @@ def run(args):
         observed[target] = (gate_scope, gate_current)
         if conflict and approvals.get(target) != (gate_current or 'absent'):
             errors.append(f'{target}: scope={scope} saved={expected} observed={gate_current}; supervised decision required')
-        if target not in desired and scope['kind'] == 'toml':
+        if target not in desired and target not in releasing and scope['kind'] == 'toml':
             errors.append(f'{target}: retired config target requires supervised relocation; no writes')
     targets = [Path(target) for target in observed]
     if any(not same_path(a, b) and path_within(b, a) for a in targets for b in targets):
@@ -468,6 +539,13 @@ def run(args):
         errors.append('Claude is absent; preserved receipt scopes cannot be resolved or retired')
     if errors:
         raise ValueError('\n'.join(errors))
+    for target in sorted(observed) if not args.apply else ():
+        if target in releasing:
+            print(f'Would release ownership without changing the file: {target}', flush=True)
+        elif target not in desired and target not in preserved_claude_targets:
+            print(f'Would retire {target}', flush=True)
+        elif target in desired and fingerprint(Path(target), desired[target][1]) != fingerprint(*desired[target]):
+            print(f'Would publish {target}', flush=True)
     if not args.apply:
         print('All declared sources and live target/retirement scopes passed preflight; no writes.')
         return
@@ -499,6 +577,8 @@ def run(args):
         raise ValueError('source checkout has uncommitted changes; select a clean revision')
     prepared_files = {target: candidate.read_bytes() for target, (candidate, scope) in desired.items()
                       if scope['kind'] != 'directory'}
+    release_originals = {target: Path(target).read_bytes() if Path(target).exists() else None
+                         for target in releasing}
     prepared = {}
     directory_security = {}
     completed = False
@@ -530,6 +610,14 @@ def run(args):
             scope, expected = observed[target]
             if fingerprint(Path(target), scope) != expected:
                 raise ValueError(f'target changed after preflight: {target}')
+        for target, original in release_originals.items():
+            if (Path(target).read_bytes() if Path(target).exists() else None) != original:
+                raise ValueError(f'released file changed after preparation: {target}')
+        if releasing:
+            now_raw, _ = read_receipt(receipt_path)
+            if now_raw != raw_receipt:
+                raise ValueError('receipt changed before preserving installation evidence')
+            preserve_installation_record(receipt_path, raw_receipt)
         def publication_order(target):
             path = Path(target)
             if claude_root is not None and same_path(path, plain_path(claude_root / 'rules/agent-team.md')):
@@ -546,9 +634,14 @@ def run(args):
                 raise ValueError(f'state changed immediately before write: {target}')
             if target == config_target and (path.read_bytes() if path.exists() else None) != original_config_bytes:
                 raise ValueError('shared config changed, including unmanaged fields; prepare it again')
-            if target in preserved_claude_targets:
+            if target in releasing:
+                if (path.read_bytes() if path.exists() else None) != release_originals[target]:
+                    raise ValueError(f'released file changed immediately before ownership release: {target}')
+                entries.pop(target)
+                print(f'Released to Unmanaged Local State; file preserved: {target}', flush=True)
+            elif target in preserved_claude_targets:
                 continue
-            if target not in desired:
+            elif target not in desired:
                 if scope['kind'] == 'toml':
                     raise ValueError('retiring TOML fields requires a reviewed candidate config and scope migration')
                 if path.is_dir():
@@ -607,6 +700,8 @@ def main():
     parser.add_argument('--models-verified', action='store_true')
     parser.add_argument('--resolve', action='append', type=parse_resolution, default=[],
                         metavar='TARGET=OBSERVED_SHA256_OR_absent')
+    parser.add_argument('--migrate-experiment', action='store_true',
+                        help='explicitly authorized experiment-to-test ownership migration; preserve prior files and receipt record')
     parser.add_argument('--apply', action='store_true')
     args = parser.parse_args()
     try:

@@ -68,6 +68,29 @@ Claude filesystem publication is not Claude session usability; record that evide
 through the separate host verification workflow. The managing agent maintains cleanup
 schedules separately through the native tools and `cleanup_schedule.py`.
 
+## Approved experiment-to-test migration
+
+For an explicitly approved move from the former Claude-primary experiment, run
+this same preparation command with `--migrate-experiment`. Read the exact release
+inventory and evidence rules in [PROFILE.md](PROFILE.md#experiment-to-test-migration).
+Preparation reports every proposed ownership release, retirement and publication;
+it makes no managed writes. Validate that plan against the actual prior receipt
+and the operator's preservation requirements before applying.
+
+After a passing preflight and any necessary specific conflict decisions, repeat
+with `--migrate-experiment --apply`. The helper preserves the complete original
+receipt in its hash-named installation record before changing active ownership.
+It leaves the declared former agent files, shared settings and desktop preferences
+byte-for-byte unchanged and releases them to Unmanaged Local State. It then
+publishes current profile targets and updates their existing narrow receipt through
+the normal verified path. Unknown scopes or unexplained changed state remain blockers.
+
+Verify the original record matches the pre-migration receipt, the released files
+remain unchanged, and every current target agrees with its current receipt and
+selected source. Check fresh discovery and model support. Preserve the original
+record and report ownership release separately from actual file retirement and
+publication; existing schedules and unrelated state retain their owners.
+
 ## Preparation details
 
 Resolve the repository's current branch and its remote. Fetch that branch,

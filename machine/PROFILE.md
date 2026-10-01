@@ -250,6 +250,35 @@ manual-invocation settings.
 | wizard | skills/engineering/wizard |
 | wait-what | skills/productivity/wait-what |
 
+## Experiment-to-test migration
+
+Use `--migrate-experiment` only for an operator-approved move from the former
+Claude-primary experiment to this profile. The canonical preparation command
+preflights every prior receipt scope and every current target before writes.
+The following exact prior scopes are released to Unmanaged Local State; their
+files and all settings values remain unchanged. Relative destinations use the
+established Claude receipt root or the native Claude desktop data root. Unknown
+paths, different scopes and changed fingerprints still stop for investigation.
+
+| Prior host | Relative destination | Kind | Owned fields |
+| --- | --- | --- | --- |
+| Claude | agents/CriticalReviewer.md | file | - |
+| Claude | agents/Explore.md | file | - |
+| Claude | agents/SecuritySpecialist.md | file | - |
+| Claude | agents/WorkflowMonitor.md | file | - |
+| Claude | settings.json | json | effortLevel, env.CLAUDE_CODE_DISABLE_EXPLORE_PLAN_AGENTS, model |
+| Claude desktop | claude_desktop_config.json | json | preferences.ccBranchPrefix |
+
+Before any release or current-target publication, preserve the complete original
+receipt beside the active receipt as `receipt-before-test-migration-<sha256>.json`,
+where the hash covers its exact original bytes. Preserve this private installation
+record; it does not enroll targets or participate in skill discovery. The active
+version-1 receipt then records current ownership normally. The explicit migration
+removes only the declared prior entries, after verifying their saved fingerprints
+and unchanged complete files; it never changes their contents. Other obsolete
+receipted packages use the ordinary supervised retirement gate. Subsequent ordinary
+reconciliation ignores released Unmanaged Local State and retains the original record.
+
 ## Preflight, publication, and retirement
 
 Use the narrow Machine Reconciliation Receipt at
