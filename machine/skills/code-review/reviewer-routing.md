@@ -20,25 +20,28 @@ preserve the bounded review task. This Claude Code route ends here.
 
 Assign the complete immutable comparison and requirements to `critical_reviewer`,
 using `rev_<purpose>` and display `🔍 REV` followed by the exact task name. Select
-Sol 6.1 in standard mode and Daybreak in Daybreak mode at `xhigh`, through the
-model declaration below. Neither the generic default nor optional Opus review
+the declared standard model in standard or unknown mode and the declared Daybreak
+model in Daybreak mode, at `xhigh`. Neither the generic default nor optional Opus review
 replaces the required mode-compatible native reviewer. Unavailable native dispatch
 is a concrete blocked review; preserve mode and report the reason.
 
-Before native dispatch:
+Select and dispatch:
 
-1. Establish the current orchestrator task's Daybreak mode from supported host
-   evidence. Fresh task metadata such as `daybreakEnabled: bool | null` from a
+1. Use supported current-task mode evidence when available, including an explicit
+   operator declaration that remains valid for this task. Fresh task metadata such
+   as `daybreakEnabled: bool | null` from a
    supported thread/read schema records saved task mode, not a per-turn guarantee;
    resolve any current-turn discrepancy before selecting. `true` means Daybreak,
    `false` means standard, and `null` or missing means unknown. Model name and
-   account entitlement alone do not establish mode. Unknown mode blocks dispatch.
+   account entitlement alone do not establish mode. When the host omits mode
+   evidence, retain `unknown` and continue with one standard-model attempt without
+   asking the operator solely to classify mode.
 2. Read [reviewer-models.toml](reviewer-models.toml), the authoritative native
-   reviewer choices. Select its `daybreak` or `standard` value for the established
-   mode. Verify the execution host supports that model at `xhigh` effort in that
-   mode; catalog membership alone does not prove mode compatibility. Preserve the
-   orchestrator mode. An unavailable compatible choice blocks review without a
-   blind retry, mode switch, or third reviewer.
+   reviewer choices. Select `daybreak` for known Daybreak mode, otherwise `standard`.
+   Verify the execution host supports the selected model at `xhigh`; catalog
+   membership alone does not prove current-mode compatibility. Let the host enforce
+   compatibility during dispatch while preserving the orchestrator mode, sandbox
+   and approval controls. A known unavailable or incompatible choice blocks review.
 3. Verify the loaded `critical_reviewer` role will execute the selected model at
    the required effort. Its managed source omits a fixed model; a loaded fixed
    model can still win over a spawn override. An identical loaded pin satisfies
@@ -53,11 +56,22 @@ Before native dispatch:
    explicitly, or a supported bounded-history fork with the complete packet.
    Preserve the assigned Standards/Spec axes and read-only limits: repository
    inspection only, no mutations, external connectors, or recursive delegation.
+5. If the standard attempt is rejected with a host response explicitly identifying
+   active Daybreak mode or a requirement for a Daybreak-compatible model, use that
+   response as current-mode evidence. Repeat the model/effort and loaded-role checks
+   for the declared `daybreak` choice and dispatch it once with the same assignment,
+   without another operator question. Authentication, entitlement, rate-limit,
+   service, generic safeguard or unrelated launch failures do not establish mode
+   and remain concrete blockers. A failed Daybreak attempt also blocks review;
+   preserve the failure without repeating a rejected assignment, changing mode or
+   selecting a third model.
 
 Findings are successful review output, not provider unavailability: return them to
 the implementation owner for resolution. Preserve actionable evidence from any
-optional Claude review alongside the native result. Report the actual mode, model,
-effort, availability limits, and Standards/Spec outcomes. The primary validates
+optional Claude review alongside the native result. Successful dispatch alone does
+not establish mode: report `unknown` when evidence remains unavailable. Report the
+mode evidence, requested model and effort, dispatch result, any recovery or
+availability limit, and Standards/Spec outcomes. The primary validates
 findings and coverage and remains accountable for delivery.
 
 ## Codex: Optional additional Claude review
