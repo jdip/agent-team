@@ -40,13 +40,14 @@ Authentication is established independently inside each environment.
 
 ## Shared configuration and whole files
 
-Merge only these twelve dotted paths from [config.toml](config.toml) into
+Merge only these thirteen dotted paths from [config.toml](config.toml) into
 `$CODEX_HOME/config.toml`; never replace that file wholesale:
 
 - model
 - model_reasoning_effort
 - default_permissions
 - approval_policy
+- approvals_reviewer
 - agents.enabled
 - agents.max_concurrent_threads_per_session
 - agents.default_subagent_model
