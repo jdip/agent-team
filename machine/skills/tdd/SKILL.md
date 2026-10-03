@@ -26,13 +26,15 @@ or security failures, subtle regressions or failed prior fixes when the expected
 benefit justifies coordination. Straightforward low-impact changes keep the normal
 loop. This is a selective ownership decision, not a model-diversity requirement.
 
-Before a proposed patch steers reproduction, the primary gives the existing
-`test_verifier` the reported symptom, expected contract and authorized environment.
+Use the host's existing verification and implementation delegation; in Codex these
+are `test_verifier` and `worker`, under the existing host-specific routing.
+Before a proposed patch steers reproduction, the primary gives the proof owner
+the reported symptom, expected contract and authorized environment.
 That proof owner establishes the behavioral failure at a public seam and records
 the unfixed revision, exact command/assertions, result and limits. An unavailable
 meaningful reproduction remains an explicit proof gap.
 
-Give a separate `worker` the established contract and proof to implement the fix.
+Give a separate implementation owner the established contract and proof to fix it.
 The proof owner reruns the same assertions and relevant native regressions at the
 fixed revision. Necessary assertion changes return to that owner, who first checks
 that they still expose the original symptom on the unfixed revision, then rechecks
