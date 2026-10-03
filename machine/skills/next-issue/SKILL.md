@@ -178,6 +178,9 @@ unresolved design choice keeps the issue claimed and unresolved. Apply the
 Design gate for a substantive missing decision; covered implementation reuses
 its existing map.
 
+At coherent recovery or closeout, use
+[the primary handoff](../pr-to-test/SKILL.md#primary-handoff) before resolution.
+
 Before pausing after a substantial phase, a failed/blocked operation, or for user
 input, complete independent work within the issue, then use `cleanup-task-artifacts`
 with local guidance and ask ALL ready questions together in ordinary text, with

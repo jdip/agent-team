@@ -137,11 +137,12 @@ continue independent work and apply the same blocker pause rule.
 
 ## Reflection
 
-After a user correction, failed approach, unexpected blocker, or completed task,
-briefly check existing context for a reusable improvement. Stay silent when none
-qualifies. When one does, use `reflect` for focused analysis and actionable issue
-capture without asking permission merely to analyze. The skill owns lesson routing
-and follow-through; existing edit authority still applies.
+After a user correction, failed approach, unexpected blocker, or coherent recovery
+or task completion, the primary briefly screens existing context and returned
+evidence for a reusable improvement. Stay silent when none qualifies. When one
+does, use `reflect` for one consolidated disposition and actionable issue capture
+without asking permission merely to analyze. The skill owns routing and
+follow-through; existing edit authority still applies.
 
 ## Delegation
 

@@ -73,6 +73,10 @@ Validate other approved changes against the motivating incident through relevant
 real use where possible. Keep future-dependent benefit unverified until that use;
 this requires no evaluation campaign.
 
+Consolidate overlapping reports into one disposition per lesson at the primary's
+screen. Expected TDD red, resolved transients without an actionable defect and
+unchanged evidence need no full reflection or new issue.
+
 Return a short list of accepted lessons, evidence, issue links and dispositions.
 For an explicit reflection with nothing useful, say so. A routine check with no
 qualifying lesson stays silent and creates no issue. Do not repeat completed

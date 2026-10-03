@@ -59,6 +59,14 @@ or uncertain resources cannot. Never remove a checkout backing a Codex task. Use
 supported lifecycle handling or retain it. An attached worktree is not a delivery
 failure. Do not use broad pruning or edit app storage.
 
+At coherent recovery or closeout, complete the shared
+[primary handoff](../../machine/skills/pr-to-test/SKILL.md#primary-handoff).
+The helper leaves screening, bookkeeping and locally required completion pending;
+its terminal text is evidence for the primary, not an executed conversation callback.
+Preserve any locally mandatory retrospective on the existing delivery record when
+post-merge proof fails or only partially completes. Agent Team does not require a
+durable retrospective for every PR.
+
 On failure inspect the earliest causal error and actual push/PR/check/merge effects.
 The helper's local diagnostic names the failed stage, operation, repository/revision,
 native result, confirmed effects and attempts requiring inspection. Native stderr
