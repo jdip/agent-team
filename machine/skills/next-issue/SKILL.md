@@ -120,7 +120,8 @@ repository's documented Application Code/Tooling classification by purpose:
 
 - Application Code gets rigorous linting, type checking, validation, and meaningful
   tests with strong emphasis on high coverage. Invoke `tdd` for bug fixes and
-  new or changed application behavior; that skill owns the test-first loop. Follow actual local gates.
+  new or changed application behavior; that skill owns the test-first loop and
+  selective independent bug-proof handoff before implementation. Follow actual local gates.
 - Tooling is validated by successful real use. Do not build coverage suites,
   fake environments, resumable state machines, or tests of tests for tooling.
   Existing real checks can be run without inventing an orchestration test product.
@@ -176,6 +177,9 @@ decisions and external approval gates. Missing access or a substantive
 unresolved design choice keeps the issue claimed and unresolved. Apply the
 Design gate for a substantive missing decision; covered implementation reuses
 its existing map.
+
+At coherent recovery or closeout, use
+[the primary handoff](../pr-to-test/SKILL.md#primary-handoff) before resolution.
 
 Before pausing after a substantial phase, a failed/blocked operation, or for user
 input, complete independent work within the issue, then use `cleanup-task-artifacts`
