@@ -67,8 +67,18 @@ sleep availability alone does not prevent repeated goal continuations.
 
 All other fields remain unmanaged, including root service_tier, credentials,
 providers, MCP servers and environment, trust, history, projects, and UI settings.
-The deliberately approved permission defaults do not broaden task authorization;
-trusted repository configuration can tighten them.
+The profile selects Full Access: tool calls using this default run without Codex's
+filesystem or network sandbox restrictions and routine approval prompts.
+`approvals_reviewer` remains configured for eligible approval routes; it adds no
+review gate to actions already allowed under Full Access.
+
+Full Access changes tool permissions, not task authorization. Preserve explicit
+human-approval boundaries for deployments, destructive actions and main promotion.
+Trusted repository configuration and managed requirements can tighten the defaults.
+
+Installation alone does not establish changed permissions in existing threads.
+Verify fresh-task defaults in each actual client and report any required reload or
+restart separately, preserving active work.
 
 | Source relative to machine/ | Destination | Scope |
 | --- | --- | --- |
