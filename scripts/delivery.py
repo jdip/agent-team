@@ -56,6 +56,9 @@ class DeliveryContext:
               f'Retained diagnostics: {"; ".join(self.retained) or "native output above"}\n'
               'Next: inspect actual refs, PR/check state and retained local evidence before recovery.\n'
               'Review local diagnostics before public sharing.', file=sys.stderr, flush=True)
+        if terminal:
+            print('Primary handoff pending: reconcile actual effects and local required completion, '
+                  'then apply one Reflection screen before resolution.', file=sys.stderr, flush=True)
 
 
 run = DeliveryContext()
@@ -309,7 +312,8 @@ def main():
             raise ValueError('branch drift after promotion; inspect before main-to-test synchronization')
         number = pr('test', 'main', 'Synchronize main back to test', None, 'none')
         merge(number, merged, intended)
-    print('Delivery verified. Supervisor must finish issue bookkeeping and safe associated-artifact cleanup.', flush=True)
+    print('Delivery verified. Primary handoff pending: finish local required completion, issue bookkeeping '
+          'and safe associated-artifact cleanup; apply one consolidated Reflection screen before resolution.', flush=True)
 
 
 if __name__ == '__main__':

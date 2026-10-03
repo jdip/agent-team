@@ -99,6 +99,23 @@ only exact task-owned resources proven safe for that action. Preserve active,
 shared, uncertain or needed state and attached checkouts; use supported lifecycle
 tools. Report the unavailable policy and actual cleanup limits.
 
+## Primary handoff
+
+At coherent recovery or closeout, the primary consolidates existing tool,
+delegated and user evidence for the [Reflection screen](../../AGENTS.md#reflection).
+Delegates return terminal results, failures and partial effects within their
+existing assignments; the primary owns the disposition.
+
+Where the target requires a durable retrospective, check its included PR types
+and substantive post-merge proof-failure/partial-completion paths. Keep missing
+local completion visibly pending on the existing PR/issue. Verify prior effects
+and any starter/publication state before resuming only missing work; use the
+tracker's attributable filing-failure fallback when needed. Locally mandatory
+incompleteness keeps that outcome open; non-blocking remediation stays separate.
+
+A helper can emit this handoff. Actual primary screening and capture need their
+own evidence; a guaranteed host conversation callback is not established by it.
+
 ## Version classification
 
 Classify the delivered behavior and compatibility impact, including behavior
