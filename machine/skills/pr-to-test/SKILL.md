@@ -102,7 +102,7 @@ tools. Report the unavailable policy and actual cleanup limits.
 ## Primary handoff
 
 At coherent recovery or closeout, the primary consolidates existing tool,
-delegated and user evidence for the [Reflection screen](../../AGENTS.md#reflection).
+delegated and user evidence for the already loaded global Reflection rule.
 Delegates return terminal results, failures and partial effects within their
 existing assignments; the primary owns the disposition.
 
