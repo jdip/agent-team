@@ -94,7 +94,7 @@ def verify(revision):
         temporary_root = temporary_root.resolve()
     root = Path(tempfile.mkdtemp(prefix='agent-team-delivery-', dir=plain_path(temporary_root)))
     checkout = root / 'checkout'
-    run.retained.append(str(checkout))
+    run.retained.append(str(root))
     effect = 'add local verification checkout'
     run.attempt(effect)
     call('git', 'worktree', 'add', '--detach', str(checkout), revision, capture=False)
@@ -110,7 +110,7 @@ def verify(revision):
     call('git', 'worktree', 'remove', str(checkout), capture=False)
     run.confirm(effect)
     root.rmdir()
-    run.retained.remove(str(checkout))
+    run.retained.remove(str(root))
     print(f'Verified source on {revision}; no deployed application exists in this repository.', flush=True)
 
 
@@ -315,6 +315,6 @@ def main():
 if __name__ == '__main__':
     try:
         main()
-    except (ValueError, subprocess.CalledProcessError, subprocess.TimeoutExpired) as error:
+    except (ValueError, OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired) as error:
         run.report(error)
         sys.exit(1)
