@@ -12,6 +12,25 @@ audit to rank them. Age, missing history, and a newer standard revision are
 signals, not proof of a defect. Reuse existing findings and keep/defer decisions
 unless evidence changes.
 
+## Outcome assessment
+
+For a selected improvement or explicitly authorized target sample, name the
+accepted target behavior and inspect available issue, PR, check and runtime
+evidence. Choose a relevant subset of accepted results, escaped defects,
+reversions and user friction. For cycle time, identify the measured endpoints;
+issue/PR elapsed time is not implementation effort. Use measured cost when
+available and leave unsupported values unknown. PR volume measures activity.
+
+Record the inspected baseline, supporting evidence, unassessed scope and a
+keep/defer/change recommendation in the existing task or issue. Compare expected
+benefit and rough effort with other candidates; a valid no-change outcome needs
+no implementation. Reuse unchanged evidence and dispositions.
+
+Distinguish maintained-source delivery, effective installation and actual target
+acceptance. The target owns its purpose, signal definitions and checks. Use its
+existing verification controls within their current authority; assessment alone
+does not authorize driving a runtime, adoption or unrelated fixes.
+
 ## Establish a stable baseline
 
 Get active code tasks, implementation PRs, and unfinished local code changes through

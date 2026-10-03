@@ -62,6 +62,12 @@ inspect relevant code, guidance, current mechanisms, constraints, capabilities a
 existing preparation/map/spec evidence against that workflow's required outcomes.
 An empty-looking repository or a source revision delta does not replace assessment.
 
+Carry the target's accepted behavior, inspected baseline, outcome evidence and
+unassessed scope through planning and delivery using the bounded
+[outcome assessment](../machine/skills/whats-next/maintenance.md#outcome-assessment).
+Reuse the target's sufficient verification guides and controls; its acceptance
+definitions remain locally owned.
+
 Conduct or resume Wayfinder with that evidence, following its grilling entry
 before charting new work, to resolve how this target should reach the workflow's
 goals. The target owns the map and specification, including
