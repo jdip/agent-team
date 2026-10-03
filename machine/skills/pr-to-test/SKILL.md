@@ -77,6 +77,10 @@ usability checks when applicable. A launched script, open PR, or merge alone may
 partial progress. All canonical task-to-test merges use merge commits.
 
 On failure inspect the earliest error and actual partial effects before recovery.
+Use the target helper's named stage, native cause/result and confirmed/uncertain
+effects when available; verify them against current target state. Distinguish an
+Application Code defect, a Tooling/environment failure and an authorization or
+capability block. Sanitize local diagnostic locations and inputs before publication.
 Continue routine authorized fixes and remaining steps; never blindly rerun a merge
 or overwrite protection. Complete independent work. Before pausing or reporting a
 failure, use `cleanup-task-artifacts` with local guidance. The delivery authority
@@ -94,6 +98,23 @@ If the cleanup package is unavailable, use local artifact guidance to stop/remov
 only exact task-owned resources proven safe for that action. Preserve active,
 shared, uncertain or needed state and attached checkouts; use supported lifecycle
 tools. Report the unavailable policy and actual cleanup limits.
+
+## Primary handoff
+
+At coherent recovery or closeout, the primary consolidates existing tool,
+delegated and user evidence for the already loaded global Reflection rule.
+Delegates return terminal results, failures and partial effects within their
+existing assignments; the primary owns the disposition.
+
+Where the target requires a durable retrospective, check its included PR types
+and substantive post-merge proof-failure/partial-completion paths. Keep missing
+local completion visibly pending on the existing PR/issue. Verify prior effects
+and any starter/publication state before resuming only missing work; use the
+tracker's attributable filing-failure fallback when needed. Locally mandatory
+incompleteness keeps that outcome open; non-blocking remediation stays separate.
+
+A helper can emit this handoff. Actual primary screening and capture need their
+own evidence; a guaranteed host conversation callback is not established by it.
 
 ## Version classification
 

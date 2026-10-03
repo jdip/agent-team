@@ -62,6 +62,25 @@ inspect relevant code, guidance, current mechanisms, constraints, capabilities a
 existing preparation/map/spec evidence against that workflow's required outcomes.
 An empty-looking repository or a source revision delta does not replace assessment.
 
+Carry the target's accepted behavior, inspected baseline, outcome evidence and
+unassessed scope through planning and delivery using the bounded
+[outcome assessment](../machine/skills/whats-next/maintenance.md#outcome-assessment).
+Reuse the target's sufficient verification guides and controls; its acceptance
+definitions remain locally owned.
+
+For the selected workflow, require actionable native failure evidence at its
+existing helper/check boundary: responsible stage, safe operation identity and
+revision, native cause/result, verified effects, uncertain attempts and retained
+evidence or next verification. Preserve the target's failure behavior and privacy
+rules. Plan a missing mechanism locally; a capability or authorization block is an
+explicit prerequisite, not evidence of a source defect.
+
+For a selected native enforcement remedy, carry its motivating violation, valid
+neighboring behavior, required invocation and justified residual guidance through
+planning and verification using [reflect's follow-through](../machine/skills/reflect/SKILL.md#record-and-follow-through).
+Keep the mechanism at its existing target type, lint, schema, test, runtime or data
+boundary, under that target's covering plan and authority.
+
 Conduct or resume Wayfinder with that evidence, following its grilling entry
 before charting new work, to resolve how this target should reach the workflow's
 goals. The target owns the map and specification, including
