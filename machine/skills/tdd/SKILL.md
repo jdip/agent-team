@@ -19,6 +19,26 @@ or when the user requests test-first work.
 
 When exploring the codebase, read `CONTEXT.md` (if it exists) so test names and interface vocabulary match the project's domain language, and respect ADRs in the area you're touching.
 
+## Independent bug proof
+
+Choose separate proof and fix owners for consequential permission, data-integrity
+or security failures, subtle regressions or failed prior fixes when the expected
+benefit justifies coordination. Straightforward low-impact changes keep the normal
+loop. This is a selective ownership decision, not a model-diversity requirement.
+
+Before a proposed patch steers reproduction, the primary gives the existing
+`test_verifier` the reported symptom, expected contract and authorized environment.
+That proof owner establishes the behavioral failure at a public seam and records
+the unfixed revision, exact command/assertions, result and limits. An unavailable
+meaningful reproduction remains an explicit proof gap.
+
+Give a separate `worker` the established contract and proof to implement the fix.
+The proof owner reruns the same assertions and relevant native regressions at the
+fixed revision. Necessary assertion changes return to that owner, who first checks
+that they still expose the original symptom on the unfixed revision, then rechecks
+the fix. Retain attributable fail-before/pass-after evidence and any missed symptom,
+rework or intervention in the existing task. Independent code review still applies.
+
 ## What a good test is
 
 Tests verify behavior through public interfaces, not implementation details. Code can change entirely; tests shouldn't. A good test reads like a specification: "user can checkout with valid cart" tells you exactly what capability exists, and it survives refactors because it doesn't care about internal structure.
