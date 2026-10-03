@@ -77,6 +77,10 @@ usability checks when applicable. A launched script, open PR, or merge alone may
 partial progress. All canonical task-to-test merges use merge commits.
 
 On failure inspect the earliest error and actual partial effects before recovery.
+Use the target helper's named stage, native cause/result and confirmed/uncertain
+effects when available; verify them against current target state. Distinguish an
+Application Code defect, a Tooling/environment failure and an authorization or
+capability block. Sanitize local diagnostic locations and inputs before publication.
 Continue routine authorized fixes and remaining steps; never blindly rerun a merge
 or overwrite protection. Complete independent work. Before pausing or reporting a
 failure, use `cleanup-task-artifacts` with local guidance. The delivery authority
