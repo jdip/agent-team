@@ -60,6 +60,12 @@ supported lifecycle handling or retain it. An attached worktree is not a deliver
 failure. Do not use broad pruning or edit app storage.
 
 On failure inspect the earliest causal error and actual push/PR/check/merge effects.
+The helper's local diagnostic names the failed stage, operation, repository/revision,
+native result, confirmed effects and attempts requiring inspection. Native stderr
+remains the causal evidence; command arguments and PR body inputs are not repeated.
+Retained checkout paths and other local diagnostics need publication review and
+sanitization before sharing. This in-memory report does not establish current remote
+state or authorize another attempt.
 Use gh pr view/checks and git state before deciding recovery; do not blindly replay.
 If already merged, verify that exact merge directly and finish bookkeeping instead
 of opening another PR. Resolve routine problems within the authorized issue. External

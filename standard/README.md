@@ -68,6 +68,13 @@ unassessed scope through planning and delivery using the bounded
 Reuse the target's sufficient verification guides and controls; its acceptance
 definitions remain locally owned.
 
+For the selected workflow, require actionable native failure evidence at its
+existing helper/check boundary: responsible stage, safe operation identity and
+revision, native cause/result, verified effects, uncertain attempts and retained
+evidence or next verification. Preserve the target's failure behavior and privacy
+rules. Plan a missing mechanism locally; a capability or authorization block is an
+explicit prerequisite, not evidence of a source defect.
+
 Conduct or resume Wayfinder with that evidence, following its grilling entry
 before charting new work, to resolve how this target should reach the workflow's
 goals. The target owns the map and specification, including
