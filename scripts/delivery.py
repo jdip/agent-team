@@ -95,14 +95,20 @@ def verify(revision):
     root = Path(tempfile.mkdtemp(prefix='agent-team-delivery-', dir=plain_path(temporary_root)))
     checkout = root / 'checkout'
     run.retained.append(str(checkout))
+    effect = 'add local verification checkout'
+    run.attempt(effect)
     call('git', 'worktree', 'add', '--detach', str(checkout), revision, capture=False)
+    run.confirm(effect)
     try:
         subprocess.run([bash(), 'scripts/check.sh'], cwd=checkout, check=True)
     except Exception:
         print(f'Verification checkout retained for investigation: {checkout}', flush=True)
         raise
     run.confirm(f'source checks passed on {revision}')
+    effect = 'remove local verification checkout'
+    run.attempt(effect)
     call('git', 'worktree', 'remove', str(checkout), capture=False)
+    run.confirm(effect)
     root.rmdir()
     run.retained.remove(str(checkout))
     print(f'Verified source on {revision}; no deployed application exists in this repository.', flush=True)
@@ -250,6 +256,7 @@ def main():
             tags_current = False
             run.report(error, terminal=False)
             print('Tag refresh incomplete; inspect version metadata separately from delivery gates.', flush=True)
+    run.enter('preflight', 'resolve repository identity')
     repository = github('repo', 'view', '--json', 'nameWithOwner')['nameWithOwner']
     run.repository = repository
     run.enter('source gate', 'run source syntax and staged privacy checks')
