@@ -50,6 +50,13 @@ criterion. Report the issue link; use the existing task issue when it already
 covers the lesson.
 Keep credentials and private transcript content out of tracker records.
 
+Keep the local incident, cause, fix and proof as canonical evidence. Promptly route
+severe, repeated or clearly shared candidates as sanitized intake at the maintained
+source, deduplicating both records and linking only where publication permits.
+Record a justified local-only disposition when shared adaptation is unwarranted.
+Shared policy changes still require their applicable review, approval and normal
+distribution; intake does not authorize editing installed copies.
+
 Apply an in-scope fix through the global Planning before implementation rule and
 existing review/delivery authority, reusing coverage; record its result in the
 issue. Analysis and lesson filing can inform that planning before
@@ -57,9 +64,14 @@ implementation. Leave deferred work open. Filing does not admit or activate a
 backlog, expand the current fix, or authorize shared guidance changes. Batch any
 missing approval with concrete proposed changes; reuse consent already supplied.
 
-Validate an approved change against the motivating incident with one relevant
-real-use check where possible. Report future-dependent benefit as unverified until
-that use occurs. Do not add an evaluation campaign to establish it.
+For an approved mechanical remedy, exercise the motivating violation and valid
+neighboring behavior through the required native invocation, respecting local
+verification classification. Record its command, revision, observed result and
+limits; configured enforcement alone does not establish execution. For a mixed or
+judgment lesson, justify the residual rule and keep it with the relevant context.
+Validate other approved changes against the motivating incident through relevant
+real use where possible. Keep future-dependent benefit unverified until that use;
+this requires no evaluation campaign.
 
 Return a short list of accepted lessons, evidence, issue links and dispositions.
 For an explicit reflection with nothing useful, say so. A routine check with no

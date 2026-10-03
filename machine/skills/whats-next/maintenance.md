@@ -31,6 +31,11 @@ acceptance. The target owns its purpose, signal definitions and checks. Use its
 existing verification controls within their current authority; assessment alone
 does not authorize driving a runtime, adoption or unrelated fixes.
 
+When an authorized on-demand sample selects incident learning or missed patterns,
+inspect its bounded outcome evidence, including relevant unflagged results, and
+use [reflect's follow-through](../reflect/SKILL.md#record-and-follow-through) for
+native proof and deduplicated local/shared disposition.
+
 ## Establish a stable baseline
 
 Get active code tasks, implementation PRs, and unfinished local code changes through

@@ -75,6 +75,12 @@ evidence or next verification. Preserve the target's failure behavior and privac
 rules. Plan a missing mechanism locally; a capability or authorization block is an
 explicit prerequisite, not evidence of a source defect.
 
+For a selected native enforcement remedy, carry its motivating violation, valid
+neighboring behavior, required invocation and justified residual guidance through
+planning and verification using [reflect's follow-through](../machine/skills/reflect/SKILL.md#record-and-follow-through).
+Keep the mechanism at its existing target type, lint, schema, test, runtime or data
+boundary, under that target's covering plan and authority.
+
 Conduct or resume Wayfinder with that evidence, following its grilling entry
 before charting new work, to resolve how this target should reach the workflow's
 goals. The target owns the map and specification, including
