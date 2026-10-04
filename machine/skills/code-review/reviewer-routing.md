@@ -18,14 +18,51 @@ preserve the bounded review task. This Claude Code route ends here.
 
 ## Codex: Default native review
 
-Assign the complete immutable comparison and requirements to `critical_reviewer`,
-using `rev_<purpose>` and display `🔍 REV` followed by the exact task name. Select
+The default is the configured read-only `critical_reviewer`. Prepare the complete
+immutable comparison and requirements before selecting a route. Use `rev_<purpose>`
+and display `🔍 REV` followed by the exact task name. Select
 the declared standard model in standard or unknown mode and the declared Daybreak
 model in Daybreak mode, at `xhigh`. Neither the generic default nor optional Opus review
 replaces the required mode-compatible native reviewer. Unavailable native dispatch
 is a concrete blocked review; preserve mode and report the reason.
 
-Select and dispatch:
+### Current-task capability gate
+
+Inspect the directly exposed dispatch schema and supported current-task metadata.
+Establish role selection/loading, model/effort controls and observable inherited
+permissions on this surface. A task-name prefix, installed configuration, roster
+inventory, account entitlement or another runtime's API proves none of these.
+Distinguish a missing role selector from ineffective permissions after supported
+role dispatch; source changes cannot restore a missing host capability.
+
+- **A. Supported named role:** use the default route and its loaded-role checks
+  below. Preserve configured read-only authority. A known loaded-role/sandbox
+  contradiction blocks this route; return it to the existing enforcement owner
+  without changing permissions.
+- **B. Missing role selection/loading evidence:** name the exact tool and missing
+  control, preserve the review packet, and check existing operator authority for C.
+  Without a covering exception, return a blocked review. Tool availability, naming,
+  harmless intent and Full Access do not establish exception authority.
+- **C. Explicit bounded ordinary-native exception:** require operator authority
+  covering this repository, finite task/review scope, assigned axes, direct ordinary
+  native tool and disclosed inherited permissions, accepting the absence of an
+  enforced role sandbox. Pin the comparison at dispatch and retain the compatible
+  model/xhigh and repository-read-only assignment. Reuse matching authority from
+  existing task/tracker context; covered corrective iterations may repin without
+  duplicate prompts. A new repository/provider or materially changed scope or
+  permissions needs covering authority. This is a finite exception, not a standing
+  waiver; no approval ledger or credential is needed.
+- **D. Unsupported controls or rejected dispatch:** missing required delegation,
+  model or effort returns a block with the packet. Preserve an actual denial's
+  exact action, target and reason; task transcripts and tool wrappers do not
+  guarantee approval. Use only the explicit mode recovery below. Do not force a
+  prompt, fabricate approval identifiers, relabel the action, change security
+  controls, select a generic substitute or launch an extra CLI/cloud coordinator
+  to retry indirectly. Optional review cannot replace required native review.
+
+### Select and dispatch
+
+Apply mode/model selection to both A and an authorized C:
 
 1. Use supported current-task mode evidence when available, including an explicit
    operator declaration that remains valid for this task. Fresh task metadata such
@@ -42,24 +79,29 @@ Select and dispatch:
    membership alone does not prove current-mode compatibility. Let the host enforce
    compatibility during dispatch while preserving the orchestrator mode, sandbox
    and approval controls. A known unavailable or incompatible choice blocks review.
-3. Verify the loaded `critical_reviewer` role will execute the selected model at
-   the required effort. Its managed source omits a fixed model; a loaded fixed
+3. For A, verify the loaded `critical_reviewer` role will execute the selected model
+   at the required effort. Its managed source omits a fixed model; a loaded fixed
    model can still win over a spawn override. An identical loaded pin satisfies
    model selection, so use that verified assignment if an override is unnecessary
    or unsupported. A conflicting pin or host restriction blocks dispatch until
    reconciliation/restart resolves it; source changes alone do not refresh a
    loaded role. Preserve the role's configured read-only authority.
-4. Spawn that role with the selected explicit model (or verified identical pin)
-   and `xhigh` effort. Generic
+4. For A, spawn that role with the selected explicit model (or verified identical
+   pin) and `xhigh` effort. For C, invoke the direct ordinary native tool once with
+   `fork_turns="none"`, explicit selected model/xhigh and a standalone complete
+   packet: repository, pinned comparison and complete requested diff, requirements,
+   applicable instructions, Standards/Spec axes and smell baseline, verification
+   evidence and its limits. Generic
    subagent defaults are not reviewer selection. Where full-history forks forbid
    model overrides, use `fork_turns="none"` and supply the bounded review packet
    explicitly, or a supported bounded-history fork with the complete packet.
-   Preserve the assigned Standards/Spec axes and read-only limits: repository
-   inspection only, no mutations, external connectors, or recursive delegation.
+   Preserve the assigned Standards/Spec axes and read-only limits on either route:
+   repository inspection only, no mutations, external connectors, or recursive delegation.
 5. If the standard attempt is rejected with a host response explicitly identifying
    active Daybreak mode or a requirement for a Daybreak-compatible model, use that
    response as current-mode evidence. Repeat the model/effort and loaded-role checks
-   for the declared `daybreak` choice and dispatch it once with the same assignment,
+   for the declared `daybreak` choice (loaded-role checks only for A) and dispatch
+   it once through the same authorized route with the same assignment,
    without another operator question. Authentication, entitlement, rate-limit,
    service, generic safeguard or unrelated launch failures do not establish mode
    and remain concrete blockers. A failed Daybreak attempt also blocks review;
@@ -71,7 +113,13 @@ the implementation owner for resolution. Preserve actionable evidence from any
 optional Claude review alongside the native result. Successful dispatch alone does
 not establish mode: report `unknown` when evidence remains unavailable. Report the
 mode evidence, requested model and effort, dispatch result, any recovery or
-availability limit, and Standards/Spec outcomes. The primary validates
+availability limit, and Standards/Spec outcomes. Separate requested, accepted and
+observable effective identity; unknown telemetry stays unknown. For A, report
+loaded-role and effective permission evidence. For C, report ordinary native review,
+instruction-only read-only authority and actual or unknown inherited permissions;
+never claim a loaded role or enforced read-only sandbox without evidence. Identify
+unavailable/unexercised surfaces rather than simulating dispatch or using destructive
+permission probes. The primary validates
 findings and coverage and remains accountable for delivery.
 
 ## Codex: Optional additional Claude review
