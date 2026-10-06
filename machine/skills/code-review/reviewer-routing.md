@@ -26,33 +26,35 @@ model in Daybreak mode, at `xhigh`. Neither the generic default nor optional Opu
 replaces the required mode-compatible native reviewer. Unavailable native dispatch
 is a concrete blocked review; preserve mode and report the reason.
 
-### Current-task capability gate
+### Current-task dispatch
+
+An explicit review request or a required review within authorized implementation
+supplies review authority. Proceed without a separate review approval when the
+reviewer inherits broader task permissions or the host lacks a named-role selector.
+The assignment remains repository-read-only: inspect sources, return findings and
+proposed fixes to the implementation owner, and use no mutations, external
+connectors or recursive delegation.
 
 Inspect the directly exposed dispatch schema and supported current-task metadata.
 Establish role selection/loading, model/effort controls and observable inherited
 permissions on this surface. A task-name prefix, installed configuration, roster
 inventory, account entitlement or another runtime's API proves none of these.
-Distinguish a missing role selector from ineffective permissions after supported
-role dispatch; source changes cannot restore a missing host capability.
+Role sandbox settings are defaults; the parent's live sandbox and approval choices
+can override them when the host spawns a child. Disclose actual or unknown inherited
+permissions, including Full Access/never, and rely on the read-only assignment when
+isolation is not enforced. Preserve available sandbox controls without changing
+the parent's permissions or treating documented inheritance as a blocked review.
 
 - **A. Supported named role:** use the default route and its loaded-role checks
-  below. Preserve configured read-only authority. A known loaded-role/sandbox
-  contradiction blocks this route; return it to the existing enforcement owner
-  without changing permissions.
-- **B. Missing role selection/loading evidence:** name the exact tool and missing
-  control, preserve the review packet, and check existing operator authority for C.
-  Without a covering exception, return a blocked review. Tool availability, naming,
-  harmless intent and Full Access do not establish exception authority.
-- **C. Explicit bounded ordinary-native exception:** require operator authority
-  covering this repository, finite task/review scope, assigned axes, direct ordinary
-  native tool and disclosed inherited permissions, accepting the absence of an
-  enforced role sandbox. Pin the comparison at dispatch and retain the compatible
-  model/xhigh and repository-read-only assignment. Reuse matching authority from
-  existing task/tracker context; covered corrective iterations may repin without
-  duplicate prompts. A new repository/provider or materially changed scope or
-  permissions needs covering authority. This is a finite exception, not a standing
-  waiver; no approval ledger or credential is needed.
-- **D. Unsupported controls or rejected dispatch:** missing required delegation,
+  below. Preserve its read-only assignment even when parent runtime permissions
+  override the role's sandbox default.
+- **B. Ordinary native dispatch:** when named-role selection/loading is unavailable,
+  identify the exact direct tool and missing control, then assign the same bounded
+  review through that tool with the declared compatible model/xhigh. Report
+  instruction-only read-only authority and inherited permissions accurately.
+  Reuse the authorized review scope for corrective iterations and repin the
+  comparison as needed; neither this route nor Full Access expands that scope.
+- **C. Unsupported controls or rejected dispatch:** missing required delegation,
   model or effort returns a block with the packet. Preserve an actual denial's
   exact action, target and reason; task transcripts and tool wrappers do not
   guarantee approval. Use only the explicit mode recovery below. Do not force a
@@ -62,7 +64,7 @@ role dispatch; source changes cannot restore a missing host capability.
 
 ### Select and dispatch
 
-Apply mode/model selection to both A and an authorized C:
+Apply mode/model selection to both A and B:
 
 1. Use supported current-task mode evidence when available, including an explicit
    operator declaration that remains valid for this task. Fresh task metadata such
@@ -87,7 +89,7 @@ Apply mode/model selection to both A and an authorized C:
    reconciliation/restart resolves it; source changes alone do not refresh a
    loaded role. Preserve the role's configured read-only authority.
 4. For A, spawn that role with the selected explicit model (or verified identical
-   pin) and `xhigh` effort. For C, invoke the direct ordinary native tool once with
+   pin) and `xhigh` effort. For B, invoke the direct ordinary native tool once with
    `fork_turns="none"`, explicit selected model/xhigh and a standalone complete
    packet: repository, pinned comparison and complete requested diff, requirements,
    applicable instructions, Standards/Spec axes and smell baseline, verification
@@ -115,7 +117,7 @@ not establish mode: report `unknown` when evidence remains unavailable. Report t
 mode evidence, requested model and effort, dispatch result, any recovery or
 availability limit, and Standards/Spec outcomes. Separate requested, accepted and
 observable effective identity; unknown telemetry stays unknown. For A, report
-loaded-role and effective permission evidence. For C, report ordinary native review,
+loaded-role and effective permission evidence. For B, report ordinary native review,
 instruction-only read-only authority and actual or unknown inherited permissions;
 never claim a loaded role or enforced read-only sandbox without evidence. Identify
 unavailable/unexercised surfaces rather than simulating dispatch or using destructive

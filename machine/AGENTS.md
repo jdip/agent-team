@@ -163,8 +163,10 @@ agents execute directly without recursive delegation. Route reviews through
 
 This section applies only in Codex. Route code reviews, including delivery reviews,
 through `code-review`; its reviewer routing preserves the configured read-only
-`critical_reviewer` default and owns current-task capability checks, finite explicit
-ordinary-native exceptions and optional Claude review. For planner and worker
+`critical_reviewer` default and owns current-task dispatch, read-only assignments,
+inherited-permission disclosure and optional Claude review. Authorized reviews
+continue without separate permission approval, including ordinary native dispatch
+and inherited Full Access. For planner and worker
 assignments, load
 [Claude delegation](agents/claude-delegation.md) before choosing the preferred
 Opus route or its explicit native Sol fallback.
