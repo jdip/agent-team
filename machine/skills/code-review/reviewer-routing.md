@@ -131,8 +131,9 @@ review. The default review uses the native route above. Use exact
 `claude-opus-5-5` with `--effort xhigh` when available on the execution host;
 Claude is an external CLI invocation, not a Codex model selector.
 
-Resolve `claude` on the host, inspect `claude --version` and the installed CLI's
-options, and check `claude auth status` without exposing account details or secrets.
+For each assignment, resolve `claude` on the host, inspect `claude --version` and the
+installed CLI's options, and check `claude auth status` without exposing account
+details or secrets.
 Verify the effective authentication method and provider are the Claude subscription,
 including any environment overrides: an `ANTHROPIC_API_KEY`, auth token, custom
 base URL, or Bedrock/Vertex/Foundry selection can override an existing login. Inspect
@@ -168,24 +169,38 @@ and limit tools to repository reads. `--safe-mode` preserves subscription login;
 `--bare` skips OAuth/keychain authentication and is unsuitable for this route.
 `--restricted` confines file tools to the working directories. Supply repository
 instructions explicitly because safe mode skips their automatic discovery. Safe
-mode alone does not disable policy hooks. Verify managed policy permits
-the restrictions and requested effective effort; unknown or incompatible policy
-makes the optional route unavailable. Do not enable Bash, edits, subagents, external connectors, or permission bypasses for this review.
+mode alone does not disable policy hooks. Verify managed policy permits the required
+restrictions. Establish effort support from the installed CLI's supported `--effort`
+option/value and absence of known incompatible managed overrides or clamps; no echoed
+effort or support field is required. Prevented or unestablished security controls or
+access make the optional route unavailable. Missing effective-effort
+metadata alone does not invalidate established security controls. Do not enable
+Bash, edits, subagents, external connectors, or permission bypasses for this review.
 The primary supplies Git/tracker evidence and runs any required checks separately.
 
 Allow at most 15 minutes for an invocation; supervise and terminate an unfinished
 process before reporting this optional route unavailable. Inspect exit status,
-JSON error/result fields, reported model usage, effective-effort evidence,
-permission denials, and actual coverage of the assigned axes. A zero
-exit status alone is not review completion. Accept only a complete review from
-Opus 5.5 at the requested effort; unknown effective effort leaves completion
-unverified. Do not configure another Claude fallback model;
-if automatic substitution occurs, treat that result as unavailable for this route.
+JSON error/result fields including `is_error`, reported model usage, effort evidence,
+permission denials, and actual coverage of the assigned axes. A zero exit status
+alone is not review completion. Accept a complete review from Opus 5.5 when the
+effort request is accepted: the supported explicit `--effort` option was passed with
+no reported rejection or known incompatible override or clamp. No returned effort
+or acceptance field is required; request acceptance does not prove effective effort.
+Report requested/accepted effort separately from observed effective effort. Absent
+effective-effort metadata is unobserved, not unavailability or incomplete review;
+model self-attestation is not observation. Do not configure another Claude fallback
+model; if automatic substitution occurs, treat that result as unavailable for this
+route.
 
-On optional-route installation/login/model-access gaps, unsupported controls,
-usage/service limits, timeout, malformed output, substitutions or incomplete coverage,
-report the concrete limit and preserve actionable partial findings. One failed
-Claude invocation is enough; do not retry or silently choose another Claude model.
+On optional-route installation/login/model-access gaps, authentication/provider
+failures, unsupported or rejected controls, known effort incompatibility or policy
+clamps, observed effective-effort mismatch (including lower effort than requested),
+denials, usage/service limits or errors, timeout, malformed output,
+substitutions or incomplete coverage, report the concrete limit and preserve
+actionable partial findings. One failed Claude invocation is enough; do not retry
+or silently choose another Claude model.
+Recheck current prerequisites for later assignments; missing telemetry or an earlier
+failure does not permanently disable this optional route.
 The completed native review remains authoritative. Optional reviewer unavailability
 is not an unresolved finding; accepted findings still return to the implementation
 owner, and a specifically required additional review stays pending.
