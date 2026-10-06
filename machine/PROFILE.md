@@ -76,6 +76,13 @@ Full Access changes tool permissions, not task authorization. Preserve explicit
 human-approval boundaries for deployments, destructive actions and main promotion.
 Trusted repository configuration and managed requirements can tighten the defaults.
 
+Role sandbox settings are defaults. Codex reapplies the parent's live sandbox and
+approval overrides when spawning subagents, even when a role declares another
+sandbox default; see [subagent permission inheritance](https://learn.chatgpt.com/docs/agent-configuration/subagents).
+The review owner's [routing](skills/code-review/reviewer-routing.md) keeps the
+assignment read-only and reports inherited permissions without requiring separate
+review approval. A read-only assignment does not prove enforced filesystem isolation.
+
 Installation alone does not establish changed permissions in existing threads.
 Verify fresh-task defaults in each actual client and report any required reload or
 restart separately, preserving active work.
