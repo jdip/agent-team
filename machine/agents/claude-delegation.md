@@ -15,8 +15,10 @@ base-URL and Bedrock/Vertex/Foundry overrides; preserve their values and the use
 An override or unverified subscription makes this route unavailable. Account setup,
 purchases, API billing, CLI installation and upgrades require separate authority.
 
-Verify supported safe/restricted mode, tool controls, disabled hooks and support for
-the requested model/effort under actual managed policy. Safe mode alone does not
+Verify supported safe/restricted mode, tool controls, disabled hooks and the requested
+model under actual managed policy. Establish effort support from the installed CLI's
+supported `--effort` option/value and absence of known incompatible managed overrides
+or clamps; no echoed effort or support field is required. Safe mode alone does not
 disable policy hooks or prove the effective effort. If required security controls
 or access cannot be established, report the limit and use the native role. Missing
 effective-effort metadata alone does not invalidate established security controls.

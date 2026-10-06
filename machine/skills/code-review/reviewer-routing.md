@@ -170,8 +170,10 @@ and limit tools to repository reads. `--safe-mode` preserves subscription login;
 `--restricted` confines file tools to the working directories. Supply repository
 instructions explicitly because safe mode skips their automatic discovery. Safe
 mode alone does not disable policy hooks. Verify managed policy permits the required
-restrictions and supports the requested effort. Prevented or unestablished security
-controls or access make the optional route unavailable. Missing effective-effort
+restrictions. Establish effort support from the installed CLI's supported `--effort`
+option/value and absence of known incompatible managed overrides or clamps; no echoed
+effort or support field is required. Prevented or unestablished security controls or
+access make the optional route unavailable. Missing effective-effort
 metadata alone does not invalidate established security controls. Do not enable
 Bash, edits, subagents, external connectors, or permission bypasses for this review.
 The primary supplies Git/tracker evidence and runs any required checks separately.
