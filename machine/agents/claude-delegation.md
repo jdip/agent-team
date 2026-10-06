@@ -9,9 +9,9 @@ not a Codex model selector. Assigned delegates execute directly.
 ## Establish availability
 
 For each assignment, resolve `claude` on the executing host and inspect its version,
-supported options and sanitized `claude auth status`. Establish an existing Claude subscription and
-first-party provider. Check only the presence of API-key, auth-token, base-URL and
-Bedrock/Vertex/Foundry overrides; preserve their values and the user's environment.
+supported options and sanitized `claude auth status`. Establish an existing Claude
+subscription and first-party provider. Check only the presence of API-key, auth-token,
+base-URL and Bedrock/Vertex/Foundry overrides; preserve their values and the user's environment.
 An override or unverified subscription makes this route unavailable. Account setup,
 purchases, API billing, CLI installation and upgrades require separate authority.
 
@@ -19,8 +19,7 @@ Verify supported safe/restricted mode, tool controls, disabled hooks and support
 the requested model/effort under actual managed policy. Safe mode alone does not
 disable policy hooks or prove the effective effort. If required security controls
 or access cannot be established, report the limit and use the native role. Missing
-effort or policy telemetry alone does not establish incompatibility; an unobserved
-effective effort does not prevent establishing the required security controls.
+effective-effort metadata alone does not invalidate established security controls.
 Use subscription-preserving safe mode; bare mode skips its authentication.
 
 ## Assign and execute
@@ -62,16 +61,20 @@ The primary runs checks and Git/publication operations separately.
 
 ## Accept or fall back
 
-Inspect exit status, JSON errors, model usage, effort evidence, denials, coverage
-and actual changed files. A zero exit is insufficient. Accept complete output from
-the requested model within ownership when the supported explicit effort request
-is accepted. Record requested/accepted effort separately from observed effective
-effort; absent effective-effort metadata is unobserved, not unavailability or
-incomplete work. Require neither a new telemetry field nor model self-attestation.
+Inspect exit status, JSON errors including `is_error`, model usage, effort evidence,
+denials, coverage and actual changed files. A zero exit is insufficient. Accept
+complete output from the requested model within ownership when the effort request
+is accepted: the supported explicit `--effort` option was passed with no reported
+rejection or known incompatible override or clamp. No returned effort or acceptance
+field is required; request acceptance does not prove effective effort. Record
+requested/accepted effort separately from observed effective effort. Absent
+effective-effort metadata is unobserved, not unavailability or incomplete work;
+model self-attestation is not observation.
 
 Authentication/provider failures, unsupported or rejected controls, known effort
-incompatibility or policy clamps, automatic model substitution, denials, limits,
-errors, timeout, malformed output or incomplete work make the route unavailable
+incompatibility or policy clamps, observed effective-effort mismatch (including lower
+effort than requested), automatic model substitution, denials, limits, errors,
+timeout, malformed output or incomplete work make the route unavailable
 for this assignment; report the concrete reason instead of retrying Claude.
 
 Before a native worker resumes, inspect partial edits and unrelated state. Preserve
