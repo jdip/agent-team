@@ -1,8 +1,10 @@
 name: Validate
+# Records the tested synthetic integration; scripts/delivery.py reads it back.
+run-name: Validate integration ${{ github.sha }}
 on:
-  push:
   pull_request:
 permissions:
+  actions: read
   contents: read
 jobs:
   validate:
@@ -12,5 +14,11 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
-      - name: Check actual source syntax
-        run: scripts/check.sh
+      - name: Record source-check runtime
+        id: runtime
+        run: echo "context=${ImageOS:?}/${ImageVersion:?}/$(python3 --version)" >> "$GITHUB_OUTPUT"
+      - name: Validate integration (${{ steps.runtime.outputs.context }})
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VALIDATION_CONTEXT: ${{ steps.runtime.outputs.context }}
+        run: python3 scripts/delivery.py validate

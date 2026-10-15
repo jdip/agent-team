@@ -52,7 +52,9 @@ claims, the scoped selection binding and the whole-map Design gate in force.
    update the feature through normal merging and repeat affected review/checks;
    do not reuse evidence for a different integration tree.
 4. Fetch and verify the merge commit, its intended parents and its reachability in
-   the recorded rollup. Run the local merged-source/integration check. Recheck
+   the recorded rollup. Attribute the PR's passing integration run to the merge
+   through the local runbook's provenance check; a merge whose parents or tree
+   differ from the tested integration needs its own validation. Recheck
    ownership and design, then record PR/review/check evidence and close the child
    only when its integration acceptance is met. State that test delivery is pending
    on the parent. This permits dependent children to proceed.

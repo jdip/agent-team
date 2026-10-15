@@ -40,7 +40,8 @@ ambiguous evidence stays unresolved rather than being treated as absent.
 
 Resolve the target-owned Wayfinder plan and approved specification from that
 assessment and the upgrade's goals. Reuse covering decisions; plan changes,
-prerequisites, deferred work and delivery evidence for this target. Recheck state
+including executable verification alignment, prerequisites, explicit blockers and
+delivery evidence for this target. Recheck state
 and plan coverage before applying the delta, preserving justified customizations. Do not overwrite local files wholesale or
 build a migration engine/compatibility matrix. When replacing a mechanism, migrate
 callers and remove obsolete code/configuration within scope rather than accumulating
@@ -70,12 +71,13 @@ repository and root guidance, including the upgrade's own feature worktree.
 Establish missing prerequisites within upgrade scope; preserve active checkouts
 and report unresolved conflicts rather than declaring adoption from text alone.
 
-Reassess the Application Code/Tooling mapping and actual gates. Application Code
-requires rigorous lint/type/validation and meaningful high coverage; Tooling is
-verified in real use. Record application coverage gaps in scoped, deduplicated
-issues. Remove obsolete Tooling-suite requirements from guidance now and file later
-machinery retirement under the standard's outcome. Report remaining gaps and
-executable constraints; those follow-ups do not block guidance alignment.
+Reassess the Application Code/Tooling mapping and actual gates. Apply the selected
+standard's Validation and adoption and Verification evidence outcomes to the
+target's actual workflows, CI, scripts, tests and fixtures in this upgrade change,
+verifying each through its native checks and real use. The upgrade is complete
+only when guidance and executable controls agree; an unresolved design,
+authorization or capability blocker keeps it explicitly incomplete. Record
+unrelated application coverage gaps in scoped, deduplicated issues.
 
 Complete independent work and batch substantive conflict decisions with concrete
 recommendations. Preserve unanswered decisions; do not assume intent or publish a

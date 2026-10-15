@@ -73,6 +73,13 @@ recommending reuse. Passing tests or coverage do not establish that the setup is
 necessary. Apply [TDD's boundary guidance](../tdd/SKILL.md#seams-where-tests-go)
 within this review, without starting a separate testing workflow.
 
+For changed CI, delivery or verification steps, and for adoption or upgrade
+changes, apply the target's verification policy and, where it declares a Repository
+Standard, that revision's Verification evidence and Validation and adoption
+outcomes. Flag a full suite repeated for an already verified integration context,
+evidence reuse without explicit context equivalence, and alignment that edits
+guidance while its workflows, CI, tests or fixtures still enforce the retired rule.
+
 For **Spec**, identify missing or partial requirements, unrequested behavior, and incorrect implementations. Cite the supplied requirement and the changed location. Assess correctness, regressions, and relevant security implications within the requested scope.
 
 For structural cleanup, dependency changes, or claims of simplification, also apply

@@ -12,13 +12,17 @@ Requirements are the same Git/gh/Bash/Python 3.11+ tools as PR-to-test. Read act
 review and test-delivery evidence; review any changes not covered by it.
 
 Run scripts/promote-to-main.sh, optionally supplying --title and --body-file.
-It fetches origin and tags, verifies local source syntax, snapshots intended test
-and main, creates/reuses the test-to-main PR, requires checks, merges the intended
-head with a merge commit, and verifies that merged source in a temporary checkout.
-It then creates/reuses a semver:none main-to-test synchronization PR, checks,
-merges with a merge commit, and verifies the synchronized source. Branch drift
-stops for investigation. No deployment, signing, notarization, or application
-runtime exists in this repository; do not invent those completion requirements.
+It fetches origin and tags, runs the local Git-index privacy gate, snapshots
+intended test and main, creates/reuses the test-to-main PR, requires its current
+checks, merges the intended head with a merge commit, and verifies the merge's
+parents and tree against the integration its passing Validate run tested. It then
+creates/reuses a semver:none main-to-test synchronization PR, requires checks,
+merges with a merge commit, and attributes that merge the same way. An unchanged
+tree and source-check runtime use successful prior integration evidence in the
+current Validate job rather than a repeated suite; changed or unproven inputs need validation, and failing
+current checks block. Branch drift stops for investigation. No deployment, signing,
+notarization, or application runtime exists in this repository; do not invent
+those completion requirements.
 
 The version contribution comes from canonical task PR merge commits on test's
 first-parent history that are not already in main, in oldest-first order. Count each
@@ -41,7 +45,7 @@ recovery. Never blindly rerun after a merge. Complete remaining already-authoriz
 steps directly when their state is established. Do not add a journal, rollback
 engine, release-state PR, or automatic main promotion.
 
-Complete only after both applicable merged revisions and checks are verified.
+Complete only after both merged revisions' parents and attributable checks are verified.
 Finish safe cleanup as in PR-to-test, retaining attached/shared/uncertain checkouts.
 Promotion runtime verification requires an actual promotion request; syntax or
 read-only version inspection does not claim a live promotion succeeded.

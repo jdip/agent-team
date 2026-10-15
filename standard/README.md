@@ -23,6 +23,9 @@ copying an entire scaffolding tree.
   empty scaffolding.
 - Actual development and verification instructions, with a local classification
   of Application Code and Tooling by purpose.
+- Verification policy held by the target's native CI, script and runbook owners
+  under [verification evidence](#verification-evidence), with executable
+  alignment completed under [validation and adoption](#validation-and-adoption).
 - Guidance retirement under the outcome below, including inherited process that
   adds unjustified complexity without directly contradicting another rule.
 - A target-specific plan under Target assessment and planning below, resolved
@@ -93,8 +96,9 @@ location before implementation. Follow publication policy for planning writes.
 Before implementation, resolve the map and approve the specification and executable
 breakdown through the existing planning owners, unless the operator explicitly
 waives planning. A workflow invocation carries its normal authorized outcome; it
-does not waive planning. Keep small plans brief. Plan actual changes, prerequisites,
-deferred work and evidence for the target's completion boundary, rather than create
+does not waive planning. Keep small plans brief. Plan actual changes, including
+executable verification alignment, prerequisites, explicit blockers, separately
+owned work and evidence for the target's completion boundary, rather than create
 a universal bootstrap program. Research and planning records may precede approval;
 target guidance/configuration changes and adoption setup follow the approved plan.
 Use the existing selection owners with explicit effort/task bindings for saved
@@ -157,24 +161,23 @@ rule does not retire an obligation. Preserve current product requirements,
 necessary safety controls and justified repository constraints; resolve substantive
 unsettled decisions with the operator rather than infer them from old plans.
 
-Remove obsolete requirements from guidance during authorized alignment, retaining
-successful real-use verification. Trace affected callers and enforcement; file
-deduplicated issues for later removal of permanent Tooling tests, validation suites,
-fake environments and their supporting machinery. Those follow-ups do not block
-guidance alignment. Describe surviving enforcement as pending retirement, not as
-endorsed development policy. Prose edits do not bypass executable controls.
-Classify by purpose: application tests remain application tests when invoked by
-tooling. Preserve necessary application/security checks and the canonical delivery
-route. Preparation retains its documentation-only local-branch handoff boundary.
+Retire an obsolete obligation at every owner that enforces it. Trace affected
+callers and enforcement: adoption and upgrades change the target's workflows, CI,
+scripts, tests and fixtures together with its guidance, under
+[validation and adoption](#validation-and-adoption). Guidance whose executable
+controls still enforce the retired requirement is not aligned. Classify by purpose:
+application tests remain application tests when invoked by tooling. Preserve
+necessary application/security checks and the canonical delivery route.
+Preparation retains its documentation-only local-branch handoff boundary and hands
+each required executable change to the adoption or upgrade plan as named scope.
 
 Reassess the final guidance across the discovered scope for surviving obsolete
 obligations and inbound references, including content migrated into another owner.
 Report removals, justified retention and unresolved mismatches in the existing
 handoff or delivery evidence, without a new inventory framework. Complete independent
-authorized guidance cleanup before batching decisions. Distinguish unresolved
-guidance or actual delivery blockers from deferred machinery removal; filing a
-follow-up does not justify retaining the obsolete rule. Preparation readiness
-covers its documentation outcome and identifies remaining adoption/upgrade work.
+authorized guidance cleanup before batching decisions, keeping unresolved guidance
+and actual delivery blockers explicit. Preparation readiness covers its
+documentation outcome and names the executable alignment adoption or upgrade makes.
 
 ## Visibility and public work
 
@@ -314,10 +317,49 @@ checks through a shell wrapper does not turn those checks into prohibited Toolin
 
 Greenfield Initialization establishes only the needed organization, guidance, tracker
 conventions, and minimal shell entry points. Application tooling grows with actual
-application development. Preserve mechanisms justified by current needs and retire
-obsolete guidance and enforcement under the guidance-retirement outcome above.
-Track application coverage gaps as scoped, deduplicated issues; those gaps remain
-visible without blocking adoption. Actual delivery prerequisites still apply.
+application development.
+
+Adoption and upgrades align the target's executable verification, not only its
+guidance. The target-owned plan names the workflow, CI, script, test and fixture
+changes that retire obsolete enforcement, such as Tooling suites, fake environments,
+duplicate verification runs and unjustified per-case service startup, and how each
+change is verified. Apply [TDD's test boundaries](../machine/skills/tdd/SKILL.md#seams-where-tests-go)
+when changing application tests and fixtures. Routine repairs
+within that scope ship in the alignment change under its existing authority.
+Preserve mechanisms justified by current needs: meaningful application behavior
+and native-contract tests, fresh per-case data and isolated credentials, and
+dedicated services for destructive or lifecycle cases. Alignment changes how
+verification runs and is reused; it is not an application rewrite. A substantive
+missing design, authorization or external capability stays an explicit blocker and
+leaves adoption or upgrade incomplete. Application coverage gaps unrelated to that
+alignment remain scoped, deduplicated issues with their own owner and do not block
+adoption. Actual delivery prerequisites still apply.
+
+## Verification evidence
+
+Record the target's verification policy with its native owners: CI configuration,
+delivery scripts, development guidance and the local runbooks. Run one authoritative
+verification per distinct integration and relevant context, such as a runtime
+matrix entry, data service or deployment target. Hosted CI is authoritative where
+it exists; full local runs are optional unless the runbook names a local-only gate.
+Cheap pre-publication privacy checks stay mandatory before each push, and changed
+Tooling still needs successful actual use.
+
+Reuse requires a successful native run attributable to the content and relevant
+configuration, environment and data inputs being checked. Attribute a PR run to
+its resulting merge by verifying the intended parents and comparing the merged
+tree with the tested integration. Promotion or synchronization with unchanged
+content and relevant context uses lightweight provenance instead of a repeated
+suite, while separately verifying its own intended parents. Changed or unproven
+inputs need fresh validation, and a failed or pending
+current check stays blocking regardless of earlier evidence. Attribute evidence
+through native run identities and Git objects. Each target defines equivalence from
+its actual inputs: an application whose results depend on configuration, services
+or data includes them rather than keying reuse to the source tree alone.
+
+Exact head/base/parent pins, review, branch protection and real deployment or
+processing acceptance remain separate gates. Reused build or test evidence never
+satisfies deployment acceptance.
 
 ## Checkouts and delivery
 
