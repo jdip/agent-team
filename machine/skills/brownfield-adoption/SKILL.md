@@ -43,8 +43,8 @@ Apply the selected standard's Target assessment and planning and Guidance retire
 outcomes before implementation. Assess actual mechanisms, obsolete process and gaps
 against the workflow's goals; use that evidence in the target-owned Wayfinder map.
 Resolve the plan and approved specification, reusing covering preparation evidence
-and settled decisions. Plan what to retain/remove, prerequisites, deferred machinery
-issues and actual test-delivery evidence. Recheck state and plan coverage at execution.
+and settled decisions. Plan what to retain/remove, executable workflow, CI, test
+and fixture changes, prerequisites and actual test-delivery evidence. Recheck state and plan coverage at execution.
 
 Use the selected standard's checkout requirements to prepare the adoption feature
 worktree. Establish its checkout and delivery outcomes in the actual repository
@@ -61,11 +61,13 @@ Establish actual root guidance, tracker instructions, lazy domain guidance, loca
 Application Code/Tooling mapping, development commands, fixed delivery scripts, and
 local runbooks. Use rigorous application lint/type/validation and meaningful high
 coverage. Tooling requires successful real use, without fake infrastructure or
-recursive tooling tests. Document each identified application coverage deficiency
-in scoped tracker issues after duplicate checks. Remove obsolete Tooling-suite
-requirements from guidance now and file later machinery retirement separately.
-Report gaps and current executable constraints without reinstating the old policy
-or making those follow-ups a prerequisite to guidance alignment.
+recursive tooling tests. Apply the selected standard's Validation and adoption and
+Verification evidence outcomes to the actual workflows, CI, scripts, tests and
+fixtures in this adoption change, verifying each through its native checks and real
+use. Adoption is complete only when guidance and executable controls agree; an
+unresolved design, authorization or capability blocker keeps it explicitly
+incomplete. Document unrelated application coverage deficiencies in scoped tracker
+issues after duplicate checks.
 
 Use `define-project-goal` to establish the project purpose with the human operator.
 Reuse a clear existing blurb; include approved purpose edits at the top of every

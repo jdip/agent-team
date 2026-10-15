@@ -50,8 +50,9 @@ Use the selected standard's Target assessment and planning outcome. Feed the tar
 state, findings, constraints and intended workflow into its Wayfinder map; resolve
 the plan and approved specification before preparation edits. Reuse covering plans
 and keep the target as the map/spec owner. Plan documentation removals, justified
-retention, references and the local handoff, with machinery retirement tracked for
-later. Direct contradiction is not required to retire unjustified process.
+retention, references and the local handoff, naming the workflow, CI, script, test
+and fixture changes the adoption or upgrade plan must make. Direct contradiction is
+not required to retire unjustified process.
 
 ## Execute the preparation plan
 
@@ -60,9 +61,9 @@ documentation child in the target tracker, preserving Agent Team's own selection
 Recheck target state and plan coverage, then create a local
 `codex/prepare-repository…` branch when changes can be isolated. Preserve unrelated
 work; unresolved isolation leaves readiness incomplete. Apply the approved
-documentation cleanup and fix inbound references. File later machinery removal
-under the standard's retirement outcome, keeping current executable constraints
-distinct from policy. Substantive new choices return to Wayfinder; routine choices
+documentation cleanup and fix inbound references. Record each required executable
+change, with the current constraint it enforces, as adoption or upgrade scope in
+the handoff, distinct from policy. Substantive new choices return to Wayfinder; routine choices
 and already supplied authorization carry forward.
 
 ## Required final audit
@@ -97,8 +98,8 @@ Report the target and starting state, workflow, Agent Team baseline, reviewed
 surfaces and reference scope, findings and dispositions, OpenAI audit evidence,
 branch and commit identities, verification, and unresolved constraints. Call the
 documentation ready only when its obsolete obligations and relevant conflicts are
-resolved and references checked. Distinguish that readiness from deferred machinery
-retirement and pending adoption or upgrade. A material unresolved
+resolved and references checked. Distinguish that readiness from the executable
+alignment pending in adoption or upgrade. A material unresolved
 documentation mismatch leaves preparation incomplete and names the decision needed.
 
 For a Codex desktop handoff, make continuation actionable before publishing it.
@@ -130,7 +131,7 @@ already appears in the app's project list.
 Create or update a deduplicated preparation handoff issue in the target repository's
 tracker using its tracker conventions. Record the target identity, intended workflow,
 Agent Team baseline, target-owned map/spec links, prepared branch and full commit,
-findings, preserved decisions, remaining prerequisites, verification, and the verified continuation steps and
+findings, preserved decisions, required executable alignment, remaining prerequisites, verification, and the verified continuation steps and
 opening prompt above when using the desktop app. Publish only sanitized continuation
 context: keep private paths, host/project labels and other private navigation details
 in the private user handoff, with portable references in the issue. Review both the

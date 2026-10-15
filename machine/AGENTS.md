@@ -225,7 +225,8 @@ agent without discretionary recovery.
 Apply the repository's classification by purpose. Application Code implements
 product behavior, including a CLI when that CLI is the product. Give it rigorous
 linting, type checking, validation, and meaningful tests with high coverage. Use
-risk-appropriate test-first work at stable behavioral seams and actual local gates.
+risk-appropriate test-first work at stable behavioral seams and the repository's
+authoritative gates.
 Tooling supports development, delivery, or maintenance. Validate it through
 successful real use; do not create tooling coverage suites, fake infrastructure,
 or tests of tests. Inspect rendered results for visual behavior.

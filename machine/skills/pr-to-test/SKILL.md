@@ -64,8 +64,13 @@ decision; a recovery assignment must precede further corrective execution.
 
 ## Validate and deliver
 
-Perform actual local gates: rigorous lint/type/validation/meaningful high-coverage
-checks for Application Code; successful real use for Tooling. Do not build a fake
+Verify under the target's recorded verification policy: rigorous
+lint/type/validation/meaningful high-coverage checks for Application Code through
+its authoritative CI or named local gates, successful real use for changed Tooling,
+and the mandatory pre-publication privacy check before each push. A full local run
+is optional feedback when CI owns that gate; retain separately required checks for
+other contexts. Reuse evidence only for an explicitly
+equivalent context; a failed or pending current check blocks. Do not build a fake
 forge, fixture machine, orchestration suite, or tests of tests. Resolve routine
 semver labeling using [Version classification](#version-classification) before
 calling the script; pass the chosen contribution explicitly when supported.

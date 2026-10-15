@@ -2,12 +2,12 @@
 """Agent Team's linear GitHub delivery path; local effects live in the runbooks."""
 import argparse
 import json
+import os
 import shutil
 from pathlib import Path
 import re
 import subprocess
 import sys
-import tempfile
 import time
 
 sys.dont_write_bytecode = True
@@ -64,9 +64,9 @@ class DeliveryContext:
 run = DeliveryContext()
 
 
-def call(*args, capture=True):
+def call(*args, capture=True, timeout=None):
     result = subprocess.run([str(command_path(args[0])), *args[1:]], check=True, text=True, encoding='utf-8',
-                            stdout=subprocess.PIPE if capture else None)
+                            stdout=subprocess.PIPE if capture else None, timeout=timeout)
     return result.stdout.strip() if capture else None
 
 
@@ -82,39 +82,92 @@ def bash():
     raise ValueError('Git Bash is required for native Windows delivery')
 
 
-def github(*args):
-    return json.loads(call('gh', *args))
+def github(*args, timeout=None):
+    return json.loads(call('gh', *args, timeout=timeout))
 
 
 def sha(ref):
     return call('git', 'rev-parse', ref)
 
 
-def verify(revision):
-    run.enter('merged-source proof', f'verify merged revision {revision}')
-    temporary_root = Path(tempfile.gettempdir())
-    if sys.platform != 'win32':
-        temporary_root = temporary_root.resolve()
-    root = Path(tempfile.mkdtemp(prefix='agent-team-delivery-', dir=plain_path(temporary_root)))
-    checkout = root / 'checkout'
-    run.retained.append(str(root))
-    effect = 'add local verification checkout'
-    run.attempt(effect)
-    call('git', 'worktree', 'add', '--detach', str(checkout), revision, capture=False)
-    run.confirm(effect)
+# validate.yml's run-name records github.sha: the synthetic integration actually
+# checked out and tested. The API's head_sha names only the PR feature head.
+RUN_NAME = re.compile(r'Validate integration ([0-9a-f]{40})')
+CONTEXT_STEP = re.compile(r'Validate integration \((.+)\)')
+API_TIMEOUT = 60
+
+
+def commit(repository, revision):
+    """Return (tree, parents) from local objects, else GitHub's Git commit API."""
+    present = subprocess.run([str(command_path('git')), 'cat-file', '-e', f'{revision}^{{commit}}'],
+                             stderr=subprocess.DEVNULL).returncode == 0
+    if present:
+        header = call('git', 'cat-file', 'commit', revision).split('\n\n', 1)[0].splitlines()
+        return header[0].split()[1], [line.split()[1] for line in header if line.startswith('parent ')]
+    data = github('api', f'repos/{repository}/git/commits/{revision}', timeout=API_TIMEOUT)
+    return data['tree']['sha'], [parent['sha'] for parent in data['parents']]
+
+
+def validation(repository, head, parents):
+    """Latest Validate pull_request run for head whose recorded integration has exactly these parents."""
+    runs = github('run', 'list', '-R', repository, '--workflow', 'validate.yml', '--event', 'pull_request',
+                  '--commit', head, '--limit', '20', '--json', 'databaseId,displayTitle,event,headSha',
+                  timeout=API_TIMEOUT)
+    for item in sorted(runs, key=lambda item: item['databaseId'], reverse=True):
+        match = RUN_NAME.fullmatch(item['displayTitle'])
+        if item['event'] != 'pull_request' or item['headSha'] != head or not match:
+            continue  # Includes historical runs without the recorded integration.
+        tree, tested_parents = commit(repository, match[1])
+        if tested_parents != parents:
+            continue
+        # gh reports the latest attempt; an older pass never outranks a newer pertinent failure.
+        detail = github('run', 'view', str(item['databaseId']), '-R', repository,
+                        '--json', 'status,conclusion,jobs,attempt,url', timeout=API_TIMEOUT)
+        jobs = [job for job in detail['jobs'] if job['name'] == 'validate']
+        contexts = [context_match[1] for job in jobs for step in job['steps']
+                    if (context_match := CONTEXT_STEP.fullmatch(step['name']))
+                    and step['conclusion'] == 'success']
+        passed = (detail['status'] == 'completed' and detail['conclusion'] == 'success'
+                  and len(jobs) == 1 and jobs[0]['conclusion'] == 'success' and len(contexts) == 1)
+        return {'integration': match[1], 'tree': tree,
+                'context': contexts[0] if len(contexts) == 1 else None, 'passed': passed,
+                'evidence': f'{detail["url"]} attempt {detail["attempt"]}'}
+    return None
+
+
+def validate():
+    """Validate job entry point: reuse one attributable pass on an identical tree, else run the actual check."""
+    run.flow = 'validate'
+    run.enter('validate', 'resolve the checked-out integration')
+    repository, tested = os.environ.get('GITHUB_REPOSITORY'), sha('HEAD')
+    if os.environ.get('GITHUB_EVENT_NAME') != 'pull_request' or os.environ.get('GITHUB_SHA') != tested:
+        raise ValueError('validate runs only in the Validate pull_request job on its checked-out GITHUB_SHA')
+    run.repository, run.revision = repository, tested
+    tree, parents = commit(repository, tested)
+    print(f'Integration {tested} tree {tree}; parents {" ".join(parents)}', flush=True)
+    run.enter('validate', 'find prior validation of the PR head integration')
+    prior, reason = None, 'PR head is not a merge with a prior integration'
     try:
-        subprocess.run([bash(), 'scripts/check.sh'], cwd=checkout, check=True)
-    except Exception:
-        print(f'Verification checkout retained for investigation: {checkout}', flush=True)
-        raise
-    run.confirm(f'source checks passed on {revision}')
-    effect = 'remove local verification checkout'
-    run.attempt(effect)
-    call('git', 'worktree', 'remove', str(checkout), capture=False)
-    run.confirm(effect)
-    root.rmdir()
-    run.retained.remove(str(root))
-    print(f'Verified source on {revision}; no deployed application exists in this repository.', flush=True)
+        if len(parents) == 2:
+            head_parents = commit(repository, parents[1])[1]
+            if len(head_parents) == 2:
+                prior = validation(repository, head_parents[1], head_parents)
+                reason = 'no attributable Validate pull_request run recorded that integration'
+    except (ValueError, KeyError, OSError, subprocess.SubprocessError) as error:
+        reason = f'lookup unavailable ({error})'
+    context = os.environ.get('VALIDATION_CONTEXT')
+    if prior and prior['passed'] and prior['tree'] == tree and context and prior['context'] == context:
+        print(f'Reused Validate {prior["evidence"]}: it passed on integration {prior["integration"]} '
+              f'with identical tree {tree}. Context: same repository, Validate workflow, pull_request '
+              f'validate job; runtime {context}; the tree contains the checks and workflow definition.', flush=True)
+        return
+    if prior:
+        reason = (f'prior integration {prior["integration"]} has different source or runtime context' if prior['passed']
+                  else f'latest prior validation did not pass ({prior["evidence"]})')
+    print(f'Running actual source checks: {reason}.', flush=True)
+    run.enter('validate', f'run scripts/check.sh on integration {tested}')
+    call(bash(), 'scripts/check.sh', capture=False)
+    print(f'Actual source checks passed on integration {tested} tree {tree}.', flush=True)
 
 
 def pr(base, head, title, body_file, semver):
@@ -150,7 +203,7 @@ def pr(base, head, title, body_file, semver):
     return number
 
 
-def merge(number, expected_head, expected_base):
+def merge(repository, number, expected_head, expected_base):
     run.enter('check/readiness', f'check PR {number} at expected head/base')
     account = github('api', 'user')
     author_email = f'{account["id"]}+{account["login"]}@users.noreply.github.com'
@@ -180,6 +233,14 @@ def merge(number, expected_head, expected_base):
         # Older passing runs can precede registration of the new PR checks.
         print(f'PR {number} checks passed but merge readiness is {readiness}; waiting for GitHub.', flush=True)
         time.sleep(min(10, max(0, deadline - time.monotonic())))
+    run.enter('check/readiness', f'read Validate record for PR {number} integration onto {expected_base}')
+    validated = validation(repository, expected_head, [expected_base, expected_head])
+    if validated is None:
+        raise ValueError(f'PR {number} has no Validate pull_request run recording an integration of '
+                         f'{expected_head} onto {expected_base}; inspect its runs and base before merging')
+    if not validated['passed']:
+        raise ValueError(f'latest Validate run for PR {number} integration did not pass: {validated["evidence"]}')
+    run.confirm(f'Validate {validated["evidence"]} passed on integration {validated["integration"]}')
     run.enter('merge', f'merge PR {number} at {expected_head}')
     effect = f'merge PR {number}'
     run.attempt(effect)
@@ -201,7 +262,13 @@ def merge(number, expected_head, expected_base):
     if parents != [expected_base, expected_head]:
         raise ValueError(f'PR {number} merged with unexpected parents; merge exists but verification/tagging stopped')
     run.confirm(f'merge parents and author verified on {revision}')
-    verify(revision)
+    run.enter('merged-source proof', f'compare merged revision {revision} with the validated integration')
+    if commit(repository, revision)[0] != validated['tree']:
+        raise ValueError(f'PR {number} merged tree differs from Validate-tested integration '
+                         f'{validated["integration"]}; merge exists but verification/tagging stopped')
+    run.confirm(f'merged tree on {revision} matches validated integration {validated["integration"]}')
+    print(f'Verified {revision} tree matches Validate-tested integration {validated["integration"]}; '
+          'no deployed application exists in this repository.', flush=True)
     return revision
 
 
@@ -237,7 +304,7 @@ def version_for_promotion(repository, old_main, intended_test):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('flow', choices=['pr-to-test', 'promote-to-main'])
+    parser.add_argument('flow', choices=['pr-to-test', 'promote-to-main', 'validate'])
     parser.add_argument('--title')
     parser.add_argument('--body-file')
     parser.add_argument('--semver', choices=['major', 'minor', 'patch', 'none'], default='none')
@@ -249,6 +316,9 @@ def main():
     run.revision = sha('HEAD')
     if call('git', 'status', '--porcelain'):
         raise ValueError('use a clean committed checkout; preserve unrelated work elsewhere')
+    if args.flow == 'validate':
+        validate()  # Hosted CI check only; never reaches publication or merge.
+        return
     call('git', 'fetch', '--no-tags', 'origin', capture=False)
     tags_current = True
     if args.flow == 'promote-to-main':
@@ -262,9 +332,10 @@ def main():
     run.enter('preflight', 'resolve repository identity')
     repository = github('repo', 'view', '--json', 'nameWithOwner')['nameWithOwner']
     run.repository = repository
-    run.enter('source gate', 'run source syntax and staged privacy checks')
-    call(bash(), 'scripts/check.sh', capture=False)
-    run.confirm(f'source gate passed on {run.revision}')
+    # Hosted Validate is the authoritative source check; keep the cheap privacy scan before any push.
+    run.enter('source gate', 'run Git index privacy checks')
+    call(sys.executable, 'scripts/check_secrets.py', capture=False)
+    run.confirm(f'privacy gate passed on {run.revision}')
     run.enter('preflight', 'validate delivery branch and intended revision')
     if args.flow == 'pr-to-test':
         branch = call('git', 'branch', '--show-current')
@@ -277,7 +348,7 @@ def main():
         call('git', 'push', 'origin', f'HEAD:refs/heads/{branch}', capture=False)
         run.confirm(effect)
         number = pr('test', branch, args.title or f'Deliver {branch}', args.body_file, args.semver)
-        merge(number, intended, sha('origin/test'))
+        merge(repository, number, intended, sha('origin/test'))
     else:
         old_main, intended = sha('origin/main'), sha('origin/test')
         if sha('HEAD') != intended:
@@ -291,7 +362,7 @@ def main():
             run.report(error, terminal=False)
             print('Version bookkeeping unresolved. Continuing actual delivery gates.', flush=True)
         number = pr('main', 'test', args.title or 'Promote verified test to main', args.body_file, 'none')
-        merged = merge(number, intended, old_main)
+        merged = merge(repository, number, intended, old_main)
         if tag:
             run.enter('tag', f'publish version {tag}')
             try:
@@ -311,7 +382,7 @@ def main():
         if sha('origin/test') != intended or sha('origin/main') != merged:
             raise ValueError('branch drift after promotion; inspect before main-to-test synchronization')
         number = pr('test', 'main', 'Synchronize main back to test', None, 'none')
-        merge(number, merged, intended)
+        merge(repository, number, merged, intended)
     print('Delivery verified. Primary handoff pending: finish local required completion, issue bookkeeping '
           'and safe associated-artifact cleanup; apply one consolidated Reflection screen before resolution.', flush=True)
 

@@ -11,7 +11,8 @@ do not publish a placeholder declaration or duplicate machine-level settings.
 - For issue tracking and handoffs, use docs/agents/issue-tracker.md.
 - For domain terminology and decisions, use docs/agents/domain.md.
 - For implementation and verification, use docs/development.md for the actual
-  environment, Application Code/Tooling classification, and checks.
+  environment, Application Code/Tooling classification, checks, and verification
+  evidence reuse.
 
 ## Visibility and publication
 
@@ -75,4 +76,5 @@ Retain only guidance justified by current needs after the selected standard's
 guidance-retirement assessment. Use the actual selected source revision and ship
 its declaration with the adoption/upgrade implementation. The source repository's
 scripts and runbooks are a small working example for its Tooling; adapt actual
-application gates and deployment effects locally rather than importing assumptions.
+application gates, evidence equivalence and deployment effects locally rather than
+importing assumptions.
