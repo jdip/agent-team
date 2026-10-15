@@ -216,6 +216,17 @@ def merge(repository, number, expected_head, expected_base):
         remaining = deadline - time.monotonic()
         if remaining <= 0:
             raise ValueError(f'PR {number} did not become ready within 15 minutes; inspect required checks and branch policy')
+        registered = github('pr', 'view', number, '--json', 'state,headRefOid,baseRefOid,statusCheckRollup',
+                            timeout=min(API_TIMEOUT, remaining))
+        if (registered['state'] != 'OPEN' or registered['headRefOid'] != expected_head
+                or registered['baseRefOid'] != expected_base):
+            raise ValueError(f'PR {number} state/head/base changed while waiting for checks to register')
+        if not registered['statusCheckRollup']:
+            time.sleep(min(10, max(0, deadline - time.monotonic())))
+            continue
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            continue
         subprocess.run([str(command_path('gh')), 'pr', 'checks', number, '--watch', '--fail-fast', '--interval', '10'],
                        check=True, timeout=remaining)
         fresh = github('pr', 'view', number, '--json',
