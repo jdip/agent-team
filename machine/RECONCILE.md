@@ -62,8 +62,8 @@ checkout.
 After specific preflight conflicts have been resolved, run the same command with
 `--apply` and each exact approved `--resolve target=observed-sha256` argument. It
 prepares the candidate config, verifies declared model/effort availability, reruns
-the filesystem gate, publishes, and verifies fresh Codex skill discovery. It manages
-only the Machine Profile's files, configuration, and skill directories. A successful
+the filesystem gate, publishes changed targets, and verifies fresh Codex skill
+discovery. It manages only the Machine Profile's files, configuration, and skill directories. A successful
 Claude filesystem publication is not Claude session usability; record that evidence
 through the separate host verification workflow. The managing agent maintains cleanup
 schedules separately through the native tools and `cleanup_schedule.py`.
@@ -188,8 +188,18 @@ Repeat the canonical preparation command with `--apply` and the exact approved
 `--resolve` arguments only after the supervising agent has resolved each reported
 conflict. The helper prepares the complete candidate config and performs the native
 model check itself, then reruns the all-target filesystem gate, verifies upstream
-staging, prepares complete copied packages, and rechecks observations before and
-immediately at each mutation.
+staging, prepares complete copies of changed packages, and rechecks observations
+before and immediately at each mutation.
+
+A declared target whose receipt scope, gate-verified live fingerprint and desired
+fingerprint already agree is unchanged: the helper skips its preparation and
+publication, leaving its content, file metadata and receipt entry untouched. A run
+with no changed target leaves the receipt file itself untouched. Every target still
+passes the gate and its pre-write receipt, live-state and shared-config rechecks;
+upstream and candidate-config validation still run. Changed or missing targets,
+changed scopes, approved conflicts, retirement and release follow the paths below.
+Preflight reports `Would publish` for each target the apply would publish or
+re-receipt, including a scope or receipt change with identical content.
 
 Whole files are replaced atomically. Directories are prepared off discovery on the
 same filesystem, the exact verified old directory is removed, and the prepared
