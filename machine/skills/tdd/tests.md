@@ -2,7 +2,10 @@
 
 ## Good Tests
 
-**Integration-style**: Test through real interfaces, not mocks of internal parts.
+**Behavioral**: Exercise the subject through its public contract, keeping its
+internal implementation real. That contract may be an in-process API; use the
+deployed entry point when the behavior depends on that integration. See
+[mocking.md](mocking.md) for external dependency substitutes.
 
 ```typescript
 // GOOD: Tests observable behavior
@@ -17,7 +20,7 @@ test("user can checkout with valid cart", async () => {
 Characteristics:
 
 - Tests behavior users/callers care about
-- Uses public API only
+- Uses the subject's public API
 - Survives internal refactors
 - Describes WHAT, not HOW
 - One logical assertion per test
@@ -42,7 +45,7 @@ Red flags:
 - Asserting on call counts/order
 - Test breaks when refactoring without behavior change
 - Test name describes HOW not WHAT
-- Verifying through external means instead of interface
+- Bypassing the subject's contract to assert on its internal storage or collaborators
 
 ```typescript
 // BAD: Bypasses interface to verify

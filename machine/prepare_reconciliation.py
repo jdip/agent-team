@@ -456,7 +456,7 @@ def verify_installed(source, skills_root, upstream_root, executable, home, timeo
 
 
 def run_prepared(args):
-    from reconcile import claude_receipt_root, inventory, read_receipt, verify_upstream
+    from reconcile import claude_receipt_root, experiment_migration_scopes, inventory, read_receipt, verify_upstream
 
     source = plain_path(args.prepared_source)
     executable = args.codex if args.codex else shutil.which('codex')
@@ -497,7 +497,9 @@ def run_prepared(args):
                   'Previously managed Claude scopes will be preserved.')
         claude_root = (resolve_claude_root(args.claude_config_root, initialized['platformOs'])
                        if claude_executable else None)
-        anchored_claude_root, anchored_claude_targets = claude_receipt_root(receipt)
+        migration = experiment_migration_scopes(source) if args.migrate_experiment else None
+        anchored_claude_root, anchored_claude_targets = claude_receipt_root(
+            receipt, migration['Claude'] if migration else None)
         if (claude_root is not None and anchored_claude_root is not None
                 and not same_path(claude_root, anchored_claude_root)):
             raise ValueError('Claude configuration root disagrees with the receipt anchor; investigate before writes')
@@ -546,9 +548,12 @@ def run_prepared(args):
                      '--upstream-root', str(upstream_root), '--upstream-stage', str(stage)]
         if claude_root is not None:
             preflight.extend(['--claude-config-root', str(claude_root)])
+        if args.migrate_experiment:
+            preflight.append('--migrate-experiment')
         for target, observation in args.resolve:
             preflight.extend(['--resolve', f'{target}={observation}'])
-        command(*preflight, env={**os.environ, 'PYTHONDONTWRITEBYTECODE': '1'})
+        for line in command(*preflight, env={**os.environ, 'PYTHONDONTWRITEBYTECODE': '1'}).splitlines():
+            print(line, flush=True)
         if args.apply:
             apply = [*preflight, '--candidate-config', str(candidate), '--models-verified', '--apply']
             publication = command(*apply, env={**os.environ, 'PYTHONDONTWRITEBYTECODE': '1'}).splitlines()
@@ -606,6 +611,8 @@ def run_bootstrap(args):
             value = getattr(args, name)
             if value:
                 child.extend(['--' + name.replace('_', '-'), str(value)])
+        if args.migrate_experiment:
+            child.append('--migrate-experiment')
         if args.apply:
             child.append('--apply')
         for target, observation in args.resolve:
@@ -641,6 +648,8 @@ def main():
     parser.add_argument('--claude-config-root')
     parser.add_argument('--resolve', action='append', type=parse_resolution, default=[],
                         metavar='TARGET=OBSERVED_SHA256_OR_absent')
+    parser.add_argument('--migrate-experiment', action='store_true',
+                        help='explicitly authorized migration to test; preserve former experiment files and installation evidence')
     parser.add_argument('--apply', action='store_true')
     parser.add_argument('--timeout', type=float, default=20)
     args = parser.parse_args()

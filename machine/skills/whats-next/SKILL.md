@@ -128,7 +128,8 @@ Present the useful candidate and rough effort, or explain the evidence for defer
 or no further assessment. Reuse unchanged assessment and operator decisions.
 
 Then compare observed repository capabilities and expected active-work outcomes
-with the documented purpose. A clear README purpose can be reused without a prior
+with the documented purpose using the bounded
+[outcome assessment](maintenance.md#outcome-assessment). A clear README purpose can be reused without a prior
 `define-project-goal` invocation; its presence establishes direction, not fulfillment.
 If the operator questions that direction or its agreement, offer the purpose workflow
 instead of treating the wording as settled. Support any fulfillment conclusion with

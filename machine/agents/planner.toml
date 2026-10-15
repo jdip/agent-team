@@ -1,7 +1,7 @@
 name = "planner"
 description = "Draft substantive maps and specifications; plan complex execution within approved scope."
-model = "gpt-6-astra"
-model_reasoning_effort = "medium"
+model = "gpt-6.1-sol"
+model_reasoning_effort = "high"
 service_tier = "default"
 sandbox_mode = "read-only"
 

@@ -40,13 +40,14 @@ Authentication is established independently inside each environment.
 
 ## Shared configuration and whole files
 
-Merge only these twelve dotted paths from [config.toml](config.toml) into
+Merge only these thirteen dotted paths from [config.toml](config.toml) into
 `$CODEX_HOME/config.toml`; never replace that file wholesale:
 
 - model
 - model_reasoning_effort
 - default_permissions
 - approval_policy
+- approvals_reviewer
 - agents.enabled
 - agents.max_concurrent_threads_per_session
 - agents.default_subagent_model
@@ -66,14 +67,32 @@ sleep availability alone does not prevent repeated goal continuations.
 
 All other fields remain unmanaged, including root service_tier, credentials,
 providers, MCP servers and environment, trust, history, projects, and UI settings.
-The deliberately approved permission defaults do not broaden task authorization;
-trusted repository configuration can tighten them.
+The profile selects Full Access: tool calls using this default run without Codex's
+filesystem or network sandbox restrictions and routine approval prompts.
+`approvals_reviewer` remains configured for eligible approval routes; it adds no
+review gate to actions already allowed under Full Access.
+
+Full Access changes tool permissions, not task authorization. Preserve explicit
+human-approval boundaries for deployments, destructive actions and main promotion.
+Trusted repository configuration and managed requirements can tighten the defaults.
+
+Role sandbox settings are defaults. Codex reapplies the parent's live sandbox and
+approval overrides when spawning subagents, even when a role declares another
+sandbox default; see [subagent permission inheritance](https://learn.chatgpt.com/docs/agent-configuration/subagents).
+The review owner's [routing](skills/code-review/reviewer-routing.md) keeps the
+assignment read-only and reports inherited permissions without requiring separate
+review approval. A read-only assignment does not prove enforced filesystem isolation.
+
+Installation alone does not establish changed permissions in existing threads.
+Verify fresh-task defaults in each actual client and report any required reload or
+restart separately, preserving active work.
 
 | Source relative to machine/ | Destination | Scope |
 | --- | --- | --- |
 | AGENTS.md | $CODEX_HOME/AGENTS.md | Whole file |
 | agents/browser_verifier.toml | $CODEX_HOME/agents/browser_verifier.toml | Whole file |
 | agents/critical_reviewer.toml | $CODEX_HOME/agents/critical_reviewer.toml | Whole file |
+| agents/claude-delegation.md | $CODEX_HOME/agents/claude-delegation.md | Whole file |
 | agents/deep_specialist.toml | $CODEX_HOME/agents/deep_specialist.toml | Whole file |
 | agents/explorer.toml | $CODEX_HOME/agents/explorer.toml | Whole file |
 | agents/planner.toml | $CODEX_HOME/agents/planner.toml | Whole file |
@@ -85,8 +104,9 @@ trusted repository configuration can tighten them.
 
 Each role's name, instructions, model presence, effort, tier, and sandbox move together.
 The current roster assignments and naming are in [AGENTS.md](AGENTS.md)
-and those ordinary role files. The code-review package owns the optional Claude CLI
-review preference and native critical_reviewer fallback. Its
+and those ordinary role files. [Claude delegation](agents/claude-delegation.md) owns
+preferred Opus planning/implementation and native Sol fallback. The code-review
+package owns default native review and optional additional Claude review. Its
 [reviewer routing](skills/code-review/reviewer-routing.md) and
 [model declaration](skills/code-review/reviewer-models.toml) own mode-aware native
 selection; critical_reviewer intentionally omits a fixed model to permit explicit
@@ -95,8 +115,10 @@ profile; their absence does not block
 Machine Reconciliation. Verify model/effort support during reconciliation;
 never silently substitute. Inventory validation proves declared model/effort
 support, not current task mode compatibility or successful independent review.
-Verify native dispatch in the established mode on the execution host; loaded roles
-can require restart after reconciliation. Preserve AGENTS.override.md and surface
+Verify native dispatch on the execution host through the owning routing, including
+its single standard attempt when mode evidence is missing; report unknown mode and
+unexercised recovery honestly. Loaded roles can require restart after reconciliation.
+Preserve AGENTS.override.md and surface
 its interference as a supervised conflict. No default role shadow or renderer is
 included.
 
@@ -247,6 +269,35 @@ manual-invocation settings.
 | writing-for-agents | skills/productivity/writing-for-agents |
 | wizard | skills/engineering/wizard |
 | wait-what | skills/productivity/wait-what |
+
+## Experiment-to-test migration
+
+Use `--migrate-experiment` only for an operator-approved move from the former
+Claude-primary experiment to this profile. The canonical preparation command
+preflights every prior receipt scope and every current target before writes.
+The following exact prior scopes are released to Unmanaged Local State; their
+files and all settings values remain unchanged. Relative destinations use the
+established Claude receipt root or the native Claude desktop data root. Unknown
+paths, different scopes and changed fingerprints still stop for investigation.
+
+| Prior host | Relative destination | Kind | Owned fields |
+| --- | --- | --- | --- |
+| Claude | agents/CriticalReviewer.md | file | - |
+| Claude | agents/Explore.md | file | - |
+| Claude | agents/SecuritySpecialist.md | file | - |
+| Claude | agents/WorkflowMonitor.md | file | - |
+| Claude | settings.json | json | effortLevel, env.CLAUDE_CODE_DISABLE_EXPLORE_PLAN_AGENTS, model |
+| Claude desktop | claude_desktop_config.json | json | preferences.ccBranchPrefix |
+
+Before any release or current-target publication, preserve the complete original
+receipt beside the active receipt as `receipt-before-test-migration-<sha256>.json`,
+where the hash covers its exact original bytes. Preserve this private installation
+record; it does not enroll targets or participate in skill discovery. The active
+version-1 receipt then records current ownership normally. The explicit migration
+removes only the declared prior entries, after verifying their saved fingerprints
+and unchanged complete files; it never changes their contents. Other obsolete
+receipted packages use the ordinary supervised retirement gate. Subsequent ordinary
+reconciliation ignores released Unmanaged Local State and retains the original record.
 
 ## Preflight, publication, and retirement
 
