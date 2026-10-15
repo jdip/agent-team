@@ -539,12 +539,20 @@ def run(args):
         errors.append('Claude is absent; preserved receipt scopes cannot be resolved or retired')
     if errors:
         raise ValueError('\n'.join(errors))
+
+    def agrees(target):
+        """Receipt scope, gate-verified live state and desired content already match."""
+        old, (candidate, scope) = entries.get(target), desired[target]
+        return (old is not None and old['scope'] == scope
+                and observed[target] == (scope, old['fingerprint'])
+                and fingerprint(candidate, scope) == old['fingerprint'])
+
     for target in sorted(observed) if not args.apply else ():
         if target in releasing:
             print(f'Would release ownership without changing the file: {target}', flush=True)
         elif target not in desired and target not in preserved_claude_targets:
             print(f'Would retire {target}', flush=True)
-        elif target in desired and fingerprint(Path(target), desired[target][1]) != fingerprint(*desired[target]):
+        elif target in desired and not agrees(target):
             print(f'Would publish {target}', flush=True)
     if not args.apply:
         print('All declared sources and live target/retirement scopes passed preflight; no writes.')
@@ -575,8 +583,10 @@ def run(args):
     # single revision selected by the supervisor, with no uncommitted edits.
     if subprocess.check_output([str(command_path('git')), '-C', str(source), 'status', '--porcelain']):
         raise ValueError('source checkout has uncommitted changes; select a clean revision')
+    # Agreeing targets keep their live bytes, metadata and receipt entry untouched.
+    unchanged = {target for target in desired if agrees(target)}
     prepared_files = {target: candidate.read_bytes() for target, (candidate, scope) in desired.items()
-                      if scope['kind'] != 'directory'}
+                      if scope['kind'] != 'directory' and target not in unchanged}
     release_originals = {target: Path(target).read_bytes() if Path(target).exists() else None
                          for target in releasing}
     prepared = {}
@@ -594,6 +604,8 @@ def run(args):
                     nearest = nearest.parent
                 if root.stat().st_dev != nearest.stat().st_dev:
                     raise ValueError(f'staging is not on destination filesystem: {target}')
+                if target in unchanged:
+                    continue
                 temporary = Path(tempfile.mkdtemp(prefix='.agent-team-publish-', dir=root))
                 prepared[target] = temporary / 'package'
                 if os.name == 'nt':
@@ -639,7 +651,7 @@ def run(args):
                     raise ValueError(f'released file changed immediately before ownership release: {target}')
                 entries.pop(target)
                 print(f'Released to Unmanaged Local State; file preserved: {target}', flush=True)
-            elif target in preserved_claude_targets:
+            elif target in preserved_claude_targets or target in unchanged:
                 continue
             elif target not in desired:
                 if scope['kind'] == 'toml':
@@ -679,6 +691,7 @@ def run(args):
                 print(f'Wrote {target}', flush=True)
             atomic_file(receipt_path, encoded({'version': 1, 'entries': list(entries.values())}) + b'\n')
             raw_receipt = receipt_path.read_bytes()
+        print(f'Retained {len(unchanged)} unchanged targets and their receipt entries', flush=True)
         completed = True
     finally:
         for path in prepared.values():
