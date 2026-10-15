@@ -43,7 +43,9 @@ rework or intervention in the existing task. Independent code review still appli
 
 ## What a good test is
 
-Tests verify behavior through public interfaces, not implementation details. Code can change entirely; tests shouldn't. A good test reads like a specification: "user can checkout with valid cart" tells you exactly what capability exists, and it survives refactors because it doesn't care about internal structure.
+Tests verify observable behavior through the subject's public contract and survive
+changes to its internal implementation. A good test reads like a specification:
+"user can checkout with valid cart" describes the capability being proved.
 
 Read [tests.md](tests.md) when examples would help choose a behavioral test shape.
 When substituting an external system boundary, read [mocking.md](mocking.md).
@@ -54,9 +56,21 @@ Apply the global Planning before implementation rule before tests or code
 intended to ship. Reuse the implementing workflow's covering map/spec; a direct
 test-first request enters planning when coverage is missing.
 
-A **seam** is the public boundary you test at: the interface where you observe behavior without reaching inside. Tests live at seams, never against internals.
+A **seam** is a component's stable caller-facing interface: an in-process function,
+module API, handler or network protocol. Choose the smallest seam that proves the
+required behavior. A public contract does not require deployed ingress; exercise
+the real transport or service when its semantics are part of the assertion.
 
 Select seams from the approved behavior, supplied acceptance criteria, and established public interfaces. State the boundary under test and proceed within that scope; prior approval does not need a second seam-confirmation round. Ask only when choosing a boundary would settle an unresolved interface or scope decision. Complete independent inspection before presenting that decision.
+
+For tests needing real services, separate service lifetime from test-state
+isolation. Let the suite or worker reuse service processes while each case gets
+isolated records, identities and fresh consumable credentials. Use fresh instances
+for lifecycle assertions or global state that cannot be reliably isolated. Trace
+inherited fixtures and helpers before reuse: requesting test data should not also
+bootstrap a stack unless the case needs that lifecycle. Inspect destructive callers
+and credential consumption before broadening fixture scope; a scope change alone
+does not establish isolation.
 
 When the interface itself is in question, read the available `codebase-design` skill for the module, interface, depth, seam, adapter, leverage and locality vocabulary. Use it as a reference, not a new planning session.
 

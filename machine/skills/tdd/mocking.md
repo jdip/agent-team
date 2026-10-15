@@ -1,17 +1,20 @@
 # When to Mock
 
-Mock at **system boundaries** only:
+Keep the subject and its internal collaborators real. Substitute at an external
+dependency boundary when the assertion concerns the subject's response to that
+dependency, rather than the dependency's native behavior. Who owns or deploys the
+dependency does not determine the test boundary.
 
-- External APIs (payment, email, etc.)
-- Databases (sometimes - prefer test DB)
-- Time/randomness
-- File system (sometimes)
+Use small explicit substitutes for API responses, storage outcomes, time,
+randomness or filesystem failures. Supply only the outcomes the case needs;
+avoid reproducing the service's implementation in a fake. Assert the subject's
+observable result, not its internal call sequence.
 
-Don't mock:
-
-- Your own classes/modules
-- Internal collaborators
-- Anything you control
+Use native integration tests for contracts that depend on real protocol, database,
+permission or persistence semantics. A substitute does not prove those contracts.
+Keep the adapter real when testing its translation of the external protocol.
+Native service use and fresh-instance isolation are separate choices; use the
+[seam and fixture-lifetime guidance](SKILL.md#seams-where-tests-go).
 
 ## Designing for Mockability
 

@@ -62,6 +62,17 @@ as an exposure requiring investigation; a later review is not prevention.
 
 For **Standards**, report violations of documented rules with the source rule and exact changed location. Apply the smell baseline as a heuristic, distinguishing actionable problems from optional improvements. Trace relevant callers and downstream effects. Apply the repository's Application Code/Tooling classification; assess actual required checks and evidence rather than inventing additional test suites or coverage requirements.
 
+For changed tests or test setup, trace the cases through inherited fixtures and
+helpers to actual service startup, initialization and teardown. Distinguish needing
+native service behavior from needing a fresh instance per case. Flag a test that
+bootstraps and discards a stack for an assertion unrelated to that lifecycle when
+isolated state or a smaller behavioral boundary suffices. Cite the affected case
+and setup path, including implicit fixture scope. Preserve justified fresh instances
+for destructive/global-state or lifecycle cases; inspect their consumers before
+recommending reuse. Passing tests or coverage do not establish that the setup is
+necessary. Apply [TDD's boundary guidance](../tdd/SKILL.md#seams-where-tests-go)
+within this review, without starting a separate testing workflow.
+
 For **Spec**, identify missing or partial requirements, unrequested behavior, and incorrect implementations. Cite the supplied requirement and the changed location. Assess correctness, regressions, and relevant security implications within the requested scope.
 
 For structural cleanup, dependency changes, or claims of simplification, also apply
