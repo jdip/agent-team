@@ -10,10 +10,10 @@ Machine Reconciliation owns only the scopes declared in machine/PROFILE.md.
 It preserves unrelated configuration and credentials; a successful reconciliation
 does not establish that repository content is safe to publish.
 
-The local `scripts/check.sh` gate checks the Git index for credential filenames,
+The local `python3 scripts/check_secrets.py` gate checks the Git index for credential filenames,
 recognizable token/private-key patterns, and literal macOS/Linux/Windows home paths.
-Use `~`, environment variables, or descriptive placeholders in portable examples. Stage intended changes before running it;
-CI checks the committed tree through the same entry point. The check reports a
+Use `~`, environment variables, or descriptive placeholders in portable examples. Stage intended changes and run it before
+every push; the delivery script runs it before pushing, and CI checks the committed tree. The check reports a
 path and category, never matched values. It reads Git blobs, not live machine
 files or symlink destinations. It is a narrow guard, not exhaustive secret detection
 or a substitute for reviewing what is staged. Untracked files and prior history

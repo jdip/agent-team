@@ -58,7 +58,7 @@ Load the relevant owner’s full instructions at the resolved revision:
 | Establish or resume design | [Wayfinder](../../machine/skills/wayfinder/SKILL.md), then its grilling/selection/frontier instructions |
 | Turn resolved design into executable work | [to-spec](../../machine/skills/to-spec/SKILL.md) and [to-tickets](../../machine/skills/to-tickets/SKILL.md) |
 | Select and execute approved work | [set-backlog](../../machine/skills/set-backlog/SKILL.md), [next-issue](../../machine/skills/next-issue/SKILL.md), and [selection scope/handoff](../../machine/skills/set-map/SELECTIONS.md) |
-| Review and verify the change | [code-review](../../machine/skills/code-review/SKILL.md) and the target’s development guidance; Agent Team uses [scripts/check.sh](../../scripts/check.sh) |
+| Review and verify the change | [code-review](../../machine/skills/code-review/SKILL.md) and the target’s development guidance; Agent Team uses [its development guidance](../development.md) |
 | Deliver to test | [pr-to-test](../../machine/skills/pr-to-test/SKILL.md), the target runbook and canonical script; Agent Team uses [this runbook](pr-to-test.md) and [scripts/pr-to-test.sh](../../scripts/pr-to-test.sh) |
 | Assess maintenance or alignment | [whats-next’s maintenance branch](../../machine/skills/whats-next/maintenance.md), then the selected specialist |
 | Release task resources at a phase boundary | [cleanup-task-artifacts](../../machine/skills/cleanup-task-artifacts/SKILL.md) |

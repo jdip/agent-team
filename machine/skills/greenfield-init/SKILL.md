@@ -79,9 +79,10 @@ Apply the selected standard's Claude guidance bridge contract to root and applic
 nested repository-owned guidance.
 
 Record identified application coverage gaps in scoped, deduplicated issues without
-claiming unmet coverage is satisfied. Remove obsolete Tooling-suite requirements
-from guidance during alignment and file later machinery retirement under the
-standard's outcome; those follow-ups do not block guidance alignment.
+claiming unmet coverage is satisfied. Apply the selected standard's Validation and
+adoption and Verification evidence outcomes to any existing workflows, CI, scripts,
+tests and fixtures in this adoption change; executable controls that still
+contradict the aligned guidance leave adoption incomplete.
 
 Add one Repository Standard section to root AGENTS.md with Source set to the exact
 source repository URL and Revision set to the full selected commit SHA, as specified
