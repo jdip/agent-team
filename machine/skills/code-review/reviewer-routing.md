@@ -77,10 +77,17 @@ Apply mode/model selection to both A and B:
    asking the operator solely to classify mode.
 2. Read [reviewer-models.toml](reviewer-models.toml), the authoritative native
    reviewer choices. Select `daybreak` for known Daybreak mode, otherwise `standard`.
-   Verify the execution host supports the selected model at `xhigh`; catalog
-   membership alone does not prove current-mode compatibility. Let the host enforce
-   compatibility during dispatch while preserving the orchestrator mode, sandbox
-   and approval controls. A known unavailable or incompatible choice blocks review.
+   The `daybreak` entry is a concrete model, separate from the Daybreak Blue access
+   program. Verify the execution host supports the selected model at `xhigh` and,
+   for `daybreak`, Daybreak Blue eligibility where model metadata exposes it; catalog
+   membership and eligibility prove neither entitlement nor current-mode
+   compatibility. Let the host enforce compatibility during dispatch while
+   preserving the orchestrator mode, sandbox and approval controls. A known
+   unavailable or incompatible choice blocks review.
+   Program selection remains host-owned: native spawn exposes model and effort
+   only, and app-server `turn/start`'s separate `cyberAccessProgram` is not a
+   dispatch control here. The absent program argument is not a missing required
+   control, and child program inheritance remains unverified.
 3. For A, verify the loaded `critical_reviewer` role will execute the selected model
    at the required effort. Its managed source omits a fixed model; a loaded fixed
    model can still win over a spawn override. An identical loaded pin satisfies
@@ -116,7 +123,8 @@ optional Claude review alongside the native result. Successful dispatch alone do
 not establish mode: report `unknown` when evidence remains unavailable. Report the
 mode evidence, requested model and effort, dispatch result, any recovery or
 availability limit, and Standards/Spec outcomes. Separate requested, accepted and
-observable effective identity; unknown telemetry stays unknown. For A, report
+observable effective identity, including access program; unknown telemetry stays
+unknown. For A, report
 loaded-role and effective permission evidence. For B, report ordinary native review,
 instruction-only read-only authority and actual or unknown inherited permissions;
 never claim a loaded role or enforced read-only sandbox without evidence. Identify
