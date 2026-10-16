@@ -284,26 +284,52 @@ def merge(repository, number, expected_head, expected_base):
 
 
 def version_for_promotion(repository, old_main, intended_test):
-    """Use existing tags and canonical test PR merge commits, without a ledger."""
-    tags = call('git', 'tag', '--merged', old_main, '--sort=-version:refname').splitlines()
-    versions = [tag for tag in tags if re.fullmatch(r'v\d+\.\d+\.\d+', tag)]
-    baseline = versions[0] if versions else None
+    """Apply canonical test PR labels after the highest published tag in the previous main, without a ledger."""
+    if call('git', 'rev-parse', '--is-shallow-repository') == 'true':
+        raise ValueError('shallow history cannot prove version contributions; use a complete checkout')
+    # Remote refs exclude local-only tags; an annotated tag's ^{} entry names its peeled commit.
+    refs = {name: value for value, name in
+            (line.split('\t') for line in call('git', 'ls-remote', '--tags', 'origin', timeout=API_TIMEOUT).splitlines())}
+    published = sorted((name[10:] for name in refs if re.fullmatch(r'refs/tags/v\d+\.\d+\.\d+', name)),
+                       key=lambda tag: tuple(map(int, tag[1:].split('.'))), reverse=True)
+    baseline = target = None
+    for tag in published:
+        target = refs.get(f'refs/tags/{tag}^{{}}', refs[f'refs/tags/{tag}'])
+        status = subprocess.run([str(command_path('git')), 'merge-base', '--is-ancestor', target, old_main]).returncode
+        if status == 0:
+            baseline = tag
+            break
+        if status != 1:
+            raise ValueError(f'published tag {tag} commit {target} is unavailable for ancestry review')
+    # Ancestry of the tagged main merge excludes contributions it already versioned; later
+    # test PRs count once even when an untagged promotion already carried them to main.
     contributions = []
-    for commit in call('git', 'rev-list', '--first-parent', '--reverse', f'{old_main}..{intended_test}').splitlines():
-        for item in github('api', f'repos/{repository}/commits/{commit}/pulls'):
-            if item['base']['ref'] != 'test' or item['head']['ref'] == 'main' or item['merge_commit_sha'] != commit:
-                continue
-            labels = [label['name'][7:] for label in item['labels'] if label['name'].startswith('semver:')]
-            if len(labels) != 1 or labels[0] not in ('major', 'minor', 'patch', 'none'):
-                raise ValueError(f'PR {item["number"]} needs semver metadata review')
-            contributions.append(labels[0])
-    if not any(item != 'none' for item in contributions):
+    # With no baseline, classify incoming PRs only to decide whether an initial version is needed.
+    span = f'{target if baseline else old_main}..{intended_test}'
+    for commit in call('git', 'rev-list', '--first-parent', '--reverse', span).splitlines():
+        pages = json.loads(call('gh', 'api', '--paginate', '--slurp',
+                                f'repos/{repository}/commits/{commit}/pulls?per_page=100', timeout=API_TIMEOUT))
+        merged = [item for page in pages for item in page
+                  if item.get('merged_at') and item['base']['repo']['full_name'] == repository
+                  and item['base']['ref'] == 'test' and item['merge_commit_sha'] == commit]
+        if len(merged) != 1:
+            raise ValueError(f'test commit {commit} lacks exactly one merged test PR; review version evidence')
+        item = merged[0]
+        if item['head']['ref'] == 'main':
+            continue  # Main-to-test synchronization wrapper.
+        labels = [label['name'][7:] for label in item['labels'] if label['name'].startswith('semver:')]
+        if len(labels) != 1 or labels[0] not in ('major', 'minor', 'patch', 'none'):
+            raise ValueError(f'PR {item["number"]} needs semver metadata review')
+        contributions.append((item['number'], labels[0]))
+    print(f'Version baseline {baseline or "none published"}; canonical test PRs: '
+          f'{", ".join(f"#{number} {bump}" for number, bump in contributions) or "none"}', flush=True)
+    if not any(bump != 'none' for _, bump in contributions):
         print(f'All-none promotion: retain {baseline or "no existing version"}; no new tag.', flush=True)
         return None
     if baseline is None:
         raise ValueError('no established initial version; report bookkeeping for a human decision')
     major, minor, patch = map(int, baseline[1:].split('.'))
-    for bump in contributions:
+    for _, bump in contributions:
         if bump == 'major':
             major, minor, patch = major + 1, 0, 0
         elif bump == 'minor':
@@ -331,15 +357,6 @@ def main():
         validate()  # Hosted CI check only; never reaches publication or merge.
         return
     call('git', 'fetch', '--no-tags', 'origin', capture=False)
-    tags_current = True
-    if args.flow == 'promote-to-main':
-        run.enter('promotion bookkeeping', 'refresh existing version tags')
-        try:
-            call('git', 'fetch', 'origin', '--tags', capture=False)
-        except subprocess.CalledProcessError as error:
-            tags_current = False
-            run.report(error, terminal=False)
-            print('Tag refresh incomplete; inspect version metadata separately from delivery gates.', flush=True)
     run.enter('preflight', 'resolve repository identity')
     repository = github('repo', 'view', '--json', 'nameWithOwner')['nameWithOwner']
     run.repository = repository
@@ -365,11 +382,10 @@ def main():
         if sha('HEAD') != intended:
             raise ValueError('promotion requires a clean checkout of the intended origin/test revision')
         tag = None
-        run.enter('promotion bookkeeping', 'classify version from existing tags and test PRs')
+        run.enter('promotion bookkeeping', 'classify version from published tags and test PRs')
         try:
-            if tags_current:
-                tag = version_for_promotion(repository, old_main, intended)
-        except (ValueError, subprocess.CalledProcessError) as error:
+            tag = version_for_promotion(repository, old_main, intended)
+        except (ValueError, subprocess.SubprocessError) as error:
             run.report(error, terminal=False)
             print('Version bookkeeping unresolved. Continuing actual delivery gates.', flush=True)
         number = pr('main', 'test', args.title or 'Promote verified test to main', args.body_file, 'none')
