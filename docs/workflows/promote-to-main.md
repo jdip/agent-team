@@ -33,8 +33,9 @@ of the tagged main merge excludes what it already versioned. Main-to-test
 synchronization wrappers are skipped, and promotion PRs and rollup child integrations
 never appear on that history. Apply each major/minor/patch/none label sequentially
 to the baseline. All-none makes no new tag. There is no fabricated initial version:
-if no baseline exists and a bump is needed, report unresolved bookkeeping and ask
-for the initial version after completing independent authorized work.
+without a baseline, classify incoming PRs since the previous main solely to decide
+whether an initial version is needed. If a bump is needed, report unresolved
+bookkeeping and ask for that initial version after completing independent authorized work.
 
 A resulting tag is created on the verified main merge and pushed without moving
 existing tags. Shallow history, a first-parent test commit without exactly one

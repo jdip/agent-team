@@ -304,7 +304,8 @@ def version_for_promotion(repository, old_main, intended_test):
     # Ancestry of the tagged main merge excludes contributions it already versioned; later
     # test PRs count once even when an untagged promotion already carried them to main.
     contributions = []
-    span = f'{target}..{intended_test}' if baseline else intended_test
+    # With no baseline, classify incoming PRs only to decide whether an initial version is needed.
+    span = f'{target if baseline else old_main}..{intended_test}'
     for commit in call('git', 'rev-list', '--first-parent', '--reverse', span).splitlines():
         pages = json.loads(call('gh', 'api', '--paginate', '--slurp',
                                 f'repos/{repository}/commits/{commit}/pulls?per_page=100', timeout=API_TIMEOUT))
