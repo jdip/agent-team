@@ -114,7 +114,8 @@ dispatch. Claude installation and account authentication remain outside this
 profile; their absence does not block
 Machine Reconciliation. Verify model/effort support during reconciliation;
 never silently substitute. Inventory validation proves declared model/effort
-support, not current task mode compatibility or successful independent review.
+support, not Daybreak Blue program eligibility or selection, account entitlement,
+current task mode compatibility or successful independent review.
 Verify native dispatch on the execution host through the owning routing, including
 its single standard attempt when mode evidence is missing; report unknown mode and
 unexercised recovery honestly. Loaded roles can require restart after reconciliation.
