@@ -188,12 +188,21 @@ def select_source(repository, work_root):
 
 
 def source_skill_names(source):
-    from reconcile import table
+    from reconcile import table, upstream_sources
 
     profile = (source / 'machine/PROFILE.md').read_text(encoding='utf-8')
     local = profile.split('## Copied local packages\n')[1].split('## Upstream packages\n')[0]
-    upstream = profile.split('## Upstream packages\n')[1].split('## Optional Claude Code configuration\n')[0]
-    return set(table(local)), {name for name, _ in re.findall(r'^\| ([\w-]+) \| (skills/[\w/-]+) \|$', upstream, re.M)}
+    return set(table(local)), {name for _, _, packages in upstream_sources(profile) for name, _ in packages}
+
+
+def resolve_herdr_ref(sources):
+    repository = next(repository for repository, ref, _ in sources if ref is None)
+    commits = json.loads(command(str(command_path('gh')), 'api', f'repos/{repository}/commits?per_page=1'))
+    ref = commits[0].get('sha') if isinstance(commits, list) and commits else None
+    if not isinstance(ref, str) or not re.fullmatch(r'[0-9a-f]{40}', ref):
+        raise ValueError(f'cannot resolve latest default-branch commit: {repository}')
+    print(f'Herdr resolved commit: {ref}', flush=True)
+    return ref
 
 
 def probe_claude(timeout, requested=None):
@@ -510,8 +519,9 @@ def run_prepared(args):
         upstream_root = resolve_root('upstream installer destination', args.upstream_root, upstream_names,
                                      codex_receipt, discovered)
         verify_models(models_for_profile(source), models)
-        rows, pin, packages = inventory(source, home, skills_root, Path('/upstream-stage'), upstream_root,
-                                        claude_root)
+        rows, sources = inventory(source, home, skills_root, Path('/upstream-stage'), upstream_root,
+                                  claude_root)
+        herdr_ref = resolve_herdr_ref(sources)
         stage_parent = Path(args.staging_root) if args.staging_root else skills_root.parent
         stage_parent = plain_path(stage_parent)
         stage_parent.mkdir(parents=True, exist_ok=True)
@@ -532,9 +542,10 @@ def run_prepared(args):
         installer = plain_path(installer)
         if not installer.is_file():
             raise ValueError(f'supported skill installer is unavailable: {installer}')
-        command(python, str(installer), '--repo', 'mattpocock/skills', '--ref', pin,
-                '--dest', str(stage), '--path', *(path for _, path in packages))
-        verify_upstream(stage, pin, packages)
+        for repository, pin, packages in sources:
+            command(python, str(installer), '--repo', repository, '--ref', pin or herdr_ref,
+                    '--dest', str(stage), '--path', *(path for _, path in packages))
+        verify_upstream(stage, sources, herdr_ref)
         verified_stage = True
         tomlkit = provision_tomlkit(stage)
         config_target = plain_path(home / 'config.toml')
@@ -545,7 +556,8 @@ def run_prepared(args):
                         previous_scope, tomlkit)
         preflight = [python, str(source / 'machine/reconcile.py'), '--source', str(source),
                      '--codex-home', str(home), '--skills-root', str(skills_root),
-                     '--upstream-root', str(upstream_root), '--upstream-stage', str(stage)]
+                     '--upstream-root', str(upstream_root), '--upstream-stage', str(stage),
+                     '--herdr-ref', herdr_ref]
         if claude_root is not None:
             preflight.extend(['--claude-config-root', str(claude_root)])
         if args.migrate_experiment:
@@ -565,6 +577,7 @@ def run_prepared(args):
                 raise ValueError(f'publication completed; fresh verification failed: {error}') from error
         print(json.dumps({'codex_home': str(home), 'skills_root': str(skills_root),
                           'upstream_root': str(upstream_root),
+                          'herdr_ref': herdr_ref,
                           'claude_config_root': str(claude_root) if claude_root else None,
                           'claude_discovery': 'verified' if claude_executable else 'not-discovered',
                           'platform': initialized['platformOs'],

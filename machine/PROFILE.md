@@ -175,6 +175,8 @@ connects these packages and records their authorization boundaries.
 
 ## Upstream packages
 
+### Matt Pocock
+
 Source: [mattpocock/skills](https://github.com/mattpocock/skills).
 Shared reviewed pin: `3cca18b368ae95cdbdebbff572ccafa662551015`.
 Use the supported skill-installer with this exact repository, ref, and path for
@@ -192,6 +194,19 @@ Agent Team does not authorize floating upstream content.
 | writing-for-agents | skills/productivity/writing-for-agents |
 | wizard | skills/engineering/wizard |
 | wait-what | skills/productivity/wait-what |
+
+### Herdr
+
+Source: [herdrdev/herdr](https://github.com/herdrdev/herdr).
+Update policy: latest default-branch commit on each reconciliation.
+This is the operator-approved exception to reviewed upstream pins. Resolve one
+immutable commit per run, report it, and reuse it for supported staged acquisition,
+exact-file/Git blob verification, preflight, and publication. A later run resolves
+the latest commit again; matching installed bytes retain the ordinary no-op behavior.
+
+| Identity | Path at the resolved commit |
+| --- | --- |
+| herdr | skills/herdr |
 
 The copied adaptations retain their upstream revision and MIT notices in each
 package. The listed local packages are maintained by Agent Team. Install every
@@ -256,11 +271,12 @@ is separate from native Claude session usability.
 
 ### Claude upstream packages
 
-Use the same reviewed pin and supported staged acquisition as the Codex upstream
-inventory. Complete packages retain companions, licenses, and any upstream-authored
+Use the Codex upstream inventory's reviewed pin for the Matt Pocock packages and
+the same run's resolved latest commit for Herdr. Complete packages use supported
+staged acquisition and retain companions, licenses, and any upstream-authored
 manual-invocation settings.
 
-| Identity | Path at the pin |
+| Identity | Path at the selected revision |
 | --- | --- |
 | grilling | skills/productivity/grilling |
 | domain-modeling | skills/engineering/domain-modeling |
@@ -270,6 +286,7 @@ manual-invocation settings.
 | writing-for-agents | skills/productivity/writing-for-agents |
 | wizard | skills/engineering/wizard |
 | wait-what | skills/productivity/wait-what |
+| herdr | skills/herdr |
 
 ## Experiment-to-test migration
 
