@@ -205,11 +205,27 @@ def fingerprint(path, scope):
     if scope['kind'] == 'file':
         if not path.is_file():
             raise ValueError(f'expected ordinary file: {path}')
-        return digest(path.read_bytes())
+        content = path.read_bytes()
+        if scope.get('executable') and os.name != 'nt':
+            return digest(encoded({'sha256': digest(content), 'mode': stat.S_IMODE(path.stat().st_mode)}))
+        return digest(content)
     if scope['kind'] == 'directory':
         if not path.is_dir():
             raise ValueError(f'expected directory: {path}')
-        return digest(encoded({name: digest(data) for name, data in files(path).items()}))
+        contents = files(path)
+        if scope.get('modes') and os.name != 'nt':
+            entries = {name: {'sha256': digest(data), 'mode': stat.S_IMODE((path / name).stat().st_mode)}
+                       for name, data in contents.items()}
+            directories = {p.relative_to(path).as_posix(): stat.S_IMODE(p.stat().st_mode)
+                           for p in (path, *path.rglob('*')) if p.is_dir()}
+            return digest(encoded({'files': entries, 'directories': directories}))
+        return digest(encoded({name: digest(data) for name, data in contents.items()}))
+    if scope['kind'] == 'json' and 'resources' in scope:
+        from pi_runtime import settings_projection
+        document = json.loads(path.read_text(encoding='utf-8'))
+        if not isinstance(document, dict):
+            raise ValueError('Pi settings must be a JSON object')
+        return digest(encoded(settings_projection(document, scope)))
     if scope['kind'] in ('toml', 'json'):
         return digest(encoded(projection(path, scope['fields'], scope['kind'])))
     raise ValueError(f'unsupported scope requires its target-specific adapter: {path}')
@@ -510,13 +526,48 @@ def run(args):
         raise ValueError('Claude configuration root disagrees with the receipt anchor; investigate before writes')
     if claude_root is not None:
         preserved_claude_targets = set()
+    from pi_runtime import (inventory as pi_inventory, receipt_targets as pi_receipt_targets,
+                            roots as pi_roots, verify_settings, native_version, ensure_idle)
+    anchored_pi_root, preserved_pi_targets = pi_receipt_targets(entries, source)
+    pi_root = plain_path(args.pi_config_root) if args.pi_config_root else None
+    pi_runtime = pi_launcher = None
+    if pi_root is not None:
+        effective_pi_root, pi_runtime, pi_launcher = pi_roots(source, pi_root)
+        if not same_path(effective_pi_root, pi_root) or (anchored_pi_root is not None
+                and not same_path(pi_root, anchored_pi_root)):
+            raise ValueError('Pi root disagrees with its effective root or prior receipt anchor')
+        if stage is None or not args.pi_runtime_stage or not args.pi_version:
+            raise ValueError('Pi requires canonical verified native staging and exact version')
+        pi_bundle = plain_path(args.pi_runtime_stage)
+        if native_version(pi_bundle, 20) != args.pi_version:
+            raise ValueError('Pi staged runtime version changed after preparation')
+        preserved_pi_targets = set()
+    elif args.pi_runtime_stage or args.pi_version:
+        raise ValueError('Pi runtime arguments require an effective Pi root')
     rows, sources = inventory(source, home, skills, stage, upstream_root, claude_root)
+    if pi_root is not None:
+        rows.extend(pi_inventory(source, pi_root, pi_runtime, pi_launcher, pi_bundle,
+                                 stage, skills, upstream_root))
+    all_target_names = [str(plain_path(target)) for _, target, _ in rows]
+    if len(set(all_target_names)) != len(all_target_names):
+        raise ValueError('duplicate profile target across hosts')
+    preserved_targets = preserved_claude_targets | preserved_pi_targets
+    json_originals = {str(target): target.read_bytes() if target.exists() else None
+                      for _, target, scope in rows if scope['kind'] == 'json'}
+    if pi_root is not None:
+        pi_settings = plain_path(pi_root / 'settings.json')
+        pi_settings_row = next(row for row in rows if same_path(row[1], pi_settings))
+        previous = entries.get(str(pi_settings), {}).get('scope', {})
+        verify_settings(pi_settings_row[0], source, pi_settings, pi_settings_row[2], previous)
     releasing = experiment_release_targets(migration, entries, anchored_claude_root) if migration else set()
-    preserved_claude_targets -= releasing
+    preserved_targets -= releasing
     approvals = dict(args.resolve)
     errors, observed, desired = [], {}, {}
     if (home / 'AGENTS.override.md').exists() or (home / 'AGENTS.override.md').is_symlink():
         errors.append('AGENTS.override.md interferes with global instructions; preserve and investigate')
+    if pi_root is not None and ((pi_root / 'AGENTS.override.md').exists()
+                                or (pi_root / 'AGENTS.override.md').is_symlink()):
+        errors.append('Pi AGENTS.override.md suppresses managed instructions; preserve and investigate')
     for candidate, target, scope in rows:
         target = plain_path(target)
         desired[str(target)] = (candidate, scope)
@@ -532,7 +583,8 @@ def run(args):
         if old and old['scope'] == {'kind': 'cleanup-schedule'}:
             continue
         scope = old['scope'] if old else desired[target][1]
-        if scope['kind'] == 'json' and target not in releasing:
+        if scope['kind'] == 'json' and target not in releasing and target not in preserved_pi_targets and (
+                target not in desired or desired[target][1]['kind'] != 'json'):
             errors.append(f'{target}: JSON scope requires its declared migration owner; no writes')
         current = fingerprint(Path(target), scope)
         observed[target] = (scope, current)
@@ -541,7 +593,19 @@ def run(args):
         gate_scope = scope
         if old and target in desired and old['scope'] != desired[target][1]:
             new_scope = desired[target][1]
-            if scope['kind'] != 'toml' or new_scope['kind'] != 'toml':
+            if scope['kind'] == 'json' and new_scope['kind'] == 'json' and 'resources' in new_scope:
+                fields = sorted(set(scope['fields']) | set(new_scope['fields']))
+                resources = {key: sorted(set(scope.get('resources', {}).get(key, [])) | set(new_scope.get('resources', {}).get(key, [])))
+                             for key in scope.get('resources', {}).keys() | new_scope.get('resources', {}).keys()}
+                gate_scope = {'kind': 'json', 'fields': fields, 'resources': resources}
+                added = set(new_scope['fields']) - set(scope['fields'])
+                if any(v != ['absent'] for v in projection(Path(target), added, 'json').values()):
+                    conflict = True
+                document = json.loads(Path(target).read_text(encoding='utf-8')) if Path(target).exists() else {}
+                for key, paths in new_scope.get('resources', {}).items():
+                    if any(path in document.get(key, []) for path in set(paths) - set(scope.get('resources', {}).get(key, []))):
+                        conflict = True
+            elif scope['kind'] != 'toml' or new_scope['kind'] != 'toml':
                 errors.append(f'{target}: ownership kind changed; investigate before migration')
             else:
                 added = set(new_scope['fields']) - set(scope['fields'])
@@ -552,7 +616,7 @@ def run(args):
         observed[target] = (gate_scope, gate_current)
         if conflict and approvals.get(target) != (gate_current or 'absent'):
             errors.append(f'{target}: scope={scope} saved={expected} observed={gate_current}; supervised decision required')
-        if target not in desired and target not in releasing and scope['kind'] == 'toml':
+        if target not in desired and target not in releasing and target not in preserved_targets and scope['kind'] in ('toml', 'json'):
             errors.append(f'{target}: retired config target requires supervised relocation; no writes')
     targets = [Path(target) for target in observed]
     if any(not same_path(a, b) and path_within(b, a) for a in targets for b in targets):
@@ -562,16 +626,22 @@ def run(args):
     unknown = approvals.keys() - observed.keys()
     if unknown:
         errors.append(f'authorization refers to unknown targets: {sorted(unknown)}')
-    preserved_approvals = approvals.keys() & preserved_claude_targets
+    preserved_approvals = approvals.keys() & preserved_targets
     if preserved_approvals:
-        errors.append('Claude is absent; preserved receipt scopes cannot be resolved or retired')
+        errors.append('inactive host scopes cannot be resolved or retired')
     if errors:
         raise ValueError('\n'.join(errors))
+    if pi_runtime is not None:
+        runtime_row = desired[str(pi_runtime)]
+        if fingerprint(runtime_row[0], runtime_row[1]) != fingerprint(pi_runtime, runtime_row[1]):
+            ensure_idle(pi_runtime)
     if stage is None:
         raise ValueError('verified upstream staging is required')
     discovery_roots = [skills, upstream_root, plain_path(home / 'skills')]
     if claude_root is not None:
         discovery_roots.append(plain_path(claude_root / 'skills'))
+    if pi_root is not None:
+        discovery_roots.append(plain_path(pi_root / 'skills'))
     if any(same_path(stage, root) or path_within(stage, root) or same_path(stage.parent, root)
            for root in discovery_roots):
         raise ValueError('upstream staging must be outside skill discovery')
@@ -588,7 +658,7 @@ def run(args):
     for target in sorted(observed) if not args.apply else ():
         if target in releasing:
             print(f'Would release ownership without changing the file: {target}', flush=True)
-        elif target not in desired and target not in preserved_claude_targets:
+        elif target not in desired and target not in preserved_targets:
             print(f'Would retire {target}', flush=True)
         elif target in desired and not agrees(target):
             print(f'Would publish {target}', flush=True)
@@ -624,6 +694,8 @@ def run(args):
     try:
         # Prepare complete copies off discovery before any live target is touched.
         for target, (candidate, scope) in desired.items():
+            if target in unchanged:
+                continue
             if same_path(candidate, Path(target)) or path_within(candidate, Path(target)):
                 raise ValueError(f'candidate overlaps live target: {target}')
             if scope['kind'] == 'directory':
@@ -633,8 +705,6 @@ def run(args):
                     nearest = nearest.parent
                 if root.stat().st_dev != nearest.stat().st_dev:
                     raise ValueError(f'staging is not on destination filesystem: {target}')
-                if target in unchanged:
-                    continue
                 temporary = Path(tempfile.mkdtemp(prefix='.agent-team-publish-', dir=root))
                 prepared[target] = temporary / 'package'
                 if os.name == 'nt':
@@ -661,6 +731,12 @@ def run(args):
             preserve_installation_record(receipt_path, raw_receipt)
         def publication_order(target):
             path = Path(target)
+            if pi_root is not None and same_path(path, pi_root / 'HERDR.md'):
+                return -1, target
+            if pi_runtime is not None and same_path(path, pi_runtime):
+                return 0, target
+            if pi_launcher is not None and same_path(path, pi_launcher):
+                return 3, target
             if claude_root is not None and same_path(path, plain_path(claude_root / 'rules/agent-team.md')):
                 return 0, target
             if claude_root is not None and path_within(path, plain_path(claude_root / 'skills')):
@@ -675,15 +751,17 @@ def run(args):
                 raise ValueError(f'state changed immediately before write: {target}')
             if target == config_target and (path.read_bytes() if path.exists() else None) != original_config_bytes:
                 raise ValueError('shared config changed, including unmanaged fields; prepare it again')
+            if target in json_originals and (path.read_bytes() if path.exists() else None) != json_originals[target]:
+                raise ValueError('Pi settings changed, including unmanaged values; prepare it again')
             if target in releasing:
                 if (path.read_bytes() if path.exists() else None) != release_originals[target]:
                     raise ValueError(f'released file changed immediately before ownership release: {target}')
                 entries.pop(target)
                 print(f'Released to Unmanaged Local State; file preserved: {target}', flush=True)
-            elif target in preserved_claude_targets or target in unchanged:
+            elif target in preserved_targets or target in unchanged:
                 continue
             elif target not in desired:
-                if scope['kind'] == 'toml':
+                if scope['kind'] in ('toml', 'json'):
                     raise ValueError('retiring TOML fields requires a reviewed candidate config and scope migration')
                 if path.is_dir():
                     shutil.rmtree(path)
@@ -696,6 +774,8 @@ def run(args):
             else:
                 candidate, new_scope = desired[target]
                 if new_scope['kind'] == 'directory':
+                    if pi_runtime is not None and same_path(path, pi_runtime):
+                        ensure_idle(pi_runtime)
                     path.parent.mkdir(parents=True, exist_ok=True)
                     if os.name == 'nt':
                         from windows_security import verify_directory, finish_directory
@@ -709,7 +789,8 @@ def run(args):
                     if os.name == 'nt':
                         finish_directory(path, directory_security[target])
                 else:
-                    mode = stat.S_IMODE(path.stat().st_mode) if path.exists() else 0o600
+                    mode = (0o755 if new_scope.get('executable') else
+                            stat.S_IMODE(path.stat().st_mode) if path.exists() else 0o600)
                     atomic_file(path, prepared_files[target], mode)
                     print(f'Replaced file {target}; verification and receipt pending', flush=True)
                 actual = fingerprint(path, new_scope)
@@ -738,6 +819,9 @@ def main():
     parser.add_argument('--upstream-root', help='resolved installer destination, if different from copied skills')
     parser.add_argument('--claude-config-root', help='proven effective Claude configuration root')
     parser.add_argument('--upstream-stage')
+    parser.add_argument('--pi-config-root', help='proven opted-in Pi configuration root')
+    parser.add_argument('--pi-runtime-stage')
+    parser.add_argument('--pi-version')
     parser.add_argument('--herdr-ref', type=parse_commit_ref,
                         help='single immutable Herdr commit resolved by canonical preparation')
     parser.add_argument('--candidate-config')

@@ -242,6 +242,7 @@ def reference(source, revision, check_url, observed):
         '', '## Authoritative entry points', '',
     ]
     entries = ['AGENTS.md', 'SECURITY.md', 'README.md', 'machine/AGENTS.md', 'machine/PROFILE.md',
+               'machine/pi/AGENTS.md', 'machine/pi/HERDR.md',
                'docs/agents/issue-tracker.md', 'docs/development.md']
     entries += sorted(p for p in source.files if p.startswith('docs/workflows/') and p.endswith('.md'))
     for path in entries:
