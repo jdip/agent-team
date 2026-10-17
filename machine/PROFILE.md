@@ -420,6 +420,36 @@ lifecycle rules are owned by [pi/HERDR.md](pi/HERDR.md); other hosts retain thei
 existing routing. Runtime/configuration publication does not prove account or model
 entitlement, live worker usability, or adoption by an existing Pi session.
 
+### Fast extension
+
+Source: [diegopetrucci/pi-extensions](https://github.com/diegopetrucci/pi-extensions).
+Reviewed pin: `4cab67c42eb9ef9f2d9c854c416548c1854e2688`.
+Package identity: `@diegopetrucci/pi-fast` version `0.1.9`.
+
+| Source at reviewed pin | Destination relative to Pi root | Scope |
+| --- | --- | --- |
+| extensions/fast/index.ts | extensions/fast.ts | Whole file |
+| LICENSE | licenses/pi-fast-LICENSE | Whole file |
+
+Active Pi participation includes these exact upstream files. Acquire them in
+staging, verify their Git blobs at this immutable pin during acquisition and the
+all-target gate, and publish through the existing file receipts. The extension
+source matches the published standalone package and has no runtime dependencies
+outside Pi; no Node/npm installation or live `pi install` is needed. Review and
+deliberately change this pin for updates; Herdr remains the only floating source.
+Removing this declaration makes only these receipted files retirement candidates.
+Inactive/`--skip-pi` runs preserve them under the ordinary fingerprint gate.
+
+Installation exposes `/fast` but never toggles it. The upstream default is off;
+existing user/project `fast.json` preferences remain unmanaged and unchanged.
+Preserve foreign extensions, package declarations, credentials and sessions. A
+foreign Fast implementation or duplicate `/fast` command requires investigation,
+not automatic replacement. After a reconciliation, use `/reload` and manually
+run `/fast` in the intended session. A command/footer proves local selection, not
+backend acceptance or subscription allowance consumption. Live Fast-enabled
+inference requires its own authorization; do not silently change authentication,
+models, reasoning, tier defaults or user preferences to make it work.
+
 ## Experiment-to-test migration
 
 Use `--migrate-experiment` only for an operator-approved move from the former
