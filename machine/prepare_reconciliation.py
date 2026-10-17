@@ -577,6 +577,8 @@ def run_prepared(args):
             scope = settings_scope(source, skill_paths(source, skills_root, upstream_root))
             previous = receipt.get(str(pi_root / 'settings.json'), {}).get('scope', {})
             prepare_settings(source, pi_root / 'settings.json', stage / 'candidate-pi-settings.json', scope, previous)
+        from shell_integration import inventory as shell_inventory
+        shell_inventory(source, home, receipt, stage, prepare=True)
         verified_stage = True
         tomlkit = provision_tomlkit(stage)
         config_target = plain_path(home / 'config.toml')

@@ -15,6 +15,18 @@ Interactive helper scripts require a human-capable terminal. When a needed
 capability is unavailable, report that limit and preserve affected state. Missing
 lifecycle evidence also preserves the resource.
 
+Use the reconciled Bash/Zsh `codex` function for shell invocations. It checks
+only whether `HERDR_ENV` is set, including an empty value, and whether invocation
+text matches the `--no-daemon` regex; when set and unmatched it prepends that flag.
+It forwards the original arguments and native status, leaving command validity to
+Codex. Before mutating Herdr resources, verify `HERDR_ENV=1` in the worker's actual
+execution environment and use native caller resolution to confirm the expected
+task-owned pane. Honor native caller aliases after pane moves; inherited and
+current pane IDs need not be identical. Missing context means routing is
+unavailable, not proof of the frontend's location. Preserve affected state; never
+fabricate or inject Herdr context, restart shared daemons, or change global settings
+to supply it. Native host delegation retains its existing routing.
+
 Skills retain the authorization and chaining rules in their maintained text. Use an
 already authorized workflow skill for its next permitted step. Preserve deliberate
 manual-only upstream packages and the skill-to-skill chaining that authorized
