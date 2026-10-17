@@ -4,6 +4,16 @@ The primary agent owns this selection. An assigned reviewer executes its assignm
 without selecting another reviewer. Use one reviewer for both Standards and Spec
 unless independent assignments are useful; apply the same routing to each assignment.
 
+## Pi with Herdr review
+
+When Pi is the host, load `HERDR.md` beside Pi's managed global `AGENTS.md`
+under `PI_CODING_AGENT_DIR` (default `~/.pi/agent`) and use its independent
+leaf-reviewer route. Prepare the complete immutable comparison, Standards/Spec
+axes, smell baseline, requirements and verification evidence from this skill.
+Pi owns dispatch, findings and lifecycle; the reviewer executes directly.
+Report actual model/effort, permissions, coverage and verification limits.
+Missing independent dispatch leaves review pending. This Pi route ends here.
+
 ## Claude Code native review
 
 When Claude Code is the host, the primary assigns one native available subagent the

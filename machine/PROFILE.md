@@ -1,7 +1,7 @@
 # Machine Profile
 
-This is the canonical inventory of managed Codex and Claude configuration, local
-packages, reviewed upstream packages, and reconciliation boundaries. It declares
+This is the canonical inventory of managed Codex, Claude and optional Pi
+configuration, local packages, reviewed upstream packages, and reconciliation boundaries. It declares
 Managed State, not authority to change a machine merely by reading it.
 
 ## Source and targets
@@ -288,6 +288,95 @@ manual-invocation settings.
 | wait-what | skills/productivity/wait-what |
 | herdr | skills/herdr |
 
+## Optional Pi configuration
+
+Opt in a machine with `--enable-pi`; later reconciliations reuse its proven
+`HERDR.md` receipt anchor and automatically consider age-qualified upgrades. Without
+an anchor or explicit opt-in, Pi remains inactive. Use `--skip-pi` to preserve
+anchored Pi scopes and receipt entries for this run; they still pass the ordinary
+fingerprint gate, and skipping participation never uninstalls Pi. This includes the
+whole runtime and launcher outside the configuration root. A foreign installation,
+changed owned bytes or modes, root move or conflicting override requires investigation
+before any managed writes. An active owned runtime blocks an upgrade; preserve all
+running tasks and retry after they exit. Native macOS uses its `lsof` executable
+mapping inspection; Linux inspects current-user `/proc` executable identities;
+Windows inspects native process executable paths. Unavailable inspection stops an
+upgrade rather than assuming the runtime is idle.
+
+Resolve `PI_CODING_AGENT_DIR`, otherwise `$HOME/.pi/agent`; an explicit
+`--pi-config-root` may select a custom root when the environment is unset, and must
+agree when it is set. With neither override, reuse an existing receipt anchor
+before the default root. The effective root must agree with that prior anchor.
+An existing or symlinked `AGENTS.override.md` in an enabled Pi root suppresses its
+managed instructions: preserve it and stop for investigation before managed writes.
+Configuration, auth, sessions, extensions and skill containers
+remain unmanaged except for the exact scopes below. Never copy Codex tokens or
+substitute an API key: use Pi's interactive `/login` with the same OpenAI ChatGPT
+subscription account.
+
+Release source: https://github.com/earendil-works/pi.
+Minimum release age: 168 hours.
+
+Capture one UTC run start before source selection. From all paginated canonical
+releases, select the highest stable semantic version published at or before that
+start minus the minimum age; exclude drafts, prereleases and non-semantic tags.
+Malformed publication metadata for a stable release stops preparation.
+Freeze its version, publication timestamp, exact asset identity and published
+SHA256SUMS checksum for the run, verifying advertised SHA-256 digests when present.
+Missing metadata, matching artifacts or checksum stops before managed writes.
+Never fall back to latest/npm. Initial installation uses the same policy; retain an
+unchanged newer owned runtime without downgrading. Report frozen provenance.
+
+| Python platform | Architecture | Official artifact |
+| --- | --- | --- |
+| darwin | arm64 | pi-darwin-arm64.tar.gz |
+| darwin | x64 | pi-darwin-x64.tar.gz |
+| linux | arm64 | pi-linux-arm64.tar.gz |
+| linux | x64 | pi-linux-x64.tar.gz |
+| win32 | arm64 | pi-windows-arm64.zip |
+| win32 | x64 | pi-windows-x64.zip |
+
+The complete native bundle is one owned directory, preserving its layout and file
+modes; it includes the native executable, package.json and all shipped resources.
+No Node installation is required. Its separately receipted global launcher is an
+ordinary executable file, exporting the resolved Pi configuration root and the
+native app-server-discovered `CODEX_HOME` before executing that bundle. This binds
+Pi’s shared instruction pointer to the same Codex home, including a supported
+`--codex-home` override. The launcher directory must be on the native PATH; report
+a missing PATH entry rather than editing shell or system configuration.
+
+| Runtime platform | Runtime directory | Command file |
+| --- | --- | --- |
+| posix | $HOME/.local/share/agent-team/pi | $HOME/.local/bin/pi |
+| win32 | $LOCALAPPDATA/AgentTeam/pi | $HOME/.local/bin/pi.cmd |
+
+| Source relative to machine/ | Destination relative to Pi root | Scope |
+| --- | --- | --- |
+| pi/AGENTS.md | AGENTS.md | Whole file |
+| pi/HERDR.md | HERDR.md | Whole file |
+
+Merge the scalar fields declared in [pi/settings.json](pi/settings.json) into
+`settings.json`. Own only those scalar fields and membership of each declared skill
+path in its native `skills` array; retain unrelated values and foreign resource
+paths. Recheck the complete settings file immediately before publication so a
+concurrent unmanaged edit stops rather than being overwritten. Pi reuses the
+Claude copied/upstream package inventory above through native absolute skill paths
+to the Codex-installed complete packages, with no Pi copies or changed upstream
+manual-invocation metadata. Native discovery deduplicates identical real paths;
+conflicting other packages remain a supervised usability failure.
+
+Herdr extension source: `src/integration/assets/pi/herdr-agent-state.ts`.
+
+Use that exact upstream native Pi integration at the same run's frozen Herdr
+commit. Verify its Git blob, retain the upstream license, and publish only
+`extensions/herdr-agent-state.ts` and `licenses/herdr-LICENSE`, preserving foreign
+extensions. This is the native
+installer's payload; filesystem reconciliation owns this named file, rather than
+running the installer against a live home. Pi-only coordination, leaf workers and
+lifecycle rules are owned by [pi/HERDR.md](pi/HERDR.md); other hosts retain their
+existing routing. Runtime/configuration publication does not prove account or model
+entitlement, live worker usability, or adoption by an existing Pi session.
+
 ## Experiment-to-test migration
 
 Use `--migrate-experiment` only for an operator-approved move from the former
@@ -327,7 +416,10 @@ unavailable declared sources require investigation before proceeding. Do not enr
 unexplained bytes as evidence simply to bypass a stop.
 
 Whole files use exact-byte fingerprints; directory fingerprints account for
-relative paths and bytes, including added, missing, and renamed files. Shared TOML
+relative paths and bytes, including added, missing, and renamed files. Pi runtime
+fingerprints additionally own POSIX file/directory modes; its ordinary launcher
+fingerprint owns its POSIX mode. Pi JSON fingerprints project only declared scalars
+and named resource membership, retaining unowned values. Shared TOML
 uses a canonical typed projection of only the owned fields, including absence.
 The narrow helper implementation owns the exact encoding.
 

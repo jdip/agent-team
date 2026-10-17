@@ -70,6 +70,90 @@ Claude filesystem publication is not Claude session usability; record that evide
 through the separate host verification workflow. The managing agent maintains cleanup
 schedules separately through the native tools and `cleanup_schedule.py`.
 
+## Optional Pi participation
+
+Opt in this machine explicitly on its first requested Pi reconciliation:
+
+```bash
+python3 machine/prepare_reconciliation.py --repository /actual/agent-team --enable-pi
+```
+
+After the complete read-only gate passes, repeat with `--enable-pi --apply` and
+only specifically approved conflict resolutions. This flag propagates through
+canonical source preparation. Later ordinary reconciliations reuse the proven
+Pi receipt anchor and automatically consider age-qualified upgrades. Machines
+without an anchor or opt-in remain inactive. Use `--skip-pi` to preserve all anchored
+Pi targets and receipts for one run, including the runtime and command; it never
+uninstalls Pi. The enable and skip flags are mutually exclusive. Changed or missing
+inactive targets still stop the shared gate rather than being repaired or retired.
+Explicit Pi participation is independent of optional Claude discovery.
+
+`PI_CODING_AGENT_DIR` selects Pi's native root; its default is `~/.pi/agent`.
+Use `--pi-config-root` for a custom root when that environment variable is unset;
+when set, both must agree. With neither override, reuse an existing receipt
+anchor before the default. The effective root must also match its prior anchor.
+An existing or symlinked `AGENTS.override.md` in an enabled Pi root suppresses the
+managed instruction pointer; the gate preserves it and stops before managed writes.
+Root moves, ambiguous paths, existing foreign commands, changed
+owned content/modes and symlinks require investigation before writes. Configuration
+root containers, auth.json, sessions, foreign extensions/skills and unowned
+settings remain unmanaged.
+
+Preparation freezes UTC start before source selection, then reads Profile's
+canonical release source, age threshold and platform mapping. It paginates releases,
+selects the highest stable semantic version published at least 168 hours before
+that frozen start, and reports version, publication timestamp, cutoff, exact asset
+ID/URL and checksum. It verifies SHA256SUMS and any advertised SHA-256 digests,
+rejects unsafe archive paths/types and extracts the entire native bundle with its
+original layout/modes. Exact native/package version agreement is mandatory. No
+eligible release, archive or checksum stops the entire run before managed writes;
+there is no latest/npm fallback or additional Node installation. Unchanged newer
+owned bundles remain installed; automatic upgrades move forward only.
+
+The ordinary receipt engine owns the complete native bundle and a separate global
+launcher at Profile's declared native destinations. The launcher selects the
+resolved Pi root and the same native app-server-discovered `CODEX_HOME` before
+executing that bundle. This preserves shared instruction discovery when using
+`--codex-home`, even if that root differs from the inherited environment/default.
+Confirm its directory is already on native PATH; the helper reports a missing PATH entry without changing shell/system
+configuration. Running managed Pi tasks prevent an upgrade; finish them normally
+and reconcile later. Existing sessions may require restart to adopt configuration
+or skills, so preserve active work and report that limit.
+
+Pi reuses the relevant complete local/upstream skill packages through native
+absolute resource paths, preserving original frontmatter and manual-only settings.
+Its scoped settings candidate merges only declared scalars and those exact skill
+entries, retaining foreign entries. The complete settings file is rechecked at
+publication, including unowned values. Native realpath deduplication avoids duplicate
+loads; a different package with the same name is a usability conflict to resolve.
+The exact upstream Herdr Pi extension and license are acquired from the same run's
+immutable Herdr commit, verified against Git blob hashes, and receipted as named
+files. Other extensions remain untouched. See the installed HERDR.md for Pi-only
+leaf-worker and lifecycle rules; Codex/Claude global behavior stays with its owner.
+
+After installation, prove the global `pi --version`, then inspect native readiness
+without refreshing or exposing credentials:
+
+```bash
+pi auth check --provider openai --json --no-refresh
+```
+
+Require the selected provider to report both ready and OAuth authentication before
+inference. If login is needed, open native interactive Pi and use `/login` to select
+OpenAI and the same ChatGPT subscription account used by Codex. The human completes
+browser consent. Keep auth files, tokens and account details private; never copy
+Codex credentials or substitute API billing. A pending login is an incomplete setup
+gate, separate from successful filesystem reconciliation.
+
+Once ready, send one minimal prompt with explicit `--provider openai`,
+`--model gpt-6.1-sol`, `--thinking high`, `--print` and `--no-session`. Inspect native
+verbose startup/resource diagnostics and an explicit skill invocation to prove
+actual selected-release discovery and manual-only behavior. Finally exercise an
+isolated Herdr leaf-worker, reuse, result acceptance and verified teardown through
+the installed guide, preserving user panes, transcripts and worktrees. Report
+unavailable hosts, entitlement, worker or interactive capabilities as unverified;
+version and syntax checks alone do not establish these outcomes.
+
 ## Approved experiment-to-test migration
 
 For an explicitly approved move from the former Claude-primary experiment, run
@@ -223,7 +307,8 @@ files use the native replacement API; prepared directories receive the intended
 parent inheritance and existing per-path restrictions. A permission mismatch,
 locked file, or denied operation stops the run. Inspect any reported partial
 publication or retained replacement before recovery; never relax permissions to
-make reconciliation pass. POSIX file modes and publication remain unchanged.
+make reconciliation pass. Existing POSIX publication remains unchanged; Pi alone
+adds mode-aware runtime and executable-launcher receipt scopes.
 
 After each actual successful publication, the helper fingerprints the installed
 result and atomically writes the existing narrow receipt. A failed write before
@@ -234,7 +319,10 @@ unrelated work, or build a recovery journal.
 
 The receipt contains version 1 and entries with only target, scope, algorithm, and
 fingerprint. Whole files hash exact bytes. Whole directories hash canonical sorted
-relative file names and their byte hashes. TOML hashes sorted dotted fields with
+relative file names and their byte hashes. Pi runtime directory fingerprints also
+include POSIX file/directory modes; its launcher includes its POSIX mode. Scoped Pi
+JSON hashes only declared scalar values and exact skill-path membership counts,
+including absence. TOML hashes sorted dotted fields with
 type and value or an absent marker; unrelated values never enter the fingerprint.
 The narrow schedule seam consists of `cleanup_schedule_fingerprint`,
 `cleanup_schedule_preflight`, and `cleanup_schedule_entry`. The schedule adapter
