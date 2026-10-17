@@ -259,6 +259,31 @@ def table(section):
             if line.startswith('| ') and not line.startswith('| ---')][1:]
 
 
+def upstream_sources(profile):
+    section = profile.split('## Upstream packages\n')[1].split('## Optional Claude Code configuration\n')[0]
+    sources = []
+    for group in section.split('\n### '):
+        packages = re.findall(r'^\| ([\w-]+) \| (skills/[\w/-]+) \|$', group, re.M)
+        if not packages:
+            continue
+        repository = re.search(r'^Source: \[[^\]]+\]\(https://github.com/([\w.-]+/[\w.-]+)\)\.$', group, re.M)
+        pin = re.search(r'Shared reviewed pin: `([0-9a-f]{40})`', group)
+        if not repository or (not pin and 'Update policy: latest default-branch commit on each reconciliation.' not in group):
+            raise ValueError('upstream declaration requires a repository and reviewed pin or explicit latest policy')
+        sources.append((repository.group(1), pin.group(1) if pin else None, packages))
+    names = [name for _, _, packages in sources for name, _ in packages]
+    floating = [packages for _, ref, packages in sources if ref is None]
+    if len(names) != len(set(names)) or len(floating) != 1 or [name for name, _ in floating[0]] != ['herdr']:
+        raise ValueError('expected unique upstream identities and Herdr as the sole latest source')
+    return sources
+
+
+def parse_commit_ref(value):
+    if not re.fullmatch(r'[0-9a-f]{40}', value):
+        raise argparse.ArgumentTypeError('expected a full lowercase Git commit SHA')
+    return value
+
+
 def claude_packages(profile):
     copied = profile.split('### Claude copied packages\n')[1].split('### Claude upstream packages\n')[0]
     upstream = profile.split('### Claude upstream packages\n')[1].split('## Preflight, publication, and retirement\n')[0]
@@ -372,9 +397,8 @@ def inventory(source, home, skills, upstream, upstream_root=None, claude_root=No
     section = profile.split('## Copied local packages\n')[1].split('## Upstream packages\n')[0]
     for name in table(section):
         rows.append((source / 'machine/skills' / name, skills / name, {'kind': 'directory'}))
-    section = profile.split('## Upstream packages\n')[1].split('## Optional Claude Code configuration\n')[0]
-    pin = re.search(r'Shared reviewed pin: `([0-9a-f]{40})`', section).group(1)
-    packages = re.findall(r'^\| ([\w-]+) \| (skills/[\w/-]+) \|$', section, re.M)
+    sources = upstream_sources(profile)
+    packages = [package for _, _, group in sources for package in group]
     for name, _ in packages:
         rows.append((upstream / name if upstream else None, (upstream_root or skills) / name, {'kind': 'directory'}))
     if claude_root is not None:
@@ -392,25 +416,29 @@ def inventory(source, home, skills, upstream, upstream_root=None, claude_root=No
         raise ValueError('duplicate profile target')
     if len(fields) != 13:
         raise ValueError('expected thirteen managed configuration fields; inspect the declaration')
-    return rows, pin, packages
+    return rows, sources
 
 
-def verify_upstream(stage, pin, packages):
-    tree = json.loads(subprocess.check_output([
-        str(command_path('gh')), 'api', f'repos/mattpocock/skills/git/trees/{pin}?recursive=1']))
-    if tree.get('truncated'):
-        raise ValueError('upstream tree response is truncated')
-    for name, prefix in packages:
-        expected = {item['path'][len(prefix)+1:]: item for item in tree['tree']
-                    if item['path'].startswith(prefix + '/') and item['type'] != 'tree'}
-        actual = files(stage / name)
-        if 'SKILL.md' not in actual or actual.keys() != expected.keys():
-            raise ValueError(f'incomplete staged package: {name}')
-        for relative, data in actual.items():
-            item = expected[relative]
-            blob = hashlib.sha1(f'blob {len(data)}\0'.encode() + data).hexdigest()
-            if item['type'] != 'blob' or item['mode'] not in ('100644', '100755') or blob != item['sha']:
-                raise ValueError(f'staged package differs from pin: {name}/{relative}')
+def verify_upstream(stage, sources, herdr_ref):
+    if not herdr_ref or not re.fullmatch(r'[0-9a-f]{40}', herdr_ref):
+        raise ValueError('supply the single resolved Herdr commit with --herdr-ref; use canonical preparation')
+    for repository, pin, packages in sources:
+        ref = pin or herdr_ref
+        tree = json.loads(subprocess.check_output([
+            str(command_path('gh')), 'api', f'repos/{repository}/git/trees/{ref}?recursive=1']))
+        if tree.get('truncated'):
+            raise ValueError(f'upstream tree response is truncated: {repository}')
+        for name, prefix in packages:
+            expected = {item['path'][len(prefix)+1:]: item for item in tree['tree']
+                        if item['path'].startswith(prefix + '/') and item['type'] != 'tree'}
+            actual = files(stage / name)
+            if 'SKILL.md' not in actual or actual.keys() != expected.keys():
+                raise ValueError(f'incomplete staged package: {name}')
+            for relative, data in actual.items():
+                item = expected[relative]
+                blob = hashlib.sha1(f'blob {len(data)}\0'.encode() + data).hexdigest()
+                if item['type'] != 'blob' or item['mode'] not in ('100644', '100755') or blob != item['sha']:
+                    raise ValueError(f'staged package differs from {repository}@{ref}: {name}/{relative}')
 
 
 def read_receipt(path):
@@ -482,7 +510,7 @@ def run(args):
         raise ValueError('Claude configuration root disagrees with the receipt anchor; investigate before writes')
     if claude_root is not None:
         preserved_claude_targets = set()
-    rows, pin, packages = inventory(source, home, skills, stage, upstream_root, claude_root)
+    rows, sources = inventory(source, home, skills, stage, upstream_root, claude_root)
     releasing = experiment_release_targets(migration, entries, anchored_claude_root) if migration else set()
     preserved_claude_targets -= releasing
     approvals = dict(args.resolve)
@@ -539,6 +567,16 @@ def run(args):
         errors.append('Claude is absent; preserved receipt scopes cannot be resolved or retired')
     if errors:
         raise ValueError('\n'.join(errors))
+    if stage is None:
+        raise ValueError('verified upstream staging is required')
+    discovery_roots = [skills, upstream_root, plain_path(home / 'skills')]
+    if claude_root is not None:
+        discovery_roots.append(plain_path(claude_root / 'skills'))
+    if any(same_path(stage, root) or path_within(stage, root) or same_path(stage.parent, root)
+           for root in discovery_roots):
+        raise ValueError('upstream staging must be outside skill discovery')
+    verify_upstream(stage, sources, args.herdr_ref)
+    print(f'Herdr resolved commit: {args.herdr_ref}', flush=True)
 
     def agrees(target):
         """Receipt scope, gate-verified live state and desired content already match."""
@@ -559,15 +597,6 @@ def run(args):
         return
     if not args.models_verified:
         raise ValueError('supervisor must verify target model/effort availability before applying')
-    if stage is None:
-        raise ValueError('verified upstream staging is required')
-    discovery_roots = [skills, upstream_root, plain_path(home / 'skills')]
-    if claude_root is not None:
-        discovery_roots.append(plain_path(claude_root / 'skills'))
-    if any(same_path(stage, root) or path_within(stage, root) or same_path(stage.parent, root)
-           for root in discovery_roots):
-        raise ValueError('upstream staging must be outside skill discovery')
-    verify_upstream(stage, pin, packages)
     config_target = str(plain_path(home / 'config.toml'))
     candidate_config = plain_path(args.candidate_config) if args.candidate_config else None
     if candidate_config is None:
@@ -709,6 +738,8 @@ def main():
     parser.add_argument('--upstream-root', help='resolved installer destination, if different from copied skills')
     parser.add_argument('--claude-config-root', help='proven effective Claude configuration root')
     parser.add_argument('--upstream-stage')
+    parser.add_argument('--herdr-ref', type=parse_commit_ref,
+                        help='single immutable Herdr commit resolved by canonical preparation')
     parser.add_argument('--candidate-config')
     parser.add_argument('--models-verified', action='store_true')
     parser.add_argument('--resolve', action='append', type=parse_resolution, default=[],

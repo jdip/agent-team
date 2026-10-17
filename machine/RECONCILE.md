@@ -40,8 +40,10 @@ destinations through the native app-server and existing receipt, and checks the
 target operating system and every declared model/effort. When `claude` is available,
 it runs only a bounded `claude --version` probe and resolves the separate Claude
 configuration root from `CLAUDE_CONFIG_DIR` or its default. It stages the upstream
-packages with the installed skill-installer at the declared pin, verifies their Git
-blobs, builds the complete formatting-preserving shared-config candidate, and
+packages with the installed skill-installer at their declared revisions: the
+reviewed Matt Pocock pin and one latest default-branch Herdr commit resolved and
+reported for this run. It verifies their exact file sets and Git blobs, builds the
+complete formatting-preserving shared-config candidate, and
 invokes the existing all-target read-only gate. It makes no managed writes. The
 command removes complete temporary preparation after a successful preflight and
 retains failed acquisition staging for inspection. Supply an explicit
@@ -135,14 +137,21 @@ AGENTS.override.md requires a concrete supervised decision, never automatic remo
 Create temporary staging outside every skill-discovery root and on the destination
 filesystem, using a location whose association with this run is known. Read the
 installed system skill-installer and use its `install-skill-from-github.py` with
-`--repo mattpocock/skills`, PROFILE.md's exact `--ref`, all declared `--path`
-values, and `--dest` pointing to that empty staging directory. Do not implement an
-alternate downloader. A failed acquisition leaves live skills unchanged; inspect
-partial staging before retrying. The helper checks every staged relative file and
-Git blob against the pinned upstream tree, including companion files.
+each repository and package path declared in PROFILE.md, the selected immutable
+`--ref`, and `--dest` pointing to that run's staging directory. The Matt Pocock
+reviewed pin stays fixed. Herdr alone resolves the latest default-branch commit
+once per preparation run; both hosts use that commit. Do not implement an alternate
+downloader. A failed acquisition leaves live skills unchanged; inspect partial
+staging before retrying. The helper checks every staged relative file and Git blob
+against its selected upstream tree, including companion files.
 
-The preparation command passes its resolved paths to the read-only gate; agents do
-not assemble an alternate preparation command.
+The preparation command passes its resolved paths and immutable `--herdr-ref` to
+both the read-only gate and apply. Each gate verifies staging against that same
+commit and the reviewed pin; the filesystem helper requires the resolved Herdr
+commit rather than resolving latest itself. Agents use canonical preparation.
+Invoking preparation again, including a later `--apply` run, resolves latest again
+and repeats the full gate. Herdr's exception changes no receipt, conflict,
+retirement, target-root, or absent-Claude preservation rules.
 
 The helper reads PROFILE.md's tables directly; there is no parallel manifest. It
 checks every declared target plus every previously receipted retirement candidate.
