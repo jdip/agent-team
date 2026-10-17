@@ -468,7 +468,8 @@ def verify_installed(source, skills_root, upstream_root, executable, home, timeo
 def run_prepared(args):
     from reconcile import claude_receipt_root, experiment_migration_scopes, inventory, read_receipt, verify_upstream
     from pi_runtime import (acquire as acquire_pi, roots as pi_roots, receipt_targets as pi_receipt_targets,
-                            prepare_integration, prepare_launcher, prepare_settings, settings_scope, skill_paths)
+                            prepare_integration, prepare_fast_extension, prepare_launcher, prepare_settings,
+                            settings_scope, skill_paths)
 
     source = plain_path(args.prepared_source)
     executable = args.codex if args.codex else shutil.which('codex')
@@ -573,6 +574,7 @@ def run_prepared(args):
         if pi_root is not None:
             pi_bundle, pi_version = acquire_pi(source, stage, pi_runtime, receipt, args.run_start, args.timeout)
             prepare_integration(source, stage, herdr_ref)
+            prepare_fast_extension(source, stage)
             prepare_launcher(stage, pi_runtime, pi_root, home)
             scope = settings_scope(source, skill_paths(source, skills_root, upstream_root))
             previous = receipt.get(str(pi_root / 'settings.json'), {}).get('scope', {})

@@ -530,7 +530,7 @@ def run(args):
     if claude_root is not None:
         preserved_claude_targets = set()
     from pi_runtime import (inventory as pi_inventory, receipt_targets as pi_receipt_targets,
-                            roots as pi_roots, verify_settings, native_version, ensure_idle)
+                            roots as pi_roots, verify_settings, verify_fast_extension, native_version, ensure_idle)
     anchored_pi_root, preserved_pi_targets = pi_receipt_targets(entries, source)
     pi_root = plain_path(args.pi_config_root) if args.pi_config_root else None
     pi_runtime = pi_launcher = None
@@ -663,6 +663,8 @@ def run(args):
            for root in discovery_roots):
         raise ValueError('upstream staging must be outside skill discovery')
     verify_upstream(stage, sources, args.herdr_ref)
+    if pi_root is not None:
+        verify_fast_extension(source, stage)
     print(f'Herdr resolved commit: {args.herdr_ref}', flush=True)
 
     def agrees(target):
