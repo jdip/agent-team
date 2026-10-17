@@ -1,7 +1,7 @@
 # Machine Profile
 
-This is the canonical inventory of managed Codex and Claude configuration, local
-packages, reviewed upstream packages, and reconciliation boundaries. It declares
+This is the canonical inventory of managed Codex, Claude and optional Pi
+configuration, local packages, reviewed upstream packages, and reconciliation boundaries. It declares
 Managed State, not authority to change a machine merely by reading it.
 
 ## Source and targets
@@ -114,7 +114,8 @@ dispatch. Claude installation and account authentication remain outside this
 profile; their absence does not block
 Machine Reconciliation. Verify model/effort support during reconciliation;
 never silently substitute. Inventory validation proves declared model/effort
-support, not current task mode compatibility or successful independent review.
+support, not Daybreak Blue program eligibility or selection, account entitlement,
+current task mode compatibility or successful independent review.
 Verify native dispatch on the execution host through the owning routing, including
 its single standard attempt when mode evidence is missing; report unknown mode and
 unexercised recovery honestly. Loaded roles can require restart after reconciliation.
@@ -174,6 +175,8 @@ connects these packages and records their authorization boundaries.
 
 ## Upstream packages
 
+### Matt Pocock
+
 Source: [mattpocock/skills](https://github.com/mattpocock/skills).
 Shared reviewed pin: `3cca18b368ae95cdbdebbff572ccafa662551015`.
 Use the supported skill-installer with this exact repository, ref, and path for
@@ -191,6 +194,19 @@ Agent Team does not authorize floating upstream content.
 | writing-for-agents | skills/productivity/writing-for-agents |
 | wizard | skills/engineering/wizard |
 | wait-what | skills/productivity/wait-what |
+
+### Herdr
+
+Source: [herdrdev/herdr](https://github.com/herdrdev/herdr).
+Update policy: latest default-branch commit on each reconciliation.
+This is the operator-approved exception to reviewed upstream pins. Resolve one
+immutable commit per run, report it, and reuse it for supported staged acquisition,
+exact-file/Git blob verification, preflight, and publication. A later run resolves
+the latest commit again; matching installed bytes retain the ordinary no-op behavior.
+
+| Identity | Path at the resolved commit |
+| --- | --- |
+| herdr | skills/herdr |
 
 The copied adaptations retain their upstream revision and MIT notices in each
 package. The listed local packages are maintained by Agent Team. Install every
@@ -255,11 +271,12 @@ is separate from native Claude session usability.
 
 ### Claude upstream packages
 
-Use the same reviewed pin and supported staged acquisition as the Codex upstream
-inventory. Complete packages retain companions, licenses, and any upstream-authored
+Use the Codex upstream inventory's reviewed pin for the Matt Pocock packages and
+the same run's resolved latest commit for Herdr. Complete packages use supported
+staged acquisition and retain companions, licenses, and any upstream-authored
 manual-invocation settings.
 
-| Identity | Path at the pin |
+| Identity | Path at the selected revision |
 | --- | --- |
 | grilling | skills/productivity/grilling |
 | domain-modeling | skills/engineering/domain-modeling |
@@ -269,6 +286,139 @@ manual-invocation settings.
 | writing-for-agents | skills/productivity/writing-for-agents |
 | wizard | skills/engineering/wizard |
 | wait-what | skills/productivity/wait-what |
+| herdr | skills/herdr |
+
+## Shared Codex shell integration
+
+Normal reconciliation manages this shell integration on macOS/Linux whenever
+native Bash 3.2+ or Zsh is available, independently of Pi participation. Native
+Windows is excluded; unavailable-shell scopes retain their receipts and pass the
+same fingerprint gate without repair or retirement.
+
+Helper source: `shell/codex-herdr.sh`.
+Helper destination: `$CODEX_HOME/shell/codex-herdr.sh`.
+Hook marker: `agent-team codex-herdr`.
+
+| Shell startup | Destination |
+| --- | --- |
+| bash | .bashrc |
+| bash-login | .bash_profile, .bash_login, .profile |
+| zsh | $ZDOTDIR/.zshrc |
+
+Bash receives a hook in .bashrc and its first existing login file in the declared
+order, creating .bash_profile only when none exists. Zsh's effective native
+ZDOTDIR defaults to HOME. Roots and login-file selection must agree with prior
+hook receipt anchors; symlinks and ambiguous or moved targets stop before writes.
+Each exact marked hook sources the same helper only in its matching interactive
+shell, guarding existing Codex aliases/functions. Repeated sourcing is harmless.
+Direct competing declarations in the known startup files stop preparation; guards
+also preserve definitions supplied by other startup code. Fresh-shell verification
+must establish actual discovery rather than infer it from the source hook alone.
+
+The function named `codex` checks only HERDR_ENV presence, including an empty
+value, and a whitespace-boundary regex for --no-daemon in invocation text. When
+present and unmatched it executes `command codex --no-daemon "$@"`; otherwise it
+executes `command codex "$@"`. It preserves original arguments and native status,
+with command interpretation and validity left entirely to Codex. Other commands
+are unaffected; no command classification or option parsing belongs in this helper.
+
+The receipt owns the helper file and only each startup file's marked hook bytes,
+including their boundary newlines. All unrelated startup bytes and existing modes
+remain unmanaged. Missing/changed hooks and duplicate/malformed markers require
+investigation. Prepare complete candidates and recheck each entire raw startup
+file before publication; a concurrent unowned edit stops the run. Retiring a hook
+can remove only its receipted bytes, never the containing startup file. Existing
+sessions need a new shell or deliberate sourcing; publication does not prove live
+Herdr routing context or change a shared Codex daemon's environment.
+
+## Optional Pi configuration
+
+Opt in a machine with `--enable-pi`; later reconciliations reuse its proven
+`HERDR.md` receipt anchor and automatically consider age-qualified upgrades. Without
+an anchor or explicit opt-in, Pi remains inactive. Use `--skip-pi` to preserve
+anchored Pi scopes and receipt entries for this run; they still pass the ordinary
+fingerprint gate, and skipping participation never uninstalls Pi. This includes the
+whole runtime and launcher outside the configuration root. A foreign installation,
+changed owned bytes or modes, root move or conflicting override requires investigation
+before any managed writes. An active owned runtime blocks an upgrade; preserve all
+running tasks and retry after they exit. Native macOS uses its `lsof` executable
+mapping inspection; Linux inspects current-user `/proc` executable identities;
+Windows inspects native process executable paths. Unavailable inspection stops an
+upgrade rather than assuming the runtime is idle.
+
+Resolve `PI_CODING_AGENT_DIR`, otherwise `$HOME/.pi/agent`; an explicit
+`--pi-config-root` may select a custom root when the environment is unset, and must
+agree when it is set. With neither override, reuse an existing receipt anchor
+before the default root. The effective root must agree with that prior anchor.
+An existing or symlinked `AGENTS.override.md` in an enabled Pi root suppresses its
+managed instructions: preserve it and stop for investigation before managed writes.
+Configuration, auth, sessions, extensions and skill containers
+remain unmanaged except for the exact scopes below. Never copy Codex tokens or
+substitute an API key: use Pi's interactive `/login` with the same OpenAI ChatGPT
+subscription account.
+
+Release source: https://github.com/earendil-works/pi.
+Minimum release age: 168 hours.
+
+Capture one UTC run start before source selection. From all paginated canonical
+releases, select the highest stable semantic version published at or before that
+start minus the minimum age; exclude drafts, prereleases and non-semantic tags.
+Malformed publication metadata for a stable release stops preparation.
+Freeze its version, publication timestamp, exact asset identity and published
+SHA256SUMS checksum for the run, verifying advertised SHA-256 digests when present.
+Missing metadata, matching artifacts or checksum stops before managed writes.
+Never fall back to latest/npm. Initial installation uses the same policy; retain an
+unchanged newer owned runtime without downgrading. Report frozen provenance.
+
+| Python platform | Architecture | Official artifact |
+| --- | --- | --- |
+| darwin | arm64 | pi-darwin-arm64.tar.gz |
+| darwin | x64 | pi-darwin-x64.tar.gz |
+| linux | arm64 | pi-linux-arm64.tar.gz |
+| linux | x64 | pi-linux-x64.tar.gz |
+| win32 | arm64 | pi-windows-arm64.zip |
+| win32 | x64 | pi-windows-x64.zip |
+
+The complete native bundle is one owned directory, preserving its layout and file
+modes; it includes the native executable, package.json and all shipped resources.
+No Node installation is required. Its separately receipted global launcher is an
+ordinary executable file, exporting the resolved Pi configuration root and the
+native app-server-discovered `CODEX_HOME` before executing that bundle. This binds
+Pi’s shared instruction pointer to the same Codex home, including a supported
+`--codex-home` override. The launcher directory must be on the native PATH; report
+a missing PATH entry rather than editing shell or system configuration.
+
+| Runtime platform | Runtime directory | Command file |
+| --- | --- | --- |
+| posix | $HOME/.local/share/agent-team/pi | $HOME/.local/bin/pi |
+| win32 | $LOCALAPPDATA/AgentTeam/pi | $HOME/.local/bin/pi.cmd |
+
+| Source relative to machine/ | Destination relative to Pi root | Scope |
+| --- | --- | --- |
+| pi/AGENTS.md | AGENTS.md | Whole file |
+| pi/HERDR.md | HERDR.md | Whole file |
+
+Merge the scalar fields declared in [pi/settings.json](pi/settings.json) into
+`settings.json`. Own only those scalar fields and membership of each declared skill
+path in its native `skills` array; retain unrelated values and foreign resource
+paths. Recheck the complete settings file immediately before publication so a
+concurrent unmanaged edit stops rather than being overwritten. Pi reuses the
+Claude copied/upstream package inventory above through native absolute skill paths
+to the Codex-installed complete packages, with no Pi copies or changed upstream
+manual-invocation metadata. Native discovery deduplicates identical real paths;
+conflicting other packages remain a supervised usability failure.
+
+Herdr extension source: `src/integration/assets/pi/herdr-agent-state.ts`.
+
+Use that exact upstream native Pi integration at the same run's frozen Herdr
+commit. Verify its Git blob, retain the upstream license, and publish only
+`extensions/herdr-agent-state.ts` and `licenses/herdr-LICENSE`, preserving foreign
+extensions. This is the native
+installer's payload; filesystem reconciliation owns this named file, rather than
+running the installer against a live home. Pi-only coordination, leaf workers and
+lifecycle rules are owned by [pi/HERDR.md](pi/HERDR.md); other hosts retain their
+existing routing. Runtime/configuration publication does not prove account or model
+entitlement, live worker usability, or adoption by an existing Pi session.
 
 ## Experiment-to-test migration
 
@@ -309,7 +459,10 @@ unavailable declared sources require investigation before proceeding. Do not enr
 unexplained bytes as evidence simply to bypass a stop.
 
 Whole files use exact-byte fingerprints; directory fingerprints account for
-relative paths and bytes, including added, missing, and renamed files. Shared TOML
+relative paths and bytes, including added, missing, and renamed files. Pi runtime
+fingerprints additionally own POSIX file/directory modes; its ordinary launcher
+fingerprint owns its POSIX mode. Pi JSON fingerprints project only declared scalars
+and named resource membership, retaining unowned values. Shared TOML
 uses a canonical typed projection of only the owned fields, including absence.
 The narrow helper implementation owns the exact encoding.
 

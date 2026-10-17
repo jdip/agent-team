@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import copy
+from datetime import datetime, timezone
 import json
 import os
 from pathlib import Path
@@ -188,12 +189,21 @@ def select_source(repository, work_root):
 
 
 def source_skill_names(source):
-    from reconcile import table
+    from reconcile import table, upstream_sources
 
     profile = (source / 'machine/PROFILE.md').read_text(encoding='utf-8')
     local = profile.split('## Copied local packages\n')[1].split('## Upstream packages\n')[0]
-    upstream = profile.split('## Upstream packages\n')[1].split('## Optional Claude Code configuration\n')[0]
-    return set(table(local)), {name for name, _ in re.findall(r'^\| ([\w-]+) \| (skills/[\w/-]+) \|$', upstream, re.M)}
+    return set(table(local)), {name for _, _, packages in upstream_sources(profile) for name, _ in packages}
+
+
+def resolve_herdr_ref(sources):
+    repository = next(repository for repository, ref, _ in sources if ref is None)
+    commits = json.loads(command(str(command_path('gh')), 'api', f'repos/{repository}/commits?per_page=1'))
+    ref = commits[0].get('sha') if isinstance(commits, list) and commits else None
+    if not isinstance(ref, str) or not re.fullmatch(r'[0-9a-f]{40}', ref):
+        raise ValueError(f'cannot resolve latest default-branch commit: {repository}')
+    print(f'Herdr resolved commit: {ref}', flush=True)
+    return ref
 
 
 def probe_claude(timeout, requested=None):
@@ -457,6 +467,8 @@ def verify_installed(source, skills_root, upstream_root, executable, home, timeo
 
 def run_prepared(args):
     from reconcile import claude_receipt_root, experiment_migration_scopes, inventory, read_receipt, verify_upstream
+    from pi_runtime import (acquire as acquire_pi, roots as pi_roots, receipt_targets as pi_receipt_targets,
+                            prepare_integration, prepare_launcher, prepare_settings, settings_scope, skill_paths)
 
     source = plain_path(args.prepared_source)
     executable = args.codex if args.codex else shutil.which('codex')
@@ -487,6 +499,23 @@ def run_prepared(args):
         if expected_home and not same_path(home, expected_home):
             raise ValueError(f'Codex app-server resolved a different CODEX_HOME: {home}')
         _, receipt = read_receipt(home / '.agent-team/reconciliation-receipts-v1.json')
+        anchored_pi_root, anchored_pi_targets = pi_receipt_targets(receipt, source)
+        pi_root = pi_runtime = pi_launcher = pi_bundle = pi_version = None
+        pi_enabled = not args.skip_pi and (args.enable_pi or anchored_pi_root is not None)
+        if args.pi_config_root and not pi_enabled:
+            raise ValueError('--pi-config-root requires enabled Pi participation')
+        if pi_enabled:
+            requested_pi_root = args.pi_config_root
+            if requested_pi_root is None and 'PI_CODING_AGENT_DIR' not in os.environ:
+                requested_pi_root = anchored_pi_root
+            pi_root, pi_runtime, pi_launcher = pi_roots(source, requested_pi_root)
+            if anchored_pi_root is not None and not same_path(pi_root, anchored_pi_root):
+                raise ValueError('Pi configuration root disagrees with the receipt anchor')
+            discovered_pi = shutil.which('pi')
+            if discovered_pi is not None and not same_path(plain_path(discovered_pi), pi_launcher):
+                raise ValueError('foreign Pi command is on PATH; investigate before managed writes')
+        else:
+            print('Pi participation disabled; anchored scopes and receipts will be preserved.')
         claude_executable = probe_claude(args.timeout, args.claude)
         if args.claude_config_root and claude_executable is None:
             raise ValueError('Claude executable was not discovered; supply --claude for the explicit configuration root')
@@ -504,18 +533,21 @@ def run_prepared(args):
                 and not same_path(claude_root, anchored_claude_root)):
             raise ValueError('Claude configuration root disagrees with the receipt anchor; investigate before writes')
         codex_receipt = {target: entry for target, entry in receipt.items()
-                         if target not in anchored_claude_targets}
+                         if target not in anchored_claude_targets and target not in anchored_pi_targets}
         local_names, upstream_names = source_skill_names(source)
         skills_root = resolve_root('copied skill destination', args.skills_root, local_names, codex_receipt, discovered)
         upstream_root = resolve_root('upstream installer destination', args.upstream_root, upstream_names,
                                      codex_receipt, discovered)
         verify_models(models_for_profile(source), models)
-        rows, pin, packages = inventory(source, home, skills_root, Path('/upstream-stage'), upstream_root,
-                                        claude_root)
+        rows, sources = inventory(source, home, skills_root, Path('/upstream-stage'), upstream_root,
+                                  claude_root)
+        herdr_ref = resolve_herdr_ref(sources)
         stage_parent = Path(args.staging_root) if args.staging_root else skills_root.parent
         stage_parent = plain_path(stage_parent)
         stage_parent.mkdir(parents=True, exist_ok=True)
         staging_roots = [skills_root, upstream_root]
+        if pi_root is not None:
+            staging_roots.extend([pi_root, pi_runtime, pi_launcher.parent])
         if claude_root is not None:
             staging_roots.append(claude_root / 'skills')
         for root in staging_roots:
@@ -524,6 +556,8 @@ def run_prepared(args):
         discovery_roots = [skills_root, upstream_root, plain_path(home / 'skills')]
         if claude_root is not None:
             discovery_roots.append(plain_path(claude_root / 'skills'))
+        if pi_root is not None:
+            discovery_roots.append(plain_path(pi_root / 'skills'))
         if any(same_path(stage_parent, root) or path_within(stage_parent, root)
                for root in discovery_roots):
             raise ValueError('staging root is inside a skill discovery root')
@@ -532,9 +566,19 @@ def run_prepared(args):
         installer = plain_path(installer)
         if not installer.is_file():
             raise ValueError(f'supported skill installer is unavailable: {installer}')
-        command(python, str(installer), '--repo', 'mattpocock/skills', '--ref', pin,
-                '--dest', str(stage), '--path', *(path for _, path in packages))
-        verify_upstream(stage, pin, packages)
+        for repository, pin, packages in sources:
+            command(python, str(installer), '--repo', repository, '--ref', pin or herdr_ref,
+                    '--dest', str(stage), '--path', *(path for _, path in packages))
+        verify_upstream(stage, sources, herdr_ref)
+        if pi_root is not None:
+            pi_bundle, pi_version = acquire_pi(source, stage, pi_runtime, receipt, args.run_start, args.timeout)
+            prepare_integration(source, stage, herdr_ref)
+            prepare_launcher(stage, pi_runtime, pi_root, home)
+            scope = settings_scope(source, skill_paths(source, skills_root, upstream_root))
+            previous = receipt.get(str(pi_root / 'settings.json'), {}).get('scope', {})
+            prepare_settings(source, pi_root / 'settings.json', stage / 'candidate-pi-settings.json', scope, previous)
+        from shell_integration import inventory as shell_inventory
+        shell_inventory(source, home, receipt, stage, prepare=True)
         verified_stage = True
         tomlkit = provision_tomlkit(stage)
         config_target = plain_path(home / 'config.toml')
@@ -545,9 +589,13 @@ def run_prepared(args):
                         previous_scope, tomlkit)
         preflight = [python, str(source / 'machine/reconcile.py'), '--source', str(source),
                      '--codex-home', str(home), '--skills-root', str(skills_root),
-                     '--upstream-root', str(upstream_root), '--upstream-stage', str(stage)]
+                     '--upstream-root', str(upstream_root), '--upstream-stage', str(stage),
+                     '--herdr-ref', herdr_ref]
         if claude_root is not None:
             preflight.extend(['--claude-config-root', str(claude_root)])
+        if pi_root is not None:
+            preflight.extend(['--pi-config-root', str(pi_root), '--pi-runtime-stage', str(pi_bundle),
+                              '--pi-version', pi_version])
         if args.migrate_experiment:
             preflight.append('--migrate-experiment')
         for target, observation in args.resolve:
@@ -561,10 +609,21 @@ def run_prepared(args):
                 print(line, flush=True)
             try:
                 verify_installed(source, skills_root, upstream_root, executable, home, args.timeout)
+                if pi_root is not None:
+                    reported = subprocess.run([str(pi_launcher), '--version'], stdin=subprocess.DEVNULL,
+                                              capture_output=True, text=True, timeout=args.timeout)
+                    if reported.returncode or reported.stdout.strip() != pi_version:
+                        raise ValueError('installed Pi global launcher is unusable or has the wrong version')
+                    on_path = shutil.which('pi')
+                    if on_path is None or not same_path(plain_path(on_path), pi_launcher):
+                        raise ValueError('Pi launcher installed; add its existing directory to native PATH before use')
             except Exception as error:
                 raise ValueError(f'publication completed; fresh verification failed: {error}') from error
         print(json.dumps({'codex_home': str(home), 'skills_root': str(skills_root),
                           'upstream_root': str(upstream_root),
+                          'herdr_ref': herdr_ref,
+                          'pi_config_root': str(pi_root) if pi_root else None,
+                          'pi_version': pi_version,
                           'claude_config_root': str(claude_root) if claude_root else None,
                           'claude_discovery': 'verified' if claude_executable else 'not-discovered',
                           'platform': initialized['platformOs'],
@@ -607,10 +666,14 @@ def run_bootstrap(args):
         child = [str(executable_path(sys.executable)), str(helper), '--prepared-source', str(source),
                  '--timeout', str(args.timeout)]
         for name in ('codex_home', 'skills_root', 'upstream_root', 'staging_root', 'codex',
-                     'claude', 'claude_config_root'):
+                     'claude', 'claude_config_root', 'pi_config_root', 'run_start'):
             value = getattr(args, name)
             if value:
                 child.extend(['--' + name.replace('_', '-'), str(value)])
+        if args.enable_pi:
+            child.append('--enable-pi')
+        if args.skip_pi:
+            child.append('--skip-pi')
         if args.migrate_experiment:
             child.append('--migrate-experiment')
         if args.apply:
@@ -646,6 +709,11 @@ def main():
     parser.add_argument('--codex')
     parser.add_argument('--claude', help='explicit Claude executable path; otherwise search PATH and, outside native Windows, ~/.local/bin/claude')
     parser.add_argument('--claude-config-root')
+    pi_participation = parser.add_mutually_exclusive_group()
+    pi_participation.add_argument('--enable-pi', action='store_true', help='opt this machine into Pi management; later runs reuse its receipt anchor')
+    pi_participation.add_argument('--skip-pi', action='store_true', help='preserve all anchored Pi scopes during this reconciliation')
+    parser.add_argument('--pi-config-root', help='custom native Pi root, agreeing with PI_CODING_AGENT_DIR when set')
+    parser.add_argument('--run-start', help=argparse.SUPPRESS)
     parser.add_argument('--resolve', action='append', type=parse_resolution, default=[],
                         metavar='TARGET=OBSERVED_SHA256_OR_absent')
     parser.add_argument('--migrate-experiment', action='store_true',
@@ -653,6 +721,7 @@ def main():
     parser.add_argument('--apply', action='store_true')
     parser.add_argument('--timeout', type=float, default=20)
     args = parser.parse_args()
+    args.run_start = args.run_start or datetime.now(timezone.utc).isoformat()
     try:
         if args.timeout <= 0:
             raise ValueError('--timeout must be positive')

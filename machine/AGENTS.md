@@ -15,6 +15,18 @@ Interactive helper scripts require a human-capable terminal. When a needed
 capability is unavailable, report that limit and preserve affected state. Missing
 lifecycle evidence also preserves the resource.
 
+Use the reconciled Bash/Zsh `codex` function for shell invocations. It checks
+only whether `HERDR_ENV` is set, including an empty value, and whether invocation
+text matches the `--no-daemon` regex; when set and unmatched it prepends that flag.
+It forwards the original arguments and native status, leaving command validity to
+Codex. Before mutating Herdr resources, verify `HERDR_ENV=1` in the worker's actual
+execution environment and use native caller resolution to confirm the expected
+task-owned pane. Honor native caller aliases after pane moves; inherited and
+current pane IDs need not be identical. Missing context means routing is
+unavailable, not proof of the frontend's location. Preserve affected state; never
+fabricate or inject Herdr context, restart shared daemons, or change global settings
+to supply it. Native host delegation retains its existing routing.
+
 Skills retain the authorization and chaining rules in their maintained text. Use an
 already authorized workflow skill for its next permitted step. Preserve deliberate
 manual-only upstream packages and the skill-to-skill chaining that authorized
@@ -187,7 +199,7 @@ spawn tool's task-name argument. The primary display ID is ORC.
 | sysadmin_operator | 🧰 OPS | ops_ | gpt-6.1-sol / high | default |
 | critical_reviewer | 🔍 REV | rev_ | code-review mode selection / xhigh | default |
 | deep_specialist | 🧠 DSP | dsp_ | gpt-6-astra / max | default |
-| security_specialist | 🛡️ SEC | sec_ | gpt-daybreak-blue-latest / xhigh | default |
+| security_specialist | 🛡️ SEC | sec_ | gpt-5.6-sol / xhigh | default |
 
 The primary model is GPT-6.1 Sol/high; the generic subagent default is GPT-6.1
 Sol/medium. Prefer Opus for bounded planning and implementation through the route
@@ -196,8 +208,12 @@ integration, and Astra/medium or high for persistent judgment failures or except
 architectural ambiguity. Use deep_specialist exceptionally for the hardest
 technical analysis. Change standing defaults only after repeated real-use
 evidence. Verify model and effort support on the target; report unavailable
-assignments rather than silently substituting models. Daybreak Blue
-unavailability requires a separate decision.
+assignments rather than silently substituting models. The security specialist's
+concrete model is separate from the Daybreak Blue access program, which the host
+selects: native spawn sets model and effort only. Check program eligibility where
+model metadata exposes it; eligibility is not entitlement, task mode or the
+effective program, so report an unobservable program as unknown. Unavailability
+of that model or Daybreak Blue requires a separate decision.
 
 For default native review or optional additional Opus review, load code-review's
 `reviewer-routing.md` and `reviewer-models.toml`: they own mode evidence, compatible model selection, and

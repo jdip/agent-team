@@ -30,8 +30,9 @@ current instructions govern any work the orchestrator subsequently dispatches.
 
    Use the host’s established Python command when it differs. The helper resolves
    the live `test` head, requires that revision’s successful `validate` check,
-   reads its committed blobs, retrieves separately pinned upstream metadata, and
-   rechecks `test` before returning the on-demand Markdown snapshot on stdout.
+   reads its committed blobs, retrieves upstream metadata at reviewed pins plus
+   one resolved latest default-branch commit for Herdr, and rechecks `test` before
+   returning the on-demand Markdown snapshot on stdout.
    Missing Git objects require inspection and a fresh fetch; the helper performs
    no checkout, installation, publication, or local inventory read.
 3. Read the returned snapshot. Report its commit and verification evidence,

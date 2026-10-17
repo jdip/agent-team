@@ -88,12 +88,22 @@ def profile_inventory(profile):
     local = [line.split('|')[1].strip() for line in local_section.splitlines()
              if line.startswith('| ') and not line.startswith('| ---')][1:]
     upstream_section = profile.split('## Upstream packages\n')[1].split('## Optional Claude Code configuration\n')[0]
-    repository = re.search(r'Source: \[.*?\]\(https://github.com/([\w.-]+/[\w.-]+)\)', upstream_section)
-    pin = re.search(r'Shared reviewed pin: `([0-9a-f]{40})`', upstream_section)
-    upstream = re.findall(r'^\| ([\w-]+) \| (skills/[\w/-]+) \|$', upstream_section, re.M)
-    if not local or len(set(local)) != len(local) or not repository or not pin or not upstream:
+    upstream = []
+    for group in upstream_section.split('\n### '):
+        packages = re.findall(r'^\| ([\w-]+) \| (skills/[\w/-]+) \|$', group, re.M)
+        if not packages:
+            continue
+        repository = re.search(r'Source: \[.*?\]\(https://github.com/([\w.-]+/[\w.-]+)\)', group)
+        pin = re.search(r'Shared reviewed pin: `([0-9a-f]{40})`', group)
+        latest = re.search(r'^Update policy: latest default-branch commit on each reconciliation\.$', group, re.M)
+        if not repository or (not pin and not latest):
+            raise ValueError('Machine Profile upstream source or update policy is incomplete')
+        upstream.append((repository[1], pin[1] if pin else None, packages))
+    identities = [name for _, _, packages in upstream for name, _ in packages]
+    if (not local or len(set(local)) != len(local) or not upstream
+            or len(set(identities)) != len(identities)):
         raise ValueError('Machine Profile inventory is incomplete or has changed structure')
-    return set(local), repository[1], pin[1], upstream
+    return set(local), upstream
 
 
 class Source:
@@ -153,10 +163,12 @@ def skills(source, managed):
     return rows
 
 
-def upstream_skills(repository, pin, packages):
+def upstream_skills(repository, revision, packages):
     rows = []
     try:
-        tree = api(f'repos/{repository}/git/trees/{pin}?recursive=1')
+        if revision is None:
+            raise ValueError('upstream revision unavailable')
+        tree = api(f'repos/{repository}/git/trees/{revision}?recursive=1')
         if tree.get('truncated'):
             raise ValueError('upstream tree is truncated')
         files = {entry['path']: entry['mode'] for entry in tree['tree'] if entry['type'] == 'blob'}
@@ -168,7 +180,7 @@ def upstream_skills(repository, pin, packages):
             if files is None or files.get(path) not in ('100644', '100755'):
                 raise ValueError('upstream source inventory unavailable')
             def read(relative):
-                content = api(f'repos/{repository}/contents/{relative}?ref={pin}')
+                content = api(f'repos/{repository}/contents/{relative}?ref={revision}')
                 return base64.b64decode(content['content']).decode('utf-8')
             policy_path = f'{directory}/agents/openai.yaml'
             policy = read(policy_path) if policy_path in files else ''
@@ -176,22 +188,48 @@ def upstream_skills(repository, pin, packages):
             if name != identity:
                 raise ValueError('upstream identity differs from Profile')
             if policy:
-                invocation += f' ([policy]({link(repository, pin, policy_path)}))'
-            helpers = [f'[{cell(p.rsplit("/", 1)[-1])}]({link(repository, pin, p)})'
+                invocation += f' ([policy]({link(repository, revision, policy_path)}))'
+            helpers = [f'[{cell(p.rsplit("/", 1)[-1])}]({link(repository, revision, p)})'
                        for p in sorted(files) if p.startswith(f'{directory}/scripts/')]
             detail = cell(description)
         except (ValueError, KeyError, UnicodeError):
-            name, detail, invocation, helpers = identity, 'Metadata unavailable; read pinned source', 'unverified', []
-        rows.append(f'| [{cell(name)}]({link(repository, pin, path)}) | {detail} | '
+            name, invocation, helpers = identity, 'unverified', []
+            detail = ('Metadata unavailable; read selected source' if revision else
+                      'Metadata unavailable; latest default-branch commit could not be resolved')
+        skill = f'[{cell(name)}]({link(repository, revision, path)})' if revision else cell(name)
+        rows.append(f'| {skill} | {detail} | '
                     f'{invocation} | {", ".join(helpers) or "—"} |')
     return rows
 
 
 def reference(source, revision, check_url, observed):
     profile = source.read('machine/PROFILE.md')
-    managed, upstream_repository, pin, packages = profile_inventory(profile)
+    managed, upstream_sources = profile_inventory(profile)
     rows = skills(source, managed)
-    upstream = upstream_skills(upstream_repository, pin, packages)
+    upstream = []
+    for repository, pin, packages in upstream_sources:
+        selected = pin
+        if pin:
+            heading = f'## Upstream skills at `{pin}`'
+            policy = 'these identities and their reviewed pin.'
+        else:
+            try:
+                commits = api(f'repos/{repository}/commits?per_page=1')
+                selected = commits[0]['sha']
+                if not isinstance(selected, str) or not re.fullmatch(r'[0-9a-f]{40}', selected):
+                    raise ValueError('upstream commit unavailable')
+            except (ValueError, KeyError, IndexError, TypeError):
+                selected = None
+            heading = f'## Upstream skills from {repository}'
+            observation = f'`{selected}`' if selected else 'unavailable'
+            policy = ('these identities and their update policy: latest default-branch commit on each reconciliation. '
+                      f'This refresh observed commit {observation} for metadata only; '
+                      'installed and reconciliation revisions remain unverified.')
+        upstream += ['', heading, '',
+                     f'The [Machine Profile]({link(REPOSITORY, revision, "machine/PROFILE.md")}) owns {policy} '
+                     'Unavailable metadata is explicit; local installed copies are not substituted.',
+                     '', '| Skill | Description and trigger | Invocation | Helpers |',
+                     '| --- | --- | --- | --- |', *upstream_skills(repository, selected, packages)]
     output = [
         '# Agent Team workflow reference', '',
         f'Source: [{REPOSITORY}]({SOURCE_URL}), commit `{revision}`.',
@@ -204,6 +242,7 @@ def reference(source, revision, check_url, observed):
         '', '## Authoritative entry points', '',
     ]
     entries = ['AGENTS.md', 'SECURITY.md', 'README.md', 'machine/AGENTS.md', 'machine/PROFILE.md',
+               'machine/pi/AGENTS.md', 'machine/pi/HERDR.md',
                'docs/agents/issue-tracker.md', 'docs/development.md']
     entries += sorted(p for p in source.files if p.startswith('docs/workflows/') and p.endswith('.md'))
     for path in entries:
@@ -212,12 +251,7 @@ def reference(source, revision, check_url, observed):
         output.append(f'- [{path}]({link(REPOSITORY, revision, path)}): {cell("; ".join(headings)) or "entry instructions"}.')
     output += ['', '## Repository skills', '',
                '| Skill | Source scope | Description and trigger | Invocation | Helpers |',
-               '| --- | --- | --- | --- | --- |', *rows,
-               '', f'## Upstream skills at `{pin}`', '',
-               f'The [Machine Profile]({link(REPOSITORY, revision, "machine/PROFILE.md")}) owns '
-               'these identities and their reviewed pin. Unavailable metadata is explicit; local installed copies are not substituted.',
-               '', '| Skill | Description and trigger | Invocation | Helpers |',
-               '| --- | --- | --- | --- |', *upstream,
+               '| --- | --- | --- | --- | --- |', *rows, *upstream,
                '', '## Repository workflow scripts', '']
     for path in sorted(source.files):
         if path.startswith('scripts/') and path.endswith(('.sh', '.py')):

@@ -40,8 +40,10 @@ destinations through the native app-server and existing receipt, and checks the
 target operating system and every declared model/effort. When `claude` is available,
 it runs only a bounded `claude --version` probe and resolves the separate Claude
 configuration root from `CLAUDE_CONFIG_DIR` or its default. It stages the upstream
-packages with the installed skill-installer at the declared pin, verifies their Git
-blobs, builds the complete formatting-preserving shared-config candidate, and
+packages with the installed skill-installer at their declared revisions: the
+reviewed Matt Pocock pin and one latest default-branch Herdr commit resolved and
+reported for this run. It verifies their exact file sets and Git blobs, builds the
+complete formatting-preserving shared-config candidate, and
 invokes the existing all-target read-only gate. It makes no managed writes. The
 command removes complete temporary preparation after a successful preflight and
 retains failed acquisition staging for inspection. Supply an explicit
@@ -62,11 +64,130 @@ checkout.
 After specific preflight conflicts have been resolved, run the same command with
 `--apply` and each exact approved `--resolve target=observed-sha256` argument. It
 prepares the candidate config, verifies declared model/effort availability, reruns
-the filesystem gate, publishes, and verifies fresh Codex skill discovery. It manages
-only the Machine Profile's files, configuration, and skill directories. A successful
+the filesystem gate, publishes changed targets, and verifies fresh Codex skill
+discovery. It manages only the Machine Profile's files, configuration, and skill directories. A successful
 Claude filesystem publication is not Claude session usability; record that evidence
 through the separate host verification workflow. The managing agent maintains cleanup
 schedules separately through the native tools and `cleanup_schedule.py`.
+
+## Shared Codex shell integration
+
+Normal reconciliation manages the declared shared `codex` function for available
+Bash 3.2+ and Zsh on macOS/Linux, independently of Pi participation. Read Profile's
+[shell inventory](PROFILE.md#shared-codex-shell-integration) for exact helper and
+startup targets. Native startup probes establish alias/function provenance and
+consistent effective ZDOTDIR across ordinary, interactive and login modes without
+printing private function bodies. Preserve normal startup-created state. Foreign
+Codex definitions, changed hook bytes, malformed/duplicate markers, ambiguous roots
+or changed Bash login precedence stop before managed writes.
+
+The function checks only whether HERDR_ENV is set, including an empty value, and
+whether a regex finds --no-daemon in invocation text. Set and unmatched prepends
+one flag; otherwise the original invocation passes through. It forwards exact
+arguments and native exit status with `command codex`, leaving all command and
+option interpretation to Codex. Verify installed support through bounded native
+help; see the official [CLI options](https://learn.chatgpt.com/docs/developer-commands).
+
+Each matching interactive shell sources the same helper through its exact guarded
+startup block, preserving foreign aliases/functions and every unowned byte and
+existing file mode. Repeated sourcing is harmless. Complete raw-file rechecks stop
+concurrent unowned edits before replacement; retirement can remove only receipted
+hook bytes, never the startup file. Unavailable-shell and native Windows scopes
+remain preserved. A second unchanged reconciliation retains content and receipts.
+
+Use a new shell or deliberately source the changed startup file to load the
+function. Existing Codex backends retain their environment: an active TUI with
+missing routing context may need a new direct resume after preserving its work.
+Verify actual execution-side HERDR_ENV and native caller resolution before Herdr
+mutations, honoring caller aliases after pane moves. Wrapper flag insertion does
+not prove genuine Herdr context. Preserve state rather than inject context or
+restart a shared daemon. Pi's separate `-c agents.enabled=false` leaf restriction
+still applies; report actual worker usability separately from configuration.
+
+## Optional Pi participation
+
+Opt in this machine explicitly on its first requested Pi reconciliation:
+
+```bash
+python3 machine/prepare_reconciliation.py --repository /actual/agent-team --enable-pi
+```
+
+After the complete read-only gate passes, repeat with `--enable-pi --apply` and
+only specifically approved conflict resolutions. This flag propagates through
+canonical source preparation. Later ordinary reconciliations reuse the proven
+Pi receipt anchor and automatically consider age-qualified upgrades. Machines
+without an anchor or opt-in remain inactive. Use `--skip-pi` to preserve all anchored
+Pi targets and receipts for one run, including the runtime and command; it never
+uninstalls Pi. The enable and skip flags are mutually exclusive. Changed or missing
+inactive targets still stop the shared gate rather than being repaired or retired.
+Explicit Pi participation is independent of optional Claude discovery.
+
+`PI_CODING_AGENT_DIR` selects Pi's native root; its default is `~/.pi/agent`.
+Use `--pi-config-root` for a custom root when that environment variable is unset;
+when set, both must agree. With neither override, reuse an existing receipt
+anchor before the default. The effective root must also match its prior anchor.
+An existing or symlinked `AGENTS.override.md` in an enabled Pi root suppresses the
+managed instruction pointer; the gate preserves it and stops before managed writes.
+Root moves, ambiguous paths, existing foreign commands, changed
+owned content/modes and symlinks require investigation before writes. Configuration
+root containers, auth.json, sessions, foreign extensions/skills and unowned
+settings remain unmanaged.
+
+Preparation freezes UTC start before source selection, then reads Profile's
+canonical release source, age threshold and platform mapping. It paginates releases,
+selects the highest stable semantic version published at least 168 hours before
+that frozen start, and reports version, publication timestamp, cutoff, exact asset
+ID/URL and checksum. It verifies SHA256SUMS and any advertised SHA-256 digests,
+rejects unsafe archive paths/types and extracts the entire native bundle with its
+original layout/modes. Exact native/package version agreement is mandatory. No
+eligible release, archive or checksum stops the entire run before managed writes;
+there is no latest/npm fallback or additional Node installation. Unchanged newer
+owned bundles remain installed; automatic upgrades move forward only.
+
+The ordinary receipt engine owns the complete native bundle and a separate global
+launcher at Profile's declared native destinations. The launcher selects the
+resolved Pi root and the same native app-server-discovered `CODEX_HOME` before
+executing that bundle. This preserves shared instruction discovery when using
+`--codex-home`, even if that root differs from the inherited environment/default.
+Confirm its directory is already on native PATH; the helper reports a missing PATH entry without changing shell/system
+configuration. Running managed Pi tasks prevent an upgrade; finish them normally
+and reconcile later. Existing sessions may require restart to adopt configuration
+or skills, so preserve active work and report that limit.
+
+Pi reuses the relevant complete local/upstream skill packages through native
+absolute resource paths, preserving original frontmatter and manual-only settings.
+Its scoped settings candidate merges only declared scalars and those exact skill
+entries, retaining foreign entries. The complete settings file is rechecked at
+publication, including unowned values. Native realpath deduplication avoids duplicate
+loads; a different package with the same name is a usability conflict to resolve.
+The exact upstream Herdr Pi extension and license are acquired from the same run's
+immutable Herdr commit, verified against Git blob hashes, and receipted as named
+files. Other extensions remain untouched. See the installed HERDR.md for Pi-only
+leaf-worker and lifecycle rules; Codex/Claude global behavior stays with its owner.
+
+After installation, prove the global `pi --version`, then inspect native readiness
+without refreshing or exposing credentials:
+
+```bash
+pi auth check --provider openai --json --no-refresh
+```
+
+Require the selected provider to report both ready and OAuth authentication before
+inference. If login is needed, open native interactive Pi and use `/login` to select
+OpenAI and the same ChatGPT subscription account used by Codex. The human completes
+browser consent. Keep auth files, tokens and account details private; never copy
+Codex credentials or substitute API billing. A pending login is an incomplete setup
+gate, separate from successful filesystem reconciliation.
+
+Once ready, send one minimal prompt with explicit `--provider openai`,
+`--model gpt-6.1-sol`, `--thinking high`, `--print` and `--no-session`. Inspect native
+verbose startup/resource diagnostics and an explicit skill invocation to prove
+actual selected-release discovery and manual-only behavior. Finally exercise an
+isolated Herdr leaf-worker, reuse, result acceptance and verified teardown through
+the installed guide, preserving user panes, transcripts and worktrees. Report
+unavailable hosts, entitlement, worker or interactive capabilities as unverified;
+version and syntax checks alone do not establish these outcomes.
+
 
 ## Approved experiment-to-test migration
 
@@ -135,14 +256,21 @@ AGENTS.override.md requires a concrete supervised decision, never automatic remo
 Create temporary staging outside every skill-discovery root and on the destination
 filesystem, using a location whose association with this run is known. Read the
 installed system skill-installer and use its `install-skill-from-github.py` with
-`--repo mattpocock/skills`, PROFILE.md's exact `--ref`, all declared `--path`
-values, and `--dest` pointing to that empty staging directory. Do not implement an
-alternate downloader. A failed acquisition leaves live skills unchanged; inspect
-partial staging before retrying. The helper checks every staged relative file and
-Git blob against the pinned upstream tree, including companion files.
+each repository and package path declared in PROFILE.md, the selected immutable
+`--ref`, and `--dest` pointing to that run's staging directory. The Matt Pocock
+reviewed pin stays fixed. Herdr alone resolves the latest default-branch commit
+once per preparation run; both hosts use that commit. Do not implement an alternate
+downloader. A failed acquisition leaves live skills unchanged; inspect partial
+staging before retrying. The helper checks every staged relative file and Git blob
+against its selected upstream tree, including companion files.
 
-The preparation command passes its resolved paths to the read-only gate; agents do
-not assemble an alternate preparation command.
+The preparation command passes its resolved paths and immutable `--herdr-ref` to
+both the read-only gate and apply. Each gate verifies staging against that same
+commit and the reviewed pin; the filesystem helper requires the resolved Herdr
+commit rather than resolving latest itself. Agents use canonical preparation.
+Invoking preparation again, including a later `--apply` run, resolves latest again
+and repeats the full gate. Herdr's exception changes no receipt, conflict,
+retirement, target-root, or absent-Claude preservation rules.
 
 The helper reads PROFILE.md's tables directly; there is no parallel manifest. It
 checks every declared target plus every previously receipted retirement candidate.
@@ -188,8 +316,18 @@ Repeat the canonical preparation command with `--apply` and the exact approved
 `--resolve` arguments only after the supervising agent has resolved each reported
 conflict. The helper prepares the complete candidate config and performs the native
 model check itself, then reruns the all-target filesystem gate, verifies upstream
-staging, prepares complete copied packages, and rechecks observations before and
-immediately at each mutation.
+staging, prepares complete copies of changed packages, and rechecks observations
+before and immediately at each mutation.
+
+A declared target whose receipt scope, gate-verified live fingerprint and desired
+fingerprint already agree is unchanged: the helper skips its preparation and
+publication, leaving its content, file metadata and receipt entry untouched. A run
+with no changed target leaves the receipt file itself untouched. Every target still
+passes the gate and its pre-write receipt, live-state and shared-config rechecks;
+upstream and candidate-config validation still run. Changed or missing targets,
+changed scopes, approved conflicts, retirement and release follow the paths below.
+Preflight reports `Would publish` for each target the apply would publish or
+re-receipt, including a scope or receipt change with identical content.
 
 Whole files are replaced atomically. Directories are prepared off discovery on the
 same filesystem, the exact verified old directory is removed, and the prepared
@@ -204,7 +342,8 @@ files use the native replacement API; prepared directories receive the intended
 parent inheritance and existing per-path restrictions. A permission mismatch,
 locked file, or denied operation stops the run. Inspect any reported partial
 publication or retained replacement before recovery; never relax permissions to
-make reconciliation pass. POSIX file modes and publication remain unchanged.
+make reconciliation pass. Existing POSIX publication remains unchanged; Pi alone
+adds mode-aware runtime and executable-launcher receipt scopes.
 
 After each actual successful publication, the helper fingerprints the installed
 result and atomically writes the existing narrow receipt. A failed write before
@@ -215,7 +354,10 @@ unrelated work, or build a recovery journal.
 
 The receipt contains version 1 and entries with only target, scope, algorithm, and
 fingerprint. Whole files hash exact bytes. Whole directories hash canonical sorted
-relative file names and their byte hashes. TOML hashes sorted dotted fields with
+relative file names and their byte hashes. Pi runtime directory fingerprints also
+include POSIX file/directory modes; its launcher includes its POSIX mode. Scoped Pi
+JSON hashes only declared scalar values and exact skill-path membership counts,
+including absence. TOML hashes sorted dotted fields with
 type and value or an absent marker; unrelated values never enter the fingerprint.
 The narrow schedule seam consists of `cleanup_schedule_fingerprint`,
 `cleanup_schedule_preflight`, and `cleanup_schedule_entry`. The schedule adapter

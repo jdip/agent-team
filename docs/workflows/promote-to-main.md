@@ -12,7 +12,7 @@ Requirements are the same Git/gh/Bash/Python 3.11+ tools as PR-to-test. Read act
 review and test-delivery evidence; review any changes not covered by it.
 
 Run scripts/promote-to-main.sh, optionally supplying --title and --body-file.
-It fetches origin and tags, runs the local Git-index privacy gate, snapshots
+It fetches origin, runs the local Git-index privacy gate, snapshots
 intended test and main, creates/reuses the test-to-main PR, requires its current
 checks, merges the intended head with a merge commit, and verifies the merge's
 parents and tree against the integration its passing Validate run tested. It then
@@ -24,19 +24,25 @@ current checks block. Branch drift stops for investigation. No deployment, signi
 notarization, or application runtime exists in this repository; do not invent
 those completion requirements.
 
-The version contribution comes from canonical task PR merge commits on test's
-first-parent history that are not already in main, in oldest-first order. Count each
-PR once; skip promotion and synchronization wrappers. Apply its major/minor/patch/none
-label sequentially to the highest existing vMAJOR.MINOR.PATCH tag reachable from
-the previous main. All-none makes no new tag. There is no fabricated initial version:
-if no baseline exists and a bump is needed, report unresolved bookkeeping and ask
-for the initial version after completing independent authorized work.
+The version baseline is the highest vMAJOR.MINOR.PATCH tag published on origin,
+lightweight or annotated (peeled to its commit), that is reachable from the previous
+main; local-only tags are ignored. Contributions are canonical task PR merge commits
+on test's first-parent history after that tagged commit, oldest first. Each counts
+once, including PRs an earlier untagged promotion already carried to main; ancestry
+of the tagged main merge excludes what it already versioned. Main-to-test
+synchronization wrappers are skipped, and promotion PRs and rollup child integrations
+never appear on that history. Apply each major/minor/patch/none label sequentially
+to the baseline. All-none makes no new tag. There is no fabricated initial version:
+without a baseline, classify incoming PRs since the previous main solely to decide
+whether an initial version is needed. If a bump is needed, report unresolved
+bookkeeping and ask for that initial version after completing independent authorized work.
 
 A resulting tag is created on the verified main merge and pushed without moving
-existing tags. Missing/conflicting labels, unavailable metadata, or tag failures
-are reported as incomplete bookkeeping rather than bypassing real gates or blocking
-source delivery. The agent resolves routine label questions from evidence; do not
-claim a tag was published without readback. Any future artifact pipeline that
+existing tags. Shallow history, a first-parent test commit without exactly one
+merged test PR, missing/conflicting labels, unavailable metadata, or tag failures
+are reported as incomplete bookkeeping rather than a guessed version, bypassed real
+gates or blocked source delivery. The agent resolves routine label questions from
+evidence; do not claim a tag was published without readback. Any future artifact pipeline that
 requires a version must document that real prerequisite here before use.
 
 The script is linear. Failures leave actual partial effects for the supervising
