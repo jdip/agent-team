@@ -288,6 +288,49 @@ manual-invocation settings.
 | wait-what | skills/productivity/wait-what |
 | herdr | skills/herdr |
 
+## Shared Codex shell integration
+
+Normal reconciliation manages this shell integration on macOS/Linux whenever
+native Bash 3.2+ or Zsh is available, independently of Pi participation. Native
+Windows is excluded; unavailable-shell scopes retain their receipts and pass the
+same fingerprint gate without repair or retirement.
+
+Helper source: `shell/codex-herdr.sh`.
+Helper destination: `$CODEX_HOME/shell/codex-herdr.sh`.
+Hook marker: `agent-team codex-herdr`.
+
+| Shell startup | Destination |
+| --- | --- |
+| bash | .bashrc |
+| bash-login | .bash_profile, .bash_login, .profile |
+| zsh | $ZDOTDIR/.zshrc |
+
+Bash receives a hook in .bashrc and its first existing login file in the declared
+order, creating .bash_profile only when none exists. Zsh's effective native
+ZDOTDIR defaults to HOME. Roots and login-file selection must agree with prior
+hook receipt anchors; symlinks and ambiguous or moved targets stop before writes.
+Each exact marked hook sources the same helper only in its matching interactive
+shell, guarding existing Codex aliases/functions. Repeated sourcing is harmless.
+Direct competing declarations in the known startup files stop preparation; guards
+also preserve definitions supplied by other startup code. Fresh-shell verification
+must establish actual discovery rather than infer it from the source hook alone.
+
+The function named `codex` checks only HERDR_ENV presence, including an empty
+value, and a whitespace-boundary regex for --no-daemon in invocation text. When
+present and unmatched it executes `command codex --no-daemon "$@"`; otherwise it
+executes `command codex "$@"`. It preserves original arguments and native status,
+with command interpretation and validity left entirely to Codex. Other commands
+are unaffected; no command classification or option parsing belongs in this helper.
+
+The receipt owns the helper file and only each startup file's marked hook bytes,
+including their boundary newlines. All unrelated startup bytes and existing modes
+remain unmanaged. Missing/changed hooks and duplicate/malformed markers require
+investigation. Prepare complete candidates and recheck each entire raw startup
+file before publication; a concurrent unowned edit stops the run. Retiring a hook
+can remove only its receipted bytes, never the containing startup file. Existing
+sessions need a new shell or deliberate sourcing; publication does not prove live
+Herdr routing context or change a shared Codex daemon's environment.
+
 ## Optional Pi configuration
 
 Opt in a machine with `--enable-pi`; later reconciliations reuse its proven

@@ -7,8 +7,10 @@ Codex/Claude tasks retain their host's delegation and cleanup rules.
 ## Establish ownership and capacity
 
 Load the installed `herdr` skill and follow its environment and targeting checks.
-Control agents from a Herdr pane with `HERDR_ENV=1`; if Pi is outside Herdr, report
-the missing host capability and continue independent work. Use the current
+Verify Pi has `HERDR_ENV=1` and proven pane identity in its execution-side
+environment before mutations; apply the shared Host capabilities checks to Codex
+workers too. If routing context is unavailable, preserve affected state, report
+the capability limit and continue independent work. Use the current
 session's proven workspace/tab/pane identities. Another session's agents are not
 available merely because they appear in an inventory.
 
@@ -40,12 +42,17 @@ every initial assignment and reuse prompt:
 At every worker start, inspect the installed CLI's supported controls and pass
 native delegation restrictions for that invocation through Herdr's `--`:
 
-- Codex: `-c agents.enabled=false`.
+- Codex: `-c agents.enabled=false` on every worker CLI invocation. Use the
+  managed `codex` function when launching from Bash/Zsh; keep explicit
+  `--no-daemon` when invoking the executable directly through Herdr's `--`.
+  The daemon flag and native delegation restriction serve separate purposes;
+  apply the shared Host capabilities context checks on starts, resumes and reuse.
 - Claude Code: `--disallowedTools Agent Task` when supported; `Agent` is the
   current tool name and `Task` covers older versions. Verify the installed
   version's accepted spelling before launching.
 
-Keep these controls in every fresh invocation; do not change either host's global
+Keep native delegation restrictions in every fresh worker invocation and leaf
+instructions in every reuse assignment; do not change either host's global
 configuration. If the required restriction is unavailable, preserve the assignment
 and report that worker route unavailable. Workers with shell access still have a
 cooperative instruction boundary against launching another CLI or Herdr agent;

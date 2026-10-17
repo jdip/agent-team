@@ -197,11 +197,14 @@ def projection(path, fields, kind='toml'):
 
 
 def fingerprint(path, scope):
-    if scope.get('kind') not in ('file', 'directory', 'toml', 'json'):
+    if scope.get('kind') not in ('file', 'directory', 'toml', 'json', 'shell-hook'):
         raise ValueError('unknown scope requires its target-specific adapter before filesystem inspection')
     path = plain_path(path)
     if not path.exists():
         return None
+    if scope['kind'] == 'shell-hook':
+        from shell_integration import hook_fingerprint
+        return hook_fingerprint(path, scope)
     if scope['kind'] == 'file':
         if not path.is_file():
             raise ValueError(f'expected ordinary file: {path}')
@@ -548,10 +551,24 @@ def run(args):
     if pi_root is not None:
         rows.extend(pi_inventory(source, pi_root, pi_runtime, pi_launcher, pi_bundle,
                                  stage, skills, upstream_root))
+    from shell_integration import (inventory as shell_inventory, raw_file, split_hook,
+                                   validate_candidate as validate_shell_candidate)
+    if stage is None:
+        raise ValueError('verified upstream and shell candidate staging is required')
+    shell_rows, preserved_shell_targets = shell_inventory(source, home, entries, stage)
+    rows.extend(shell_rows)
+    shell_helper = shell_rows[0][1] if shell_rows else None
+    shell_originals = {target: raw_file(Path(target)) for target, entry in entries.items()
+                       if entry['scope']['kind'] == 'shell-hook'}
+    shell_originals.update({str(target): raw_file(target) for _, target, scope in shell_rows
+                            if scope['kind'] == 'shell-hook'})
+    for candidate, target, scope in shell_rows:
+        if scope['kind'] == 'shell-hook':
+            validate_shell_candidate(candidate, target, shell_helper, scope)
     all_target_names = [str(plain_path(target)) for _, target, _ in rows]
     if len(set(all_target_names)) != len(all_target_names):
         raise ValueError('duplicate profile target across hosts')
-    preserved_targets = preserved_claude_targets | preserved_pi_targets
+    preserved_targets = preserved_claude_targets | preserved_pi_targets | preserved_shell_targets
     json_originals = {str(target): target.read_bytes() if target.exists() else None
                       for _, target, scope in rows if scope['kind'] == 'json'}
     if pi_root is not None:
@@ -721,6 +738,9 @@ def run(args):
             scope, expected = observed[target]
             if fingerprint(Path(target), scope) != expected:
                 raise ValueError(f'target changed after preflight: {target}')
+        for target, original in shell_originals.items():
+            if raw_file(Path(target)) != original:
+                raise ValueError('shell startup changed, including unowned bytes; prepare it again')
         for target, original in release_originals.items():
             if (Path(target).read_bytes() if Path(target).exists() else None) != original:
                 raise ValueError(f'released file changed after preparation: {target}')
@@ -731,6 +751,8 @@ def run(args):
             preserve_installation_record(receipt_path, raw_receipt)
         def publication_order(target):
             path = Path(target)
+            if shell_helper is not None and same_path(path, shell_helper):
+                return -2, target
             if pi_root is not None and same_path(path, pi_root / 'HERDR.md'):
                 return -1, target
             if pi_runtime is not None and same_path(path, pi_runtime):
@@ -751,6 +773,8 @@ def run(args):
                 raise ValueError(f'state changed immediately before write: {target}')
             if target == config_target and (path.read_bytes() if path.exists() else None) != original_config_bytes:
                 raise ValueError('shared config changed, including unmanaged fields; prepare it again')
+            if target in shell_originals and raw_file(path) != shell_originals[target]:
+                raise ValueError('shell startup changed, including unowned bytes; prepare it again')
             if target in json_originals and (path.read_bytes() if path.exists() else None) != json_originals[target]:
                 raise ValueError('Pi settings changed, including unmanaged values; prepare it again')
             if target in releasing:
@@ -763,11 +787,19 @@ def run(args):
             elif target not in desired:
                 if scope['kind'] in ('toml', 'json'):
                     raise ValueError('retiring TOML fields requires a reviewed candidate config and scope migration')
-                if path.is_dir():
+                if scope['kind'] == 'shell-hook':
+                    original = shell_originals[target]
+                    before, _, after = split_hook(original or b'', scope)
+                    if original is not None:
+                        atomic_file(path, before + after, stat.S_IMODE(path.stat().st_mode))
+                        if raw_file(path) != before + after:
+                            raise ValueError('shell hook retirement changed unowned startup bytes')
+                elif path.is_dir():
                     shutil.rmtree(path)
                 else:
                     path.unlink(missing_ok=True)
-                if path.exists():
+                if (scope['kind'] == 'shell-hook' and fingerprint(path, scope) is not None) or (
+                        scope['kind'] != 'shell-hook' and path.exists()):
                     raise ValueError(f'retirement incomplete: {target}')
                 entries.pop(target, None)
                 print(f'Retired {target}', flush=True)
@@ -793,6 +825,8 @@ def run(args):
                             stat.S_IMODE(path.stat().st_mode) if path.exists() else 0o600)
                     atomic_file(path, prepared_files[target], mode)
                     print(f'Replaced file {target}; verification and receipt pending', flush=True)
+                if new_scope['kind'] == 'shell-hook' and raw_file(path) != prepared_files[target]:
+                    raise ValueError('installed shell startup differs from its complete candidate')
                 actual = fingerprint(path, new_scope)
                 if actual != fingerprint(candidate, new_scope):
                     raise ValueError(f'installed result mismatch: {target}')

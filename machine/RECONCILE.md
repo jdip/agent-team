@@ -70,6 +70,40 @@ Claude filesystem publication is not Claude session usability; record that evide
 through the separate host verification workflow. The managing agent maintains cleanup
 schedules separately through the native tools and `cleanup_schedule.py`.
 
+## Shared Codex shell integration
+
+Normal reconciliation manages the declared shared `codex` function for available
+Bash 3.2+ and Zsh on macOS/Linux, independently of Pi participation. Read Profile's
+[shell inventory](PROFILE.md#shared-codex-shell-integration) for exact helper and
+startup targets. Native startup probes establish alias/function provenance and
+consistent effective ZDOTDIR across ordinary, interactive and login modes without
+printing private function bodies. Preserve normal startup-created state. Foreign
+Codex definitions, changed hook bytes, malformed/duplicate markers, ambiguous roots
+or changed Bash login precedence stop before managed writes.
+
+The function checks only whether HERDR_ENV is set, including an empty value, and
+whether a regex finds --no-daemon in invocation text. Set and unmatched prepends
+one flag; otherwise the original invocation passes through. It forwards exact
+arguments and native exit status with `command codex`, leaving all command and
+option interpretation to Codex. Verify installed support through bounded native
+help; see the official [CLI options](https://learn.chatgpt.com/docs/developer-commands).
+
+Each matching interactive shell sources the same helper through its exact guarded
+startup block, preserving foreign aliases/functions and every unowned byte and
+existing file mode. Repeated sourcing is harmless. Complete raw-file rechecks stop
+concurrent unowned edits before replacement; retirement can remove only receipted
+hook bytes, never the startup file. Unavailable-shell and native Windows scopes
+remain preserved. A second unchanged reconciliation retains content and receipts.
+
+Use a new shell or deliberately source the changed startup file to load the
+function. Existing Codex backends retain their environment: an active TUI with
+missing routing context may need a new direct resume after preserving its work.
+Verify actual execution-side HERDR_ENV and native caller resolution before Herdr
+mutations, honoring caller aliases after pane moves. Wrapper flag insertion does
+not prove genuine Herdr context. Preserve state rather than inject context or
+restart a shared daemon. Pi's separate `-c agents.enabled=false` leaf restriction
+still applies; report actual worker usability separately from configuration.
+
 ## Optional Pi participation
 
 Opt in this machine explicitly on its first requested Pi reconciliation:
@@ -153,6 +187,7 @@ isolated Herdr leaf-worker, reuse, result acceptance and verified teardown throu
 the installed guide, preserving user panes, transcripts and worktrees. Report
 unavailable hosts, entitlement, worker or interactive capabilities as unverified;
 version and syntax checks alone do not establish these outcomes.
+
 
 ## Approved experiment-to-test migration
 
