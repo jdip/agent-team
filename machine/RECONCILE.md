@@ -93,7 +93,8 @@ still fingerprints all thirteen fields together, so it cannot attribute a mismat
 one field: a live config differing from its receipt remains an ordinary conflict
 requiring an exact `--resolve`. Apply receipts the actual installed config, and an
 unchanged later run with the flag is a no-op. A later run without the flag treats
-the profile values as desired again and reports `Would publish` for the config.
+the profile values as desired again and reports `Would publish` for the config
+when those values differ from the installed pair.
 
 ## Shared Codex shell integration
 
