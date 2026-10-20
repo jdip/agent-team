@@ -104,6 +104,8 @@ restart separately, preserving active work.
 | agents/security_specialist.toml | $CODEX_HOME/agents/security_specialist.toml | Whole file |
 | agents/sysadmin_operator.toml | $CODEX_HOME/agents/sysadmin_operator.toml | Whole file |
 | agents/test_verifier.toml | $CODEX_HOME/agents/test_verifier.toml | Whole file |
+| agents/test-verifier/models.toml | $CODEX_HOME/agents/test-verifier/models.toml | Whole file |
+| agents/test-verifier/routing.md | $CODEX_HOME/agents/test-verifier/routing.md | Whole file |
 | agents/worker.toml | $CODEX_HOME/agents/worker.toml | Whole file |
 | agents/workflow_monitor.toml | $CODEX_HOME/agents/workflow_monitor.toml | Whole file |
 
@@ -115,12 +117,15 @@ package owns default native review and optional additional Claude review. Its
 [reviewer routing](skills/code-review/reviewer-routing.md) and
 [model declaration](skills/code-review/reviewer-models.toml) own mode-aware native
 selection; critical_reviewer intentionally omits a fixed model to permit explicit
-dispatch. Claude installation and account authentication remain outside this
-profile; their absence does not block
+dispatch. Likewise, [test verifier routing](agents/test-verifier/routing.md) and
+its [model declaration](agents/test-verifier/models.toml) own mode-aware
+test_verifier selection, and that role omits a fixed model. Their nested directory
+keeps the declaration out of the top-level role files. Claude installation and
+account authentication remain outside this profile; their absence does not block
 Machine Reconciliation. Verify model/effort support during reconciliation;
 never silently substitute. Inventory validation proves declared model/effort
 support, not Daybreak Blue program eligibility or selection, account entitlement,
-current task mode compatibility or successful independent review.
+current task mode compatibility or successful independent review or verification.
 Verify native dispatch on the execution host through the owning routing, including
 its single standard attempt when mode evidence is missing; report unknown mode and
 unexercised recovery honestly. Loaded roles can require restart after reconciliation.
