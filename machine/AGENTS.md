@@ -15,7 +15,9 @@ Interactive helper scripts require a human-capable terminal. When a needed
 capability is unavailable, report that limit and preserve affected state. Missing
 lifecycle evidence also preserves the resource.
 
-Use the reconciled Bash/Zsh `codex` function for shell invocations. It checks
+When invoking the Codex CLI from Bash/Zsh, use the reconciled `codex` function.
+Run ordinary shell commands through the host’s shell execution capability.
+The function checks
 only whether `HERDR_ENV` is set, including an empty value, and whether invocation
 text matches the `--no-daemon` regex; when set and unmatched it prepends that flag.
 It forwards the original arguments and native status, leaving command validity to
