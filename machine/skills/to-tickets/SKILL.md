@@ -32,7 +32,7 @@ body to incorporate an approved amendment before it becomes the published
 contract.
 
 Confirm the parent's `Delivery` field is part of that approved contract. One-child
-parents default to `direct`. Multiple-child parents use `rollup` by default and name
+parents default to `direct`. Multiple-child parents use `rollup` and name
 the exact `codex/` rollup branch based on fresh `origin/test`; an earlier test
 delivery needs an explicit user decision. Read [rollup delivery](../pr-to-test/ROLLUP.md)
 for the shared branch and CI rules.
@@ -68,10 +68,10 @@ Create the approved child issues in dependency order. Each body contains:
 - current acceptance criteria; and
 - specification and relevant decision links.
 
-For a `rollup` parent, every child states that its delivery boundary is reviewed,
-checked merge-commit integration into the named branch. The final canonical
-PR-to-test, verified test delivery, and one semver contribution remain parent
-acceptance criteria.
+For a `rollup` parent, every child states that its delivery boundary is reviewed
+merge-commit integration with targeted checks into the named branch. Full CI, the
+final canonical PR-to-test, verified test delivery, and one semver contribution
+remain parent acceptance criteria.
 
 Set acceptance evidence by purpose: Application Code requires linting, type
 checking, validation, meaningful behavioral tests, and strong coverage; Tooling

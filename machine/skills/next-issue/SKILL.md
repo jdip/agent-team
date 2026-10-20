@@ -138,7 +138,8 @@ The request to implement the issue includes its ordinary commits, push, reviewed
 PR, applicable gates and merge under the approved delivery mode. In rollup mode,
 use [rollup integration and completion](../pr-to-test/ROLLUP.md) with the local
 `docs/workflows/pr-to-test.md`: child completion is verified integration into the
-rollup, and the implementation parent owns final test delivery. Do not invoke the
+rollup with only targeted tests/validation, and the implementation parent owns
+full CI and final test delivery. Do not invoke the
 test-delivery script for each child. In direct mode, use `pr-to-test` and the local
 `scripts/pr-to-test.sh` through actual test-environment verification.
 
