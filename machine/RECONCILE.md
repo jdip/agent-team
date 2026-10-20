@@ -70,6 +70,32 @@ Claude filesystem publication is not Claude session usability; record that evide
 through the separate host verification workflow. The managing agent maintains cleanup
 schedules separately through the native tools and `cleanup_schedule.py`.
 
+## Preserving root model settings
+
+To keep this machine's existing root model selection for one run, add the flag to
+both the read-only and `--apply` invocations:
+
+```bash
+python3 machine/prepare_reconciliation.py --repository /actual/agent-team --preserve-model-settings
+```
+
+Preparation freezes root `model` and `model_reasoning_effort` once from the native
+app-server-discovered `config.toml`. Both must be present nonblank strings that the
+installed Codex advertises as a supported model/effort pair; a missing, blank or
+unsupported pair stops before managed writes. The candidate config keeps that pair
+and applies the other owned fields from source; the source stays unchanged. Every
+declared role, subagent and reviewer pair is still verified, and post-apply
+verification checks the installed pair. A pair changed after freezing fails the
+preflight, candidate and raw-config rechecks; prepare again.
+
+The flag selects desired values only; it never resolves drift. The config receipt
+still fingerprints all thirteen fields together, so it cannot attribute a mismatch to
+one field: a live config differing from its receipt remains an ordinary conflict
+requiring an exact `--resolve`. Apply receipts the actual installed config, and an
+unchanged later run with the flag is a no-op. A later run without the flag treats
+the profile values as desired again and reports `Would publish` for the config
+when those values differ from the installed pair.
+
 ## Shared Codex shell integration
 
 Normal reconciliation manages the declared shared `codex` function for available
@@ -336,7 +362,8 @@ reconciliation incomplete; ask whether they should become the standard, without
 silently publishing them or establishing permanent exceptions.
 
 Prepare a complete temporary candidate config from the actual shared config,
-editing only the thirteen owned paths to match machine/config.toml. Preserve comments,
+editing only the thirteen owned paths to match machine/config.toml, less any pair
+kept by `--preserve-model-settings`. Preserve comments,
 formatting, and unrelated fields. Retired previously owned fields are removed only
 after their prior receipt passes. The helper parses the candidate and proves its
 owned values match the source and its unowned values match the actual config. It
