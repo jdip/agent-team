@@ -21,6 +21,7 @@ STATE_VERSION = 1
 STATE_DIRECTORY = "codex-selection-scopes"
 LEGACY_PATHS = {"map": "codex-wayfinder-map", "backlog": "codex-implementation-backlog"}
 LABELS = {"map": "wayfinder:map", "backlog": "implementation:backlog"}
+GIT_TIMEOUT_SECONDS = 10
 SAFE_OWNER = re.compile(r"[A-Za-z0-9][A-Za-z0-9._:-]{0,127}\Z")
 SAFE_SCOPE = re.compile(r"[a-z0-9][a-z0-9_-]{0,63}\Z")
 WINDOWS_DEVICES = {"con", "prn", "aux", "nul", *(f"com{number}" for number in range(1, 10)), *(f"lpt{number}" for number in range(1, 10))}
@@ -69,6 +70,12 @@ def common_git_directory() -> Path:
             check=True,
             capture_output=True,
             text=True,
+            timeout=GIT_TIMEOUT_SECONDS,
+        )
+    except subprocess.TimeoutExpired:
+        fail(
+            f"git rev-parse did not finish within {GIT_TIMEOUT_SECONDS} seconds; "
+            "inspect the checkout's Git state and running Git processes before retrying"
         )
     except subprocess.CalledProcessError as error:
         fail(f"not inside a Git worktree: {error.stderr.strip() or 'git rev-parse failed'}")
