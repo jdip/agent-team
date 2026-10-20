@@ -357,10 +357,14 @@ def build(archive):
                 report_path(item).resolve(): relative_href(page, output_path(item))
                 for values in reports.values() for item in values
             }
-            body, tokens = render_markdown(
-                source if H1.search(source) else f"# {title}\n\n{source}",
-                report_links, report_path(report),
-            )
+            try:
+                body, tokens = render_markdown(
+                    source if H1.search(source) else f"# {title}\n\n{source}",
+                    report_links, report_path(report),
+                )
+            except ValueError as error:
+                # Name the report relative to the archive, never by its absolute path.
+                raise ValueError(f"{mode}/{report_path(report).name}: {error}") from error
             content = (
                 f'<p class="metadata">{html.escape(date_label(report))} · '
                 f'{html.escape(mode)}</p>{body}{pagination(page, rows, index)}'
