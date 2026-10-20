@@ -140,8 +140,16 @@ workaround lets the task proceed. Require concrete evidence of a remaining probl
 a transient hiccup with no remaining actionable defect need not become an issue.
 Follow the owning repository's tracker guidance: search and inspect likely matches,
 reuse an existing issue and add material new evidence, or create a scoped remediation
-issue when none matches. This guidance authorizes that filing and evidence update,
-not unrelated remediation or backlog expansion. For a filed or reused blocker,
+issue when none matches. This guidance authorizes filing and evidence updates in
+the task's target repository only, not unrelated remediation or backlog expansion.
+Before any issue creation, comment or evidence update outside that repository,
+present the exact destination and sanitized proposed content and obtain explicit
+operator approval. Reuse prior explicit approval only when it covers that write.
+Common ownership, upstream responsibility, tool access or changing checkouts does
+not extend the task's target or transfer write authority. Read-only discovery and
+deduplication may proceed; retain unapproved drafts in the authorized task context
+and continue independent work.
+For a filed or reused blocker,
 register the remediation issue as blocking the original tracked issue or task using
 the tracker's native dependency feature when supported; otherwise record explicit
 links and the blocking relationship. Verify the recorded relationship and keep the

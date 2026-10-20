@@ -18,6 +18,10 @@ copying an entire scaffolding tree.
   sub-issue, dependency, claim, and remediation deduplication conventions in
   docs/agents/issue-tracker.md. Include search, matching-issue reuse, evidence,
   readback, and blocker links so global filing guidance has a concrete local path.
+  Apply the global target-repository write boundary at the tracker write step:
+  local remediation stays autonomous; any external destination requires explicit
+  operator approval regardless of ownership, with read-only discovery and pending
+  drafts preserved.
 - Task-relevant domain-documentation pointers like docs/agents/domain.md. Create
   or change domain docs when real terms or decisions emerge, rather than as
   empty scaffolding.
