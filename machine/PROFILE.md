@@ -57,6 +57,11 @@ Merge only these thirteen dotted paths from [config.toml](config.toml) into
 - features.multi_agent_v2.default_wait_timeout_ms
 - features.sleep_tool.mode
 
+An explicit per-run `--preserve-model-settings` keeps the existing root `model`
+and `model_reasoning_effort` instead of these source values; see
+[RECONCILE.md](RECONCILE.md#preserving-root-model-settings). The other owned
+fields and every role and subagent pair keep their ordinary treatment.
+
 Longer idle waits reduce repeated parent-agent wakeups while subagents work.
 Codex ends a wait early when agent messages or user input arrive. Multi-agent V2
 enablement and maximum wait time remain unmanaged.

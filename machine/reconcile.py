@@ -491,6 +491,30 @@ def read_receipt(path):
     return raw, entries
 
 
+PRESERVED_MODEL_FIELDS = ('model', 'model_reasoning_effort')
+
+
+def root_model_settings(path):
+    """Read the existing root pair that --preserve-model-settings keeps for one run."""
+    path = plain_path(path)
+    data = tomllib.loads(path.read_text(encoding='utf-8')) if path.exists() else {}
+    pair = tuple(data.get(field) for field in PRESERVED_MODEL_FIELDS)
+    if any(not isinstance(value, str) or not value.strip() for value in pair):
+        raise ValueError('--preserve-model-settings requires existing nonblank root model '
+                         'and model_reasoning_effort strings')
+    return pair
+
+
+def managed_projection(source, fields, preserved=None):
+    """Return the desired owned values, substituting an explicitly preserved root pair."""
+    values = projection(source, fields)
+    if preserved is not None:
+        if not set(PRESERVED_MODEL_FIELDS) <= set(fields):
+            raise ValueError('preserved model settings require managed root model fields')
+        values.update({field: ['str', repr(value)] for field, value in zip(PRESERVED_MODEL_FIELDS, preserved)})
+    return values
+
+
 def unmanaged_projection(data, managed, retired):
     """Return the unowned TOML values while ignoring empty owned containers."""
     owned = {tuple(field.split('.')) for field in managed | retired}
@@ -499,7 +523,7 @@ def unmanaged_projection(data, managed, retired):
             if key not in owned and not (key in containers and value == {})}
 
 
-def verify_candidate_config(candidate, source, original, scope, previous_scope=()):
+def verify_candidate_config(candidate, source, original, scope, previous_scope=(), preserved=None):
     """Prove a complete candidate changes only the owned configuration fields."""
     candidate_data = flatten(tomllib.loads(candidate.read_text(encoding='utf-8')))
     original_data = flatten(tomllib.loads(original.read_text(encoding='utf-8'))) if original.exists() else {}
@@ -507,7 +531,9 @@ def verify_candidate_config(candidate, source, original, scope, previous_scope=(
     retired = set(previous_scope) - managed
     if any(tuple(key.split('.')) in candidate_data for key in retired):
         raise ValueError('candidate config retains retired managed fields')
-    if projection(candidate, managed) != projection(source, managed):
+    if preserved is not None and root_model_settings(original) != preserved:
+        raise ValueError('existing root model settings changed after they were frozen and verified; prepare again')
+    if projection(candidate, managed) != managed_projection(source, managed, preserved):
         raise ValueError('candidate config does not have the declared managed values')
     if unmanaged_projection(candidate_data, managed, retired) != unmanaged_projection(original_data, managed, retired):
         raise ValueError('candidate config changes unmanaged configuration')
@@ -521,6 +547,8 @@ def run(args):
     stage = plain_path(args.upstream_stage) if args.upstream_stage else None
     claude_root = plain_path(args.claude_config_root) if args.claude_config_root else None
     receipt_path = plain_path(home / '.agent-team/reconciliation-receipts-v1.json')
+    config_target = str(plain_path(home / 'config.toml'))
+    preserved = tuple(args.preserve_model_settings) if args.preserve_model_settings else None
     raw_receipt, entries = read_receipt(receipt_path)
     migration = experiment_migration_scopes(source) if args.migrate_experiment else None
     anchored_claude_root, preserved_claude_targets = claude_receipt_root(
@@ -585,6 +613,8 @@ def run(args):
     if pi_root is not None and ((pi_root / 'AGENTS.override.md').exists()
                                 or (pi_root / 'AGENTS.override.md').is_symlink()):
         errors.append('Pi AGENTS.override.md suppresses managed instructions; preserve and investigate')
+    if preserved is not None and root_model_settings(home / 'config.toml') != preserved:
+        errors.append('existing root model settings changed after they were frozen and verified; prepare again')
     for candidate, target, scope in rows:
         target = plain_path(target)
         desired[str(target)] = (candidate, scope)
@@ -670,9 +700,12 @@ def run(args):
     def agrees(target):
         """Receipt scope, gate-verified live state and desired content already match."""
         old, (candidate, scope) = entries.get(target), desired[target]
+        # A preserved root pair is part of the desired config without altering its source.
+        wanted = (digest(encoded(managed_projection(candidate, scope['fields'], preserved)))
+                  if preserved is not None and target == config_target else fingerprint(candidate, scope))
         return (old is not None and old['scope'] == scope
                 and observed[target] == (scope, old['fingerprint'])
-                and fingerprint(candidate, scope) == old['fingerprint'])
+                and wanted == old['fingerprint'])
 
     for target in sorted(observed) if not args.apply else ():
         if target in releasing:
@@ -686,7 +719,6 @@ def run(args):
         return
     if not args.models_verified:
         raise ValueError('supervisor must verify target model/effort availability before applying')
-    config_target = str(plain_path(home / 'config.toml'))
     candidate_config = plain_path(args.candidate_config) if args.candidate_config else None
     if candidate_config is None:
         raise ValueError('supply the supervisor-prepared complete candidate config')
@@ -695,7 +727,7 @@ def run(args):
     original_config_bytes = (home / 'config.toml').read_bytes() if (home / 'config.toml').exists() else None
     previously_managed = set(entries.get(config_target, {}).get('scope', {}).get('fields', []))
     verify_candidate_config(candidate_config, source_config, original_config, config_scope,
-                            previously_managed)
+                            previously_managed, preserved)
     desired[config_target] = (candidate_config, config_scope)
     # Snapshot candidates before mutation. The source worktree must represent the
     # single revision selected by the supervisor, with no uncommitted edits.
@@ -862,6 +894,8 @@ def main():
                         help='single immutable Herdr commit resolved by canonical preparation')
     parser.add_argument('--candidate-config')
     parser.add_argument('--models-verified', action='store_true')
+    parser.add_argument('--preserve-model-settings', nargs=2, metavar=('MODEL', 'EFFORT'),
+                        help='existing root pair frozen and verified by canonical preparation')
     parser.add_argument('--resolve', action='append', type=parse_resolution, default=[],
                         metavar='TARGET=OBSERVED_SHA256_OR_absent')
     parser.add_argument('--migrate-experiment', action='store_true',
