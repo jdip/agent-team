@@ -55,10 +55,22 @@ unchanged healthy progress. Authorize any successful-path mutations explicitly
 within the task's scope. Before temporary compute starts, the primary uses
 `cleanup-task-artifacts` to establish resource ownership and teardown.
 
-For work already running, transfer observation with its run/session identity,
-current state and log/status location, preserving the operation without restarting
-it. One owner observes each run: the primary uses delegated evidence for required
-progress updates rather than independently polling the same logs or status.
+For work already running, transfer terminal observation with its run/session
+identity, current state and log/status location only after the delegate
+demonstrates access to that exact run/session; an identifier alone is not access.
+Otherwise the original owner keeps terminal completion, collecting the exit status
+and terminal evidence, and the operation keeps running rather than restarting to
+move ownership. A delegate may still observe progress on an existing shared or
+native status/log surface it demonstrably reaches. Each run has one terminal
+owner and each surface one observer: the primary uses delegated evidence for
+required progress updates rather than independently polling the same surface.
+
+Anchor a new observation assignment and its stall interval to a fresh UTC or
+monotonic clock reading, keeping the operation's existing overall limit.
+Unqualified file timestamps or an earlier assignment's window do not establish a
+new observation timeout. Inaccessible or contradictory evidence is a capability or
+evidence limit to report, not a process failure.
+
 The primary retains interpretation, discretionary recovery, scope decisions and
 final acceptance. A delegate returns failures and partial effects for that
 decision; a recovery assignment must precede further corrective execution.
