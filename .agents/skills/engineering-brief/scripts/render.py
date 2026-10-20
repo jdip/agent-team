@@ -38,6 +38,10 @@ COPYABLE_DETAILS = re.compile(
 )
 
 
+class ReportRenderError(ValueError):
+    """A renderer-owned diagnostic safe to display without report contents."""
+
+
 def safe_url(value):
     parsed = urlsplit(value)
     if value.startswith("#"):
@@ -149,7 +153,7 @@ def protect_discussions(source):
     source = COPYABLE.sub("", source)
     source = COPYABLE_DETAILS.sub("", source)
     if ":codex-followup[" in source:
-        raise ValueError("unrecognized native follow-up directive; preserve the source report")
+        raise ReportRenderError("unrecognized native follow-up directive; preserve the source report")
     return source, discussions
 
 
@@ -193,7 +197,7 @@ def render_markdown(source, report_links=None, source_path=None):
     for token, panel in discussions.items():
         rendered = rendered.replace(f"<p>{token}</p>", panel)
     if any(token in rendered for token in discussions):
-        raise ValueError("discussion panel could not be rendered; preserve the source report")
+        raise ReportRenderError("discussion panel could not be rendered; preserve the source report")
     return rendered, renderer.toc_tokens
 
 
@@ -364,7 +368,9 @@ def build(archive):
                 )
             except ValueError as error:
                 # Name the report relative to the archive, never by its absolute path.
-                raise ValueError(f"{mode}/{report_path(report).name}: {error}") from error
+                reason = (str(error) if isinstance(error, ReportRenderError)
+                          else "invalid report markup; preserve the source report")
+                raise ValueError(f"{mode}/{report_path(report).name}: {reason}") from error
             content = (
                 f'<p class="metadata">{html.escape(date_label(report))} · '
                 f'{html.escape(mode)}</p>{body}{pagination(page, rows, index)}'
