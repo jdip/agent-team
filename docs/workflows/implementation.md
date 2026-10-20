@@ -38,8 +38,8 @@ existing parent through its shared script. Neither publication nor admission nor
 selection independently authorizes execution.
 
 An authorized `next-issue` executes one child through its specification's delivery
-mode. Multi-ticket parents default to reviewed PRs into one implementation rollup;
-single-ticket work defaults to direct delivery. The shared
+mode. Multi-ticket parents use reviewed PRs with targeted checks into one
+implementation rollup; single-ticket work defaults to direct delivery. The shared
 [rollup contract](../../machine/skills/pr-to-test/ROLLUP.md) owns child integration
 and aggregate completion; the local [delivery runbook](pr-to-test.md) owns commands. `next-issue-loop` continues across child
 boundaries within the initially selected parent. Next-issue owns the Design gate:
@@ -51,7 +51,8 @@ wait for actual answers, and reuse approvals already supplied.
 
 Relevant reviews, actual checks and verified rollup integration permit the next
 child in that parent. Once all children are complete, deliver the combined rollup
-through one canonical PR to test and verify its full outcome before parent closure.
+through one canonical PR to test with full CI and verify its full outcome before
+parent closure.
 Direct-delivery children retain verified test delivery. Main promotion is separate;
 planning maps still close at design resolution and handoff. Keep its scoped binding as the completed
 selection, and wait for explicit selection/execution of another effort. Preserve

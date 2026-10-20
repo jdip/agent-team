@@ -56,7 +56,7 @@ work. Reuse one follow-up across related decisions rather than creating duplicat
 
 Set the parent's delivery mode before drafting its acceptance criteria. A parent
 with one executable child defaults to `direct`. A parent with multiple executable
-children defaults to `rollup`: name one `codex/` rollup branch based on fresh
+children uses `rollup`: name one `codex/` rollup branch based on fresh
 `origin/test` in the parent body. Delivery to `test` before the final rollup
 requires the user's explicit decision. Read [rollup delivery](../pr-to-test/ROLLUP.md)
 for the shared branch and CI rules.
@@ -81,10 +81,11 @@ infrastructure work only when it is a real prerequisite. For every proposed
 ticket, state its outcome, acceptance criteria, relevant source links, and only
 the tickets that genuinely block it.
 
-For `rollup`, a child's delivery acceptance ends when its reviewed, checked
-feature PR merges with a merge commit into the named rollup branch; this verified
-integration can close the child and unblock the next one without a test deploy.
-Reserve aggregate test delivery and the one semver contribution for the parent.
+For `rollup`, a child's delivery acceptance ends when its reviewed feature PR
+passes targeted checks and merges with a merge commit into the named rollup
+branch; this verified integration can close the child and unblock the next one
+without a test deploy. Reserve full CI, aggregate test delivery and the one semver
+contribution for the parent.
 
 Classify each outcome by purpose. Application Code needs linting, type checking,
 validation, meaningful behavioral tests, and strong coverage. Tooling needs

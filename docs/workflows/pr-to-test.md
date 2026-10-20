@@ -20,7 +20,8 @@ Review all submitted changes. Reuse completed review only with evidence covering
 every change and resolved/accepted findings; doubt requires the relevant review.
 Run git diff --check and the actual changed helper operation. The script runs the
 mandatory staged privacy check before pushing; hosted Validate is the
-authoritative source check, so a full local run beforehand is optional, following
+authoritative source check for delivery to test/main, so a full local run before
+that delivery is optional, following
 [development guidance](../development.md). No review record framework or Tooling
 coverage suite is needed.
 
