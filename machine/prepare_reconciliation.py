@@ -21,7 +21,7 @@ import tomllib
 
 sys.dont_write_bytecode = True
 
-from reconcile import command_path, executable_path, path_within, plain_path, same_path
+from reconcile import command_path, executable_path, path_within, plain_path, root_model_settings, same_path
 
 
 def discovered_path(path):
@@ -321,9 +321,9 @@ def resolve_root(label, explicit, names, receipt, discovered):
     return Path(roots.pop())
 
 
-def models_for_profile(source):
+def models_for_profile(source, preserved=None):
     config = tomllib.loads((source / 'machine/config.toml').read_text(encoding='utf-8'))
-    required = {(config['model'], config['model_reasoning_effort']),
+    required = {preserved or (config['model'], config['model_reasoning_effort']),
                 (config['agents']['default_subagent_model'],
                  config['agents']['default_subagent_reasoning_effort'])}
     for path in (source / 'machine/agents').glob('*.toml'):
@@ -342,7 +342,7 @@ def models_for_profile(source):
     return required
 
 
-def verify_models(required, advertised):
+def verify_models(required, advertised, subject='declared model/effort'):
     available = {
         item.get('model'): {effort.get('reasoningEffort') for effort in item.get('supportedReasoningEfforts', [])}
         for item in advertised if isinstance(item.get('model'), str)
@@ -350,7 +350,7 @@ def verify_models(required, advertised):
     missing = sorted(f'{model}/{effort}' for model, effort in required
                      if effort not in available.get(model, set()))
     if missing:
-        raise ValueError(f'installed Codex does not support declared model/effort: {", ".join(missing)}')
+        raise ValueError(f'installed Codex does not support {subject}: {", ".join(missing)}')
 
 
 def provision_tomlkit(stage):
@@ -406,10 +406,12 @@ def unwrapped(item):
     return item.unwrap() if hasattr(item, 'unwrap') else item
 
 
-def build_candidate(source, actual, output, scope, prior_scope, tomlkit):
-    from reconcile import verify_candidate_config
+def build_candidate(source, actual, output, scope, prior_scope, tomlkit, preserved=None):
+    from reconcile import PRESERVED_MODEL_FIELDS, verify_candidate_config
 
     needed = {tuple(field.split('.')) for field in scope['fields']}
+    # Keep the existing pair; verification proves it is still the frozen one.
+    kept = {(field,) for field in PRESERVED_MODEL_FIELDS} if preserved is not None else set()
     source_bytes = source.read_bytes()
     source_document = tomlkit.parse(source_bytes.decode('utf-8'))
     previous = {tuple(field.split('.')) for field in prior_scope}
@@ -420,7 +422,7 @@ def build_candidate(source, actual, output, scope, prior_scope, tomlkit):
         table = table_at(document, path[:-1], False, tomlkit)
         if table is not None and path[-1] in table:
             del table[path[-1]]
-    for path in needed:
+    for path in needed - kept:
         source_item = item_at(source_document, path)
         if source_item is None:
             raise ValueError(f'source config lacks owned value: {".".join(path)}')
@@ -441,12 +443,14 @@ def build_candidate(source, actual, output, scope, prior_scope, tomlkit):
             stream.write(candidate_bytes)
     else:
         output.write_bytes(candidate_bytes)
-    verify_candidate_config(output, source, actual, scope, prior_scope)
+    verify_candidate_config(output, source, actual, scope, prior_scope, preserved)
 
 
-def verify_installed(source, skills_root, upstream_root, executable, home, timeout):
+def verify_installed(source, skills_root, upstream_root, executable, home, timeout, preserved=None):
     _, discovered, models = app_server_data(executable, home, source, timeout)
-    verify_models(models_for_profile(source), models)
+    if preserved is not None and root_model_settings(home / 'config.toml') != preserved:
+        raise ValueError('installed root model settings differ from the preserved pair')
+    verify_models(models_for_profile(source, preserved), models)
     local, upstream = source_skill_names(source)
     expected = {name: str(skills_root / name / 'SKILL.md') for name in local}
     expected.update({name: str(upstream_root / name / 'SKILL.md') for name in upstream})
@@ -499,6 +503,12 @@ def run_prepared(args):
             raise ValueError(f'Codex app-server resolved a different CODEX_HOME: {home}')
         if expected_home and not same_path(home, expected_home):
             raise ValueError(f'Codex app-server resolved a different CODEX_HOME: {home}')
+        preserved = None
+        if args.preserve_model_settings:
+            # Freeze the actual pair once; later gates reject any concurrent change.
+            preserved = root_model_settings(home / 'config.toml')
+            verify_models({preserved}, models, 'the preserved root model/effort')
+            print('Preserving the existing root model and model_reasoning_effort for this run.', flush=True)
         _, receipt = read_receipt(home / '.agent-team/reconciliation-receipts-v1.json')
         anchored_pi_root, anchored_pi_targets = pi_receipt_targets(receipt, source)
         pi_root = pi_runtime = pi_launcher = pi_bundle = pi_version = None
@@ -539,7 +549,7 @@ def run_prepared(args):
         skills_root = resolve_root('copied skill destination', args.skills_root, local_names, codex_receipt, discovered)
         upstream_root = resolve_root('upstream installer destination', args.upstream_root, upstream_names,
                                      codex_receipt, discovered)
-        verify_models(models_for_profile(source), models)
+        verify_models(models_for_profile(source, preserved), models)
         rows, sources = inventory(source, home, skills_root, Path('/upstream-stage'), upstream_root,
                                   claude_root)
         herdr_ref = resolve_herdr_ref(sources)
@@ -588,7 +598,7 @@ def run_prepared(args):
         previous_scope = receipt.get(str(config_target), {}).get('scope', {}).get('fields', [])
         candidate = stage / 'candidate-config.toml'
         build_candidate(source / 'machine/config.toml', config_target, candidate, config_scope,
-                        previous_scope, tomlkit)
+                        previous_scope, tomlkit, preserved)
         preflight = [python, str(source / 'machine/reconcile.py'), '--source', str(source),
                      '--codex-home', str(home), '--skills-root', str(skills_root),
                      '--upstream-root', str(upstream_root), '--upstream-stage', str(stage),
@@ -600,6 +610,8 @@ def run_prepared(args):
                               '--pi-version', pi_version])
         if args.migrate_experiment:
             preflight.append('--migrate-experiment')
+        if preserved is not None:
+            preflight.extend(['--preserve-model-settings', *preserved])
         for target, observation in args.resolve:
             preflight.extend(['--resolve', f'{target}={observation}'])
         for line in command(*preflight, env={**os.environ, 'PYTHONDONTWRITEBYTECODE': '1'}).splitlines():
@@ -610,7 +622,7 @@ def run_prepared(args):
             for line in publication:
                 print(line, flush=True)
             try:
-                verify_installed(source, skills_root, upstream_root, executable, home, args.timeout)
+                verify_installed(source, skills_root, upstream_root, executable, home, args.timeout, preserved)
                 if pi_root is not None:
                     reported = subprocess.run([str(pi_launcher), '--version'], stdin=subprocess.DEVNULL,
                                               capture_output=True, text=True, timeout=args.timeout)
@@ -678,6 +690,8 @@ def run_bootstrap(args):
             child.append('--skip-pi')
         if args.migrate_experiment:
             child.append('--migrate-experiment')
+        if args.preserve_model_settings:
+            child.append('--preserve-model-settings')
         if args.apply:
             child.append('--apply')
         for target, observation in args.resolve:
@@ -720,6 +734,8 @@ def main():
                         metavar='TARGET=OBSERVED_SHA256_OR_absent')
     parser.add_argument('--migrate-experiment', action='store_true',
                         help='explicitly authorized migration to test; preserve former experiment files and installation evidence')
+    parser.add_argument('--preserve-model-settings', action='store_true',
+                        help='keep the existing supported root model and model_reasoning_effort for this run')
     parser.add_argument('--apply', action='store_true')
     parser.add_argument('--timeout', type=float, default=20)
     args = parser.parse_args()
