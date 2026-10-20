@@ -59,14 +59,18 @@ specification parent and executable-child workflow through `to-spec`,
 that executor before edits; an already claimed child runs its named skill
 without recursively handing off again.
 
-An implementation parent with multiple executable children defaults to one
+An implementation parent with multiple executable children uses one
 named `codex/` rollup branch from fresh `origin/test`, recorded with its delivery
-mode in the approved specification. Reviewed, checked feature PRs merge with
-merge commits into that branch; verified integration completes a child and lets
-eligible successors continue. The final rollup alone uses canonical PR-to-test,
-receives one semver contribution for the total change, and completes the parent
-after verified test delivery. A one-child parent defaults to direct delivery; earlier test
-delivery for a rollup requires an explicit operator decision. Use the `pr-to-test` skill's rollup reference for the shared branch and CI rules.
+mode in the approved specification. Reviewed feature PRs with targeted tests and
+validation merge into that branch with merge commits; verified integration
+completes a child and lets eligible successors continue. The final rollup alone
+uses canonical PR-to-test, receives full CI and one semver contribution for the
+total change, and completes the parent after verified test delivery.
+A one-child parent defaults to direct delivery; earlier test
+delivery for a rollup requires an explicit operator decision. Full CI belongs only
+to PR-to-test and/or separately requested promotion, with equivalent full evidence
+reusable under local policy. Use the `pr-to-test` skill's rollup reference for the
+shared branch and CI rules.
 
 Only the operator can explicitly waive planning for a stated scope. Record that
 exception in existing task/tracker context. Size, apparent simplicity, a direct

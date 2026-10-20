@@ -20,7 +20,8 @@ Review all submitted changes. Reuse completed review only with evidence covering
 every change and resolved/accepted findings; doubt requires the relevant review.
 Run git diff --check and the actual changed helper operation. The script runs the
 mandatory staged privacy check before pushing; hosted Validate is the
-authoritative source check, so a full local run beforehand is optional, following
+authoritative source check for delivery to test/main, so a full local run before
+that delivery is optional, following
 [development guidance](../development.md). No review record framework or Tooling
 coverage suite is needed.
 
@@ -63,6 +64,9 @@ from the API's feature-head SHA. Its validation step records the runner image an
 Python version. Reuse requires a successful prior integration run with the same
 tree and runtime context; the tree includes the workflow and check definitions.
 An absent, failed or inequivalent prior record falls back to `scripts/check.sh`.
+Only Validate runs qualify, and Validate refuses PR bases other than test and main;
+rollup children's Targeted checks runs never do, so a completed rollup's PR runs
+the full check.
 This source-only equivalence does not establish application or deployment acceptance.
 
 The supervising agent then records the PR, review and real-use evidence, closes the
@@ -101,9 +105,10 @@ and verified rollup delivery completes the implementation parent's delivery gate
 This is the native integration path for a parent whose specification records the
 rollup. Use Git and `gh`; `scripts/pr-to-test.sh` always targets test and must not be
 used for child integration. Before the first push, inspect `.github/workflows/`
-and relevant hosted deployment configuration. Agent Team currently has only the
-Validate workflow on pull requests, without branch filters, and no deployed app.
-Changes to those triggers require fresh inspection.
+and relevant hosted deployment configuration. Agent Team currently runs full
+Validate only on PRs into test and main, Targeted checks (`rollup.yml`) on PRs into
+every other base, and has no deployed app. Changes to those triggers require fresh
+inspection.
 
 For a new rollup, verify that its remote ref is absent, create it from fresh
 `origin/test`, then publish it before creating the first child PR:
@@ -121,9 +126,10 @@ rollup is fetched and verified, never reset or force-pushed.
 
 Start a child's `codex/` branch in its worktree from the fetched rollup. Review,
 commit, run `git diff --check`, and run the staged privacy check from
-[SECURITY.md](../../SECURITY.md) before pushing. Set `rollup` to the exact
-branch recorded on the parent and `feature` to the current child branch. Inspect
-existing PRs before creating one:
+[SECURITY.md](../../SECURITY.md) before pushing. Optional local feedback uses the
+targeted form, `scripts/check.sh --base "$(git merge-base HEAD "origin/$rollup")"`;
+children use only targeted validation. Set `rollup` to the exact branch recorded on the parent
+and `feature` to the current child branch. Inspect existing PRs before creating one:
 
 ```bash
 git push origin "HEAD:refs/heads/${feature:?Set the child branch}"
@@ -133,24 +139,29 @@ gh pr create --base "$rollup" --head "$feature" --title 'Concrete child outcome'
 
 Reuse one matching PR; multiple matches or an unexpected base require investigation.
 Record the intended feature head and current rollup base SHAs. Wait at most fifteen
-minutes for the current PR's Validate run to register and pass, using `gh pr view`,
-`gh pr checks` and `gh run view` to inspect the linked run. Require the `validate`
-job of the current pull_request run for the current integration revision; an older
-run tested a different integration. All other applicable checks must pass too. No registered checks,
-a skipped required job, or unavailable evidence means stop. The rollup may lack
-branch protection, so `--required` alone and merge readiness alone are insufficient.
+minutes for the current PR's Targeted checks run to register and pass, using
+`gh pr view`, `gh pr checks` and `gh run view` to inspect the linked run. Require the
+`targeted` job of the current pull_request run for the current integration revision;
+an older run tested a different integration. All other applicable checks must pass
+too. No registered checks, a skipped required job, or unavailable evidence means
+stop. The rollup may lack branch protection, so `--required` alone and merge
+readiness alone are insufficient.
 
 ```bash
-gh run list --workflow validate.yml --event pull_request --branch "$feature" --commit "$child_head" --json databaseId,status,conclusion,headSha,url
-gh run view "$validation_run" --json displayTitle,event,headSha,status,conclusion,jobs,url
+gh run list --workflow rollup.yml --event pull_request --branch "$feature" --commit "$child_head" --json databaseId,status,conclusion,headSha,url
+gh run view "$check_run" --json displayTitle,event,headSha,status,conclusion,jobs,url
+gh run view "$check_run" --log
 gh pr checks "$child_pr" --watch --fail-fast --interval 10
 gh pr view "$child_pr" --json state,baseRefName,baseRefOid,headRefName,headRefOid,isDraft,reviewDecision,mergeStateStatus,statusCheckRollup
 ```
 
-Select `validation_run` from the actual check linked to this PR, matching the
-current head and the integration revision its run name records; the list command
-narrows candidates but does not establish that match alone. Inspect the linked run and checkout evidence
-when multiple events/reruns exist. Require successful completion of its `validate`
+Select `check_run` from the actual check linked to this PR. Its run name,
+`Targeted checks integration <sha>`, records the synthetic merge it tested; its log's
+`Targeted checks on <sha> tree <tree>; parents <base> <head>` line shows that the
+checked-out merge has exactly the recorded rollup base and child head as parents.
+Require that name, line and the current head and base to agree; the list command
+narrows candidates but does not establish that match alone. Inspect the linked run
+when multiple events/reruns exist. Require successful completion of its `targeted`
 job and the whole run. Keep this wait within the same fifteen-minute bound.
 
 Before merging, require OPEN, the intended branch names and SHAs, non-draft status,
@@ -168,16 +179,16 @@ git fetch origin
 Verify MERGED, exactly two merge parents matching the intended rollup base and child
 head, and merge reachability in `origin/$rollup`. Inspect author/committer metadata
 against the public-work policy. Compare the merge's parents and tree with the
-integration revision recorded by `validation_run`; a match makes that run the merge's
-evidence. On a mismatch, stop and obtain a passing Validate run for the merged
-revision before closing the child. Record review, checks and merge
+integration revision recorded by `check_run`; a match makes that run the merge's
+targeted evidence. On a mismatch, stop and investigate; the child stays open while
+its merged revision lacks attributable checks. Record review, checks and merge
 evidence on the child before explicitly closing it. Do not rely on issue auto-close
 keywords for a PR into a non-default branch. Keep the parent open for final delivery.
 The PR body links the parent without an auto-close instruction.
 
 For final delivery, fetch the rollup and test, merge any newer test changes into the
-rollup, and validate/review the resulting combined diff. Use the canonical path above
-with one semver classification for the whole result. Promotion already counts only
+rollup, and review the resulting combined diff. Use the canonical path above with one
+semver classification for the whole result; its PR to test runs full Validate. Promotion already counts only
 first-parent test PR merges, so child integration PRs are excluded without a new
 version ledger. On a failure inspect actual refs, PR state and merge effects before
 resuming; never blindly replay a merge or bypass branch protection.
