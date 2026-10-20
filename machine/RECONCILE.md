@@ -34,8 +34,9 @@ Windows executable through WSL interop. The path gate inspects the actual mount
 table so moving a Windows mount does not make it eligible for managed writes.
 Verify native Windows state remains unchanged after WSL reconciliation.
 
-It resolves the checkout's tracked branch and freshest published remote revision,
-uses a temporary detached worktree, discovers the actual Codex home and user-skill
+It resolves the checkout's tracked branch and selects the freshest published remote
+revision, with the no-apply unpublished-preview exception below. It uses a temporary
+detached worktree, discovers the actual Codex home and user-skill
 destinations through the native app-server and existing receipt, and checks the
 target operating system and every declared model/effort. When `claude` is available,
 it runs only a bounded `claude --version` probe and resolves the separate Claude
@@ -56,10 +57,14 @@ exact pin in [requirements.txt](requirements.txt), consumed by the existing Pyth
 installation. Dependabot alerts cover this same manifest; the installed version is
 checked against it. Preparation never installs a global dependency.
 
-The command stops if the current branch has unpublished commits, has diverged from
-its tracked remote, or a required target capability/source is unavailable. Publish
-or resolve the source authority first; do not bypass that evidence with a local
-checkout.
+The command stops if the current branch has diverged from its tracked remote or a
+required target capability/source is unavailable. When the branch is only ahead of
+its freshly fetched remote, a run without `--apply` may preview the exact local HEAD
+commit, provided the checkout has no staged, unstaged or untracked changes; the
+source report labels it `"publication": "unpublished"`. That preview supplies no
+application authority: `--apply` refuses unpublished commits before preparing a
+source. Publish or resolve the source authority before applying; do not bypass that
+evidence with a local checkout.
 
 After specific preflight conflicts have been resolved, run the same command with
 `--apply` and each exact approved `--resolve target=observed-sha256` argument. It
@@ -274,9 +279,11 @@ publication; existing schedules and unrelated state retain their owners.
 ## Preparation details
 
 Resolve the repository's current branch and its remote. Fetch that branch,
-preserving dirty work. Select and report one concrete freshest revision. If branch
-identity, detached state, divergence, or unpublished work leaves intent unclear,
-resolve that concrete source question. Use an isolated clean checkout of the chosen
+preserving dirty work. Select and report one concrete freshest published revision,
+or, for a clean no-apply preview only, the unpublished local HEAD ahead of it. If
+branch identity, detached state, divergence, or unpublished work for an apply leaves
+intent unclear, resolve that concrete source question. Use an isolated clean
+checkout of the chosen
 revision for the run; never silently change the source branch or use stale content.
 Read every declared source there. An incomplete profile stops before live writes.
 

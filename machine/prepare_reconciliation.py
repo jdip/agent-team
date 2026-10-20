@@ -153,7 +153,7 @@ def app_server_data(executable, requested_home, source, timeout):
         server.close()
 
 
-def select_source(repository, work_root):
+def select_source(repository, work_root, apply):
     repository = plain_path(repository)
     if not (repository / '.git').exists():
         raise ValueError(f'not a Git checkout: {repository}')
@@ -171,21 +171,27 @@ def select_source(repository, work_root):
         raise ValueError(f'{branch}: remote returned an invalid revision')
     command(git, 'fetch', '--no-tags', '--no-write-fetch-head', remote, fresh, cwd=repository)
     head = command(git, 'rev-parse', 'HEAD', cwd=repository)
+    selected, published = fresh, True
     if head != fresh:
         ahead = subprocess.run([git, 'merge-base', '--is-ancestor', fresh, head], cwd=repository)
         behind = subprocess.run([git, 'merge-base', '--is-ancestor', head, fresh], cwd=repository)
         if ahead.returncode == 0:
-            raise ValueError(f'{branch}: local commits are unpublished; publish or select their authority explicitly')
-        if behind.returncode != 0:
+            if apply:
+                raise ValueError(f'{branch}: local commits are unpublished; publish them before --apply')
+            # Status names files; test only whether any input exists.
+            if command(git, 'status', '--porcelain', '--untracked-files=normal', cwd=repository):
+                raise ValueError(f'{branch}: unpublished preview requires no staged, unstaged or untracked changes')
+            selected, published = head, False
+        elif behind.returncode != 0:
             raise ValueError(f'{branch}: local and {remote}/{remote_branch} have diverged; investigate source authority')
     root = Path(tempfile.mkdtemp(prefix='agent-team-source-', dir=work_root))
     checkout = root / 'source'
     try:
-        command(git, 'worktree', 'add', '--detach', str(checkout), fresh, cwd=repository)
+        command(git, 'worktree', 'add', '--detach', str(checkout), selected, cwd=repository)
     except Exception:
         root.rmdir()
         raise
-    return branch, remote, fresh, root, checkout
+    return branch, remote, selected, published, root, checkout
 
 
 def source_skill_names(source):
@@ -671,9 +677,12 @@ def run_bootstrap(args):
     work_root.mkdir(parents=True, exist_ok=True)
     source_root = source = None
     try:
-        branch, remote, revision, source_root, source = select_source(repository, work_root)
+        branch, remote, revision, published, source_root, source = select_source(repository, work_root, args.apply)
         print(json.dumps({'branch': branch, 'remote': remote, 'revision': revision,
-                          'result': 'selected clean reconciliation source'}, sort_keys=True), flush=True)
+                          'publication': 'published' if published else 'unpublished',
+                          'result': 'selected clean reconciliation source' if published
+                          else 'selected clean unpublished source for no-apply preview only'},
+                         sort_keys=True), flush=True)
         helper = source / 'machine/prepare_reconciliation.py'
         if not helper.is_file():
             raise ValueError(f'selected revision lacks the canonical preparation script: {helper}')
