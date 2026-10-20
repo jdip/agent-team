@@ -193,7 +193,10 @@ continue without separate permission approval, including ordinary native dispatc
 and inherited Full Access. For planner and worker
 assignments, load
 [Claude delegation](agents/claude-delegation.md) before choosing the preferred
-Opus route or its explicit native Sol fallback.
+Opus route or its explicit native Sol fallback. Before any `test_verifier`
+assignment, including ordinary native dispatch, load
+[test verifier routing](agents/test-verifier/routing.md) for mode-aware model
+selection and loaded-role checks.
 
 Use these canonical selectors and `<id>_<purpose>` task names, with one to four
 specific lowercase words after the prefix. Display the emoji, uppercase ID, and
@@ -205,7 +208,7 @@ spawn tool's task-name argument. The primary display ID is ORC.
 | explorer | 🧭 EXP | exp_ | gpt-6-luna / max | default |
 | planner | 🗺️ PLN | pln_ | Opus 5.5 / high; gpt-6.1-sol / high fallback | default |
 | worker | 🛠️ WRK | wrk_ | Opus 5.5 / high; gpt-6.1-sol / high fallback | default |
-| test_verifier | 🧪 TST | tst_ | gpt-6.1-sol / medium | default |
+| test_verifier | 🧪 TST | tst_ | mode-selected / medium | default |
 | browser_verifier | 🖥️ BRW | brw_ | gpt-6.1-sol / medium | default |
 | workflow_monitor | ⏳ MON | mon_ | gpt-6-luna / high | default |
 | sysadmin_operator | 🧰 OPS | ops_ | gpt-6.1-sol / high | default |
