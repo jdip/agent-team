@@ -92,6 +92,7 @@ def sha(ref):
 
 # validate.yml's run-name records github.sha: the synthetic integration actually
 # checked out and tested. The API's head_sha names only the PR feature head.
+# Lookup reads only validate.yml, so rollup.yml's targeted runs never count as full evidence.
 RUN_NAME = re.compile(r'Validate integration ([0-9a-f]{40})')
 CONTEXT_STEP = re.compile(r'Validate integration \((.+)\)')
 API_TIMEOUT = 60
@@ -142,6 +143,8 @@ def validate():
     repository, tested = os.environ.get('GITHUB_REPOSITORY'), sha('HEAD')
     if os.environ.get('GITHUB_EVENT_NAME') != 'pull_request' or os.environ.get('GITHUB_SHA') != tested:
         raise ValueError('validate runs only in the Validate pull_request job on its checked-out GITHUB_SHA')
+    if os.environ.get('GITHUB_BASE_REF') not in ('test', 'main'):
+        raise ValueError('full Validate runs only for delivery PRs into test or main; other bases use targeted checks')
     run.repository, run.revision = repository, tested
     tree, parents = commit(repository, tested)
     print(f'Integration {tested} tree {tree}; parents {" ".join(parents)}', flush=True)
