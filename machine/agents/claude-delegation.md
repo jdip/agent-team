@@ -29,8 +29,13 @@ Use subscription-preserving safe mode; bare mode skips its authentication.
 Supply a complete packet: exact checkout/revision and dirty state; operator answers
 and approved scope; applicable repository/path instructions and skill sources;
 owned files/behavior; acceptance criteria, verification and completion evidence.
-Keep credentials and unrelated private context out. The primary owns live dialogue,
-human decisions, tracker writes, integration and final acceptance.
+Make the packet self-contained: restricted file tools reach only the checkout, so
+include the approved text, or necessary excerpts, of instructions, skills and
+references outside it rather than only their paths. When common-Git storage lies
+outside the checkout, the supervisor supplies immutable revision, status and diff
+metadata or the relevant contents. Reference ordinary sources within the checkout
+by path. Keep credentials and unrelated private context out. The primary owns live
+dialogue, human decisions, tracker writes, integration and final acceptance.
 
 Run from the task worktree. Keep input and captured JSON outside the checkout;
 pass the packet on stdin because safe mode omits automatic instruction discovery.
