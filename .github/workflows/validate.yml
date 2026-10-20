@@ -1,8 +1,10 @@
 name: Validate
+# Full source checks for delivery PRs only; other PR bases run rollup.yml's targeted checks.
 # Records the tested synthetic integration; scripts/delivery.py reads it back.
 run-name: Validate integration ${{ github.sha }}
 on:
   pull_request:
+    branches: [test, main]
 permissions:
   actions: read
   contents: read
