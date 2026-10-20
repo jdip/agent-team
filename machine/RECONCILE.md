@@ -165,6 +165,39 @@ immutable Herdr commit, verified against Git blob hashes, and receipted as named
 files. Other extensions remain untouched. See the installed HERDR.md for Pi-only
 leaf-worker and lifecycle rules; Codex/Claude global behavior stays with its owner.
 
+Active Pi participation also stages the standalone Fast extension source and
+license declared in [Profile's Fast inventory](PROFILE.md#fast-extension). The
+reviewed immutable pin is independent of Pi's age-qualified runtime and Herdr's
+latest-commit policy. Acquisition verifies each Git blob; the all-target gate
+reverifies the staged files against that pin before any publication. The existing
+file receipt/conflict/no-op/retirement rules apply to `extensions/fast.ts` and
+`licenses/pi-fast-LICENSE`. No Node/npm installation, live `pi install`, settings
+array edit or user `fast.json` write is needed. Without Pi participation, or with
+`--skip-pi`, preserve anchored files and receipts rather than fetching, repairing
+or retiring them. Existing foreign target files stop as ordinary conflicts;
+inspect native startup for a different extension registering a duplicate `/fast`
+command before claiming usability, and preserve that foreign extension.
+
+After an authorized apply, use `/reload` in Pi and confirm `/fast` appears among
+the extension commands. `/fast` toggles Fast for the current runtime/session;
+run it again to turn Fast off. The upstream default is off; existing global or
+trusted-project Fast preferences are preserved and may select a different default.
+Reconciliation does not toggle Fast, change authentication/models/reasoning, or
+establish that the backend accepted a faster tier. The reviewed extension requests
+`service_tier: "fast"` for eligible `openai` models (including `gpt-6.1-sol`) and
+`"priority"` on eligible `openai-codex` OAuth models. Its direct OpenAI ChatGPT
+OAuth tier acceptance remains unverified upstream. Tier availability, rate and
+quota consumption depend on the account/backend; Pi's displayed cost is not
+subscription-quota evidence. Any live Fast-enabled inference is a separately
+authorized check, not an installation requirement.
+
+For source-only verification without live publication or inference, load the
+actual staged `fast.ts` explicitly with the native Pi runtime in offline,
+nonpersistent RPC mode and request `get_commands`. Confirm the extension command
+is discovered without load errors or duplicate-command warnings; do not invoke
+it. This exercises discovery, not backend tier acceptance. Keep all existing
+credentials, preferences, sessions and unrelated extensions unchanged.
+
 After installation, prove the global `pi --version`, then inspect native readiness
 without refreshing or exposing credentials:
 

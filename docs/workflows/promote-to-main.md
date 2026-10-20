@@ -20,7 +20,8 @@ creates/reuses a semver:none main-to-test synchronization PR, requires checks,
 merges with a merge commit, and attributes that merge the same way. An unchanged
 tree and source-check runtime use successful prior integration evidence in the
 current Validate job rather than a repeated suite; changed or unproven inputs need validation, and failing
-current checks block. Branch drift stops for investigation. No deployment, signing,
+current checks block. Only full Validate runs qualify; rollup children's Targeted
+checks runs never do, so without equivalent Validate evidence the full check runs. Branch drift stops for investigation. No deployment, signing,
 notarization, or application runtime exists in this repository; do not invent
 those completion requirements.
 

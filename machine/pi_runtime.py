@@ -35,6 +35,23 @@ def declaration(source):
     return profile, section, repository.group(1), int(age.group(1)), platforms, targets, integration.group(1)
 
 
+def fast_extension(source):
+    section = declaration(source)[1]
+    if '\n### Fast extension\n' not in section:
+        return None
+    section = section.split('\n### Fast extension\n', 1)[1].split('\n### ', 1)[0]
+    repository = re.search(r'^Source: \[[^\]]+\]\(https://github.com/([\w.-]+/[\w.-]+)\)\.$', section, re.M)
+    pin = re.search(r'^Reviewed pin: `([0-9a-f]{40})`\.$', section, re.M)
+    declared = re.findall(r'^\| ([\w./-]+) \| ([\w./-]+) \| Whole file \|$', section, re.M)
+    targets = {'extensions/fast.ts', 'licenses/pi-fast-LICENSE'}
+    if (not repository or not pin or len(declared) != 2
+            or {target for _, target in declared} != targets
+            or any(PurePosixPath(path).is_absolute() or '..' in PurePosixPath(path).parts
+                   for path, _ in declared)):
+        raise ValueError('Pi Fast extension requires a reviewed repository pin and its exact file declarations')
+    return repository.group(1), pin.group(1), declared
+
+
 def roots(source, explicit=None):
     environment = os.environ.get('PI_CODING_AGENT_DIR')
     if environment is not None and (not environment or not Path(environment).is_absolute()):
@@ -75,6 +92,10 @@ def receipt_targets(entries, source):
     ordinary = {str(plain_path(root / relative)) for _, relative in declarations}
     ordinary.add(str(plain_path(root / 'extensions/herdr-agent-state.ts')))
     ordinary.add(str(plain_path(root / 'licenses/herdr-LICENSE')))
+    # Recognize prior Fast ownership even after its declaration is removed, so
+    # active runs can retire it and inactive runs preserve it through the gate.
+    ordinary.update(str(plain_path(root / relative)) for relative in
+                    ('extensions/fast.ts', 'licenses/pi-fast-LICENSE'))
     expected = ordinary | {str(root / 'settings.json'), str(runtime), str(launcher)}
     targets = set()
     for target, entry in entries.items():
@@ -406,6 +427,39 @@ def prepare_integration(source, stage, herdr_ref):
     return destination
 
 
+def prepare_fast_extension(source, stage):
+    selected = fast_extension(source)
+    if selected is None:
+        return
+    repository, pin, declared = selected
+    for relative, target in declared:
+        blob = api(f'repos/{repository}/contents/{relative}?ref={pin}')
+        if blob.get('type') != 'file' or blob.get('encoding') != 'base64':
+            raise ValueError('declared Pi Fast extension file is unavailable')
+        data = base64.b64decode(blob['content'])
+        if hashlib.sha1(f'blob {len(data)}\0'.encode() + data).hexdigest() != blob.get('sha'):
+            raise ValueError('Pi Fast extension file differs from its upstream Git blob')
+        (stage / Path(target).name).write_bytes(data)
+    print(f'Pi Fast extension reviewed source: {repository}@{pin}', flush=True)
+
+
+def verify_fast_extension(source, stage):
+    selected = fast_extension(source)
+    if selected is None:
+        return
+    repository, pin, declared = selected
+    tree = api(f'repos/{repository}/git/trees/{pin}?recursive=1')
+    if tree.get('truncated'):
+        raise ValueError('Pi Fast extension upstream tree is truncated')
+    upstream = {item['path']: item for item in tree['tree']}
+    for relative, target in declared:
+        data = (stage / Path(target).name).read_bytes()
+        item = upstream.get(relative, {})
+        blob = hashlib.sha1(f'blob {len(data)}\0'.encode() + data).hexdigest()
+        if item.get('type') != 'blob' or item.get('mode') != '100644' or item.get('sha') != blob:
+            raise ValueError('staged Pi Fast extension differs from its reviewed upstream pin')
+
+
 def prepare_launcher(stage, runtime, root, codex_home):
     executable = runtime / ('pi.exe' if os.name == 'nt' else 'pi')
     destination = stage / ('pi.cmd' if os.name == 'nt' else 'pi-launcher')
@@ -436,4 +490,8 @@ def inventory(source, root, runtime, launcher, bundle, stage, skills, upstream):
                  (stage / 'herdr-LICENSE', root / 'licenses/herdr-LICENSE', {'kind': 'file'}),
                  (stage / 'candidate-pi-settings.json', root / 'settings.json',
                   settings_scope(source, skill_paths(source, skills, upstream)))])
+    selected = fast_extension(source)
+    if selected is not None:
+        rows.extend((stage / Path(target).name, root / target, {'kind': 'file'})
+                    for _, target in selected[2])
     return rows

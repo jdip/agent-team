@@ -76,7 +76,9 @@ within this review, without starting a separate testing workflow.
 For changed CI, delivery or verification steps, and for adoption or upgrade
 changes, apply the target's verification policy and, where it declares a Repository
 Standard, that revision's Verification evidence and Validation and adoption
-outcomes. Flag a full suite repeated for an already verified integration context,
+outcomes. Flag full suites required or launched for feature-to-rollup integration,
+even when each child changes the tree; those checks must be targeted. Also flag a
+full suite repeated for an already verified integration context,
 evidence reuse without explicit context equivalence, and alignment that edits
 guidance while its workflows, CI, tests or fixtures still enforce the retired rule.
 

@@ -35,7 +35,8 @@ means perform the needed review. Do not create a review ledger.
 For an implementation parent using a rollup, read
 [rollup integration and completion](ROLLUP.md) before child integration or final
 delivery. The canonical test script runs on the completed rollup, once for the
-combined change. Child PRs target the rollup through the local integration path.
+combined change. Child PRs use only targeted tests/validation through that
+contract and the local integration path.
 
 ## Execution ownership
 
@@ -64,7 +65,7 @@ decision; a recovery assignment must precede further corrective execution.
 
 ## Validate and deliver
 
-Verify under the target's recorded verification policy: rigorous
+For direct or completed-rollup delivery, verify under the target's recorded verification policy: rigorous
 lint/type/validation/meaningful high-coverage checks for Application Code through
 its authoritative CI or named local gates, successful real use for changed Tooling,
 and the mandatory pre-publication privacy check before each push. A full local run

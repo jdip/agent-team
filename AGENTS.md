@@ -42,10 +42,13 @@ from fresh `origin/test`; rollup child branches start from the current rollup. P
 before switching or updating a checkout. Detached revision worktrees remain valid
 for the canonical scripts' verification.
 
-Multi-ticket implementation parents use reviewed child PRs into their recorded
-rollup branch, then one final PR to `test`; child integration permits continuation,
-and parent closure requires verified test delivery. Single-ticket work defaults
-to direct delivery. Follow the rollup path in the local runbook.
+Multi-ticket implementation parents use reviewed child PRs with targeted checks
+into their recorded rollup branch, then one final PR to `test` with full CI;
+child integration permits continuation, and parent closure requires verified
+test delivery. Single-ticket work defaults
+to direct delivery. Full CI runs only at PR-to-test and/or separately requested
+promotion, with equivalent full evidence reusable under local policy. Follow the
+rollup path in the local runbook.
 
 Deliver test-bound changes with the global `pr-to-test` skill and the local
 [PR-to-test runbook](docs/workflows/pr-to-test.md), invoking

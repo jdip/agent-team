@@ -320,7 +320,10 @@ conventions, and minimal shell entry points. Application tooling grows with actu
 application development.
 
 Adoption and upgrades align the target's executable verification, not only its
-guidance. The target-owned plan names the workflow, CI, script, test and fixture
+guidance. This includes selecting targeted checks for feature-to-rollup PRs and
+full CI for delivery PRs by their actual destination, with matching required-check
+configuration and evidence handling. The target-owned plan names the workflow,
+CI, script, test and fixture
 changes that retire obsolete enforcement, such as Tooling suites, fake environments,
 duplicate verification runs and unjustified per-case service startup, and how each
 change is verified. Apply [TDD's test boundaries](../machine/skills/tdd/SKILL.md#seams-where-tests-go)
@@ -338,20 +341,39 @@ adoption. Actual delivery prerequisites still apply.
 ## Verification evidence
 
 Record the target's verification policy with its native owners: CI configuration,
-delivery scripts, development guidance and the local runbooks. Run one authoritative
-verification per distinct integration and relevant context, such as a runtime
-matrix entry, data service or deployment target. Hosted CI is authoritative where
-it exists; full local runs are optional unless the runbook names a local-only gate.
+delivery scripts, development guidance and the local runbooks. Scope verification
+to the delivery boundary:
+
+- Feature to rollup: run only targeted tests and validation for the changed
+  behavior and affected integration paths, plus review. A new cumulative tree
+  needs fresh targeted evidence, not a full suite.
+- PR to test, from a direct feature or completed rollup: run authoritative full CI
+  for the combined change and verify actual test deployment/processing.
+- Separately requested promotion to main and its synchronization: use equivalent
+  prior full evidence where proven; otherwise run full CI for the changed inputs,
+  along with the actual promotion acceptance.
+
+Within that scope, run one authoritative verification per distinct integration
+and relevant context, such as a runtime matrix entry, data service or deployment
+target. Hosted CI is authoritative where it exists; at full-delivery boundaries,
+full local runs are optional unless the runbook names a local-only gate.
 Cheap pre-publication privacy checks stay mandatory before each push, and changed
 Tooling still needs successful actual use.
 
-Reuse requires a successful native run attributable to the content and relevant
+Targeted evidence never satisfies a full-suite gate. Keep the scopes distinguishable
+in native CI results and delivery lookup. A conflicting full child requirement
+must be corrected at its CI, protection or runbook owner within authorized scope;
+otherwise report the blocker. Missing targeted checks do not justify a full-suite
+fallback, protection bypass or treating a cancelled/skipped full run as successful.
+
+Reuse within a verification scope requires a successful native run attributable
+to the content and relevant
 configuration, environment and data inputs being checked. Attribute a PR run to
 its resulting merge by verifying the intended parents and comparing the merged
 tree with the tested integration. Promotion or synchronization with unchanged
 content and relevant context uses lightweight provenance instead of a repeated
 suite, while separately verifying its own intended parents. Changed or unproven
-inputs need fresh validation, and a failed or pending
+inputs need fresh validation at the applicable scope, and a failed or pending
 current check stays blocking regardless of earlier evidence. Attribute evidence
 through native run identities and Git objects. Each target defines equivalence from
 its actual inputs: an application whose results depend on configuration, services
@@ -371,12 +393,18 @@ based on fresh `origin/test` for direct delivery or rollup creation. Rollup chil
 branches start from the current rollup. Preserve unrelated local work and attached checkouts.
 Detached revision worktrees are valid for canonical verification.
 
+The two primary workflows are:
+
+- Single-issue work: feature branch -> PR to test -> separately requested promotion to main.
+- Multi-issue packet: feature branches -> named rollup branch -> PR to test ->
+  separately requested promotion to main.
+
 Root guidance must require the global `pr-to-test` skill with the local
 `docs/workflows/pr-to-test.md` and `scripts/pr-to-test.sh` through checks, merge,
-and verified test delivery. A parent with multiple executable children defaults
-to one named `codex/` rollup branch from fresh `origin/test`, recorded in its
-approved specification: reviewed, checked feature PRs merge into it with merge
-commits, then one final rollup PR follows the canonical route. A child can close
+and verified test delivery. A parent with multiple executable children uses
+one named `codex/` rollup branch from fresh `origin/test`, recorded in its
+approved specification: reviewed feature PRs with targeted checks merge into it
+with merge commits, then one final rollup PR follows the canonical route. A child can close
 after verified rollup integration; the parent closes only after final verified
 test delivery. A one-child parent defaults to direct delivery, and early test delivery from
 a rollup needs an explicit operator decision. Shared [rollup delivery](../machine/skills/pr-to-test/ROLLUP.md)
