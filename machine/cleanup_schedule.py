@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 import shlex
+import shutil
 import subprocess
 import sys
 import tomllib
@@ -19,6 +20,7 @@ DESKTOP_FIELDS = ('kind', 'name', 'prompt', 'status', 'rrule', 'model',
 CRON_ID = 'cron:agent-team-cleanup'
 CRON_MARKER = ' # agent-team-cleanup'
 CRON_MAX_LINE_BYTES = 1000
+SOURCE_PREFIX = 'agent-team-cleanup-'
 
 
 def receipt_hash(raw):
@@ -129,6 +131,80 @@ def cleanup_prompt(home, stable, project_roots=()):
             'Do not reconcile or update machines.')
 
 
+def desktop_prompt(home, identity):
+    """Durable current-Mac prompt; the frozen source's CLEANUP-SCHEDULE.md owns the run sequence."""
+    from prepare_reconciliation import CANONICAL_REPOSITORY
+
+    home = plain_path(home)
+    if not identity.startswith('automation:') or not cleanup_schedule_identity(identity):
+        raise ValueError('expected native automation identity')
+    run_root = ("python3 -c 'import os, tempfile; print(tempfile.mkdtemp("
+                f"prefix=\"{SOURCE_PREFIX}\", dir=os.path.realpath(tempfile.gettempdir())))'")
+    return (f'Run the Agent Team daily cleanup for {identity} with Codex home {home} on this Mac. '
+            'This prompt authorizes only the current-Mac self-healing run: Machine Reconciliation of the '
+            'existing managed scope with preserved root model settings, receipt-proven self-reference repair '
+            'of this same job, the cleanup-task-artifacts sweep, and removal of this run\'s temporary source. '
+            'It authorizes no conflict resolution, participation opt-in, other schedule change or update outside that managed scope. '
+            'First verify with native tools that this host is macOS and that this Codex home holds this '
+            'automation; stop on a mismatch. Acquire source independently of any earlier checkout: create a '
+            f'new run root with `{run_root}`, run `git clone --branch main --single-branch '
+            f'{CANONICAL_REPOSITORY} <run root>/agent-team`, and freeze `git -C <run root>/agent-team '
+            'rev-parse HEAD` as the revision for the whole run, keeping the clone at that revision. Then read '
+            'machine/CLEANUP-SCHEDULE.md in the clone and follow its "Current-Mac self-healing run" section '
+            'with this identity, Codex home, clone and frozen revision. If acquisition fails before that '
+            'section is readable, make no source-dependent change, remove only a run root you created that is '
+            'still empty, and report the failure.')
+
+
+def desktop_prompt_report(home, identity):
+    prompt = desktop_prompt(home, identity)
+    raw, entries = read_receipt(home / '.agent-team/reconciliation-receipts-v1.json')
+    current = desktop(home, identity)
+    observed = cleanup_schedule_fingerprint(current)
+    entry = entries.get(identity)
+    return {'identity': identity, 'prompt': prompt, 'fingerprint': observed,
+            'receipted': entry is not None and entry['fingerprint'] == observed,
+            'prompt_current': current is not None and current['prompt'] == prompt,
+            # Exact readback target for a prompt-only update preserving every other owned field.
+            'updated_fingerprint': None if current is None
+            else cleanup_schedule_fingerprint({**current, 'prompt': prompt}),
+            'receipt_hash': receipt_hash(raw)}
+
+
+def owned_source(path):
+    checkout = stable_source(path)
+    if (checkout.name != 'agent-team' or not checkout.parent.name.startswith(SOURCE_PREFIX)
+            or not (checkout / '.git').is_dir()):
+        raise ValueError(f'expected an ordinary run-owned clone at <{SOURCE_PREFIX}*>/agent-team: {checkout}')
+    return checkout
+
+
+def verify_source(path, revision):
+    from prepare_reconciliation import select_revision
+
+    checkout = owned_source(path)
+    _, _, selected, _, fresh = select_revision(checkout, True, revision)
+    print(json.dumps({'source': str(checkout), 'revision': selected, 'published_head': fresh,
+                      'result': 'verified frozen published cleanup source'}, sort_keys=True))
+
+
+def remove_source(path, revision):
+    from prepare_reconciliation import frozen_checkout
+
+    checkout = owned_source(path)
+    frozen_checkout(checkout, revision)
+    listed = subprocess.run([str(command_path('git')), '-C', str(checkout), 'worktree', 'list', '--porcelain'],
+                            capture_output=True, text=True, encoding='utf-8', check=True).stdout
+    worktrees = [line for line in listed.splitlines() if line.startswith('worktree ')]
+    if worktrees != [f'worktree {checkout}'] or [entry.name for entry in checkout.parent.iterdir()] != ['agent-team']:
+        raise ValueError('run-owned source has linked worktrees or other contents; retain it for inspection')
+    shutil.rmtree(checkout)
+    checkout.parent.rmdir()
+    if checkout.parent.exists():
+        raise ValueError(f'run root remains after removal: {checkout.parent}')
+    print(f'Removed run-owned cleanup source {checkout.parent}', flush=True)
+
+
 def cleanup_output_path(home, path):
     if path is None:
         return None
@@ -223,7 +299,8 @@ def save(home, identity, configuration, expected_receipt):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('operation', choices=['inspect', 'record-desktop', 'install-cron', 'retire-cron',
-                                              'install-windows', 'retire-windows', 'run-cleanup'])
+                                              'install-windows', 'retire-windows', 'run-cleanup',
+                                              'desktop-prompt', 'verify-source', 'remove-source'])
     parser.add_argument('--codex-home', required=True)
     parser.add_argument('--identity')
     parser.add_argument('--resolve', action='append', type=parse_resolution, default=[],
@@ -234,6 +311,8 @@ def main():
     parser.add_argument('--observed-write', action='store_true')
     parser.add_argument('--removed', action='store_true')
     parser.add_argument('--stable-checkout')
+    parser.add_argument('--source', help='run-owned current-Mac cleanup clone')
+    parser.add_argument('--published-revision', help="that clone's frozen full commit SHA")
     parser.add_argument('--codex')
     parser.add_argument('--project-root', action='append', default=[])
     parser.add_argument('--output-last-message')
@@ -246,6 +325,18 @@ def main():
             raise ValueError('supply actual stable checkout and Codex executable')
         stable = stable_source(args.stable_checkout)
         run_cleanup(home, stable, args.codex, args.project_root, args.output_last_message)
+        return
+    if args.operation in ('desktop-prompt', 'verify-source', 'remove-source') and sys.platform != 'darwin':
+        raise ValueError('current-Mac self-healing operations require macOS')
+    if args.operation == 'desktop-prompt':
+        if not args.identity:
+            raise ValueError('supply the explicit automation identity')
+        print(json.dumps(desktop_prompt_report(home, args.identity)))
+        return
+    if args.operation in ('verify-source', 'remove-source'):
+        if not args.source or not args.published_revision:
+            raise ValueError('supply the run-owned source clone and its frozen published revision')
+        (verify_source if args.operation == 'verify-source' else remove_source)(args.source, args.published_revision)
         return
     windows_operation = args.operation in ('install-windows', 'retire-windows')
     identity = args.identity or (task_scheduler_identity(home)

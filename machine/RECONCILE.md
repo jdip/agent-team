@@ -1,6 +1,8 @@
 # Machine Reconciliation
 
-Use this procedure only for an explicit reconciliation request. Python 3.11+ and
+Use this procedure only for an explicit reconciliation request or the
+[current-Mac self-healing cleanup run](CLEANUP-SCHEDULE.md#current-mac-self-healing-run)
+that its prompt authorizes. Python 3.11+ and
 Git/gh are needed for the narrow helper; supported skill-installer performs upstream
 acquisition. Read PROFILE.md and the exact target's current instructions first.
 These are Tooling helpers, verified by actual operations. No machine simulator or
@@ -74,6 +76,26 @@ discovery. It manages only the Machine Profile's files, configuration, and skill
 Claude filesystem publication is not Claude session usability; record that evidence
 through the separate host verification workflow. The managing agent maintains cleanup
 schedules separately through the native tools and `cleanup_schedule.py`.
+
+## Frozen published revision
+
+`--published-revision <full-sha>` selects that exact commit instead of the freshest
+one, so separate read-only and `--apply` invocations use one revision even after
+main advances:
+
+```bash
+python3 machine/prepare_reconciliation.py --repository /actual/clone \
+  --published-revision full-commit-sha --preserve-model-settings
+```
+
+The repository must be a clean ordinary checkout of `main` tracking `origin` at
+`https://github.com/jdip/agent-team.git`, with HEAD exactly at that commit. Each
+invocation still reads remote main, fetches its objects without moving local refs or
+the checkout, and requires the commit to be reachable from it, with or without
+`--apply`. A newer head is reported as `published_head`, never selected; a rewritten
+or unreachable main stops before a source is prepared. The temporary detached
+worktree is created beside the repository. Without the option, source selection is
+unchanged.
 
 ## Preserving root model settings
 
@@ -290,7 +312,8 @@ publication; existing schedules and unrelated state retain their owners.
 
 Resolve the repository's current branch and its remote. Fetch that branch,
 preserving dirty work. Select and report one concrete freshest published revision,
-or, for a clean no-apply preview only, the unpublished local HEAD ahead of it. If
+an explicit frozen `--published-revision`, or, for a clean no-apply preview only,
+the unpublished local HEAD ahead of it. If
 branch identity, detached state, divergence, or unpublished work for an apply leaves
 intent unclear, resolve that concrete source question. Use an isolated clean
 checkout of the chosen
