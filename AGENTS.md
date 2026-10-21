@@ -18,8 +18,11 @@ Read [domain guidance](docs/agents/domain.md) before exploring domain terminolog
 Follow [development guidance](docs/development.md) for verification.
 
 Classify this repository's machine/repository maintenance helpers as Tooling.
-Validate through actual use and the small source syntax check; do not create
-coverage suites, fake machines, or release state machinery. Preserve credentials,
+Validate through the small source syntax check and available behavioral evidence,
+closing under the
+[global closure rule](machine/AGENTS.md#validation-and-delivery);
+do not create coverage suites, fake machines, or release state machinery. Preserve
+credentials,
 unrelated machine state, local work, and checkouts still backing Codex tasks.
 
 ## Languages and environments

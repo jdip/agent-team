@@ -79,9 +79,10 @@ decision; a recovery assignment must precede further corrective execution.
 
 For direct or completed-rollup delivery, verify under the target's recorded verification policy: rigorous
 lint/type/validation/meaningful high-coverage checks for Application Code through
-its authoritative CI or named local gates, successful real use for changed Tooling,
-and the mandatory pre-publication privacy check before each push. A full local run
-is optional feedback when CI owns that gate; retain separately required checks for
+its authoritative CI or named local gates, proportionate Tooling checks and
+available behavioral evidence, and the mandatory pre-publication privacy check
+before each push. A full local run is optional feedback when CI owns that gate;
+retain separately required checks for
 other contexts. Reuse evidence only for an explicitly
 equivalent context; a failed or pending current check blocks. Do not build a fake
 forge, fixture machine, orchestration suite, or tests of tests. Resolve routine
@@ -108,9 +109,10 @@ recommendations when a new decision or external prerequisite is needed.
 
 After verified delivery, record the PR and evidence, then use
 `cleanup-task-artifacts` with local guidance before closing the originating issue
-or final reporting. Follow its resource and retention policy; close the issue only
-if its whole acceptance outcome is met. Verified test delivery permits the next
-authorized issue/milestone without promotion.
+or final reporting. Follow its resource and retention policy; close the issue when
+its whole acceptance outcome is met under the global Validation and delivery
+closure rule, reporting verification limits. Verified test delivery permits the
+next authorized issue/milestone without promotion.
 
 If the cleanup package is unavailable, use local artifact guidance to stop/remove
 only exact task-owned resources proven safe for that action. Preserve active,

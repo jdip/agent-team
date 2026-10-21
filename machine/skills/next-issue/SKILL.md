@@ -123,9 +123,10 @@ repository's documented Application Code/Tooling classification by purpose:
   new or changed application behavior; that skill owns the test-first loop and
   selective independent bug-proof handoff before implementation. Follow the repository's
   authoritative gates.
-- Tooling is validated by successful real use. Do not build coverage suites,
-  fake environments, resumable state machines, or tests of tests for tooling.
-  Existing real checks can be run without inventing an orchestration test product.
+- Tooling is validated by focused checks and proportionate behavioral evidence
+  available now, such as a practical native invocation. Do not build coverage
+  suites, fake environments, resumable state machines, or tests of tests for
+  tooling. Existing real checks can be run without inventing an orchestration test product.
 
 Review the submitted changes. Reuse existing completed review only when evidence
 clearly covers ALL of them and findings are resolved or explicitly accepted.
@@ -198,8 +199,9 @@ reported honestly and is not a main-promotion gate.
 
 Post a resolution linking the integration or test-delivery PR, its actual
 verification/review evidence, and any
-remaining non-blocking remediation or retained artifacts. Close the issue only
-when its acceptance outcome is met. Do not close dependency-blocking requirements
+remaining non-blocking remediation, verification limits or retained artifacts.
+Close the issue when its acceptance outcome is met under the global Validation and
+delivery closure rule. Do not close dependency-blocking requirements
 as complete merely to advance the queue. Record new material work as scoped
 issues and preserve/wire dependencies; parent inclusion follows the user's scope,
 not arbitrary expansion. Avoid duplicate issues.

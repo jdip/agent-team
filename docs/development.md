@@ -17,8 +17,10 @@ file for full delivery validation. `scripts/check.sh --base <commit>`
 is the targeted form: it checks only committed source files HEAD adds or modifies
 since that commit, plus `git diff --check`, and suits a rollup child, for example
 `--base "$(git merge-base HEAD "origin/$rollup")"`. Use
-`git diff --check` for the actual change. Verify each changed helper through its
-actual authorized operation.
+`git diff --check` for the actual change. Exercise each changed helper's authorized
+operation where practical; report unexercised
+scenarios as limits under the
+[global closure rule](../machine/AGENTS.md#validation-and-delivery).
 
 Hosted CI has two scopes. Validate (`validate.yml`) is the authoritative full source
 check for delivery PRs into test and main, run once per pull-request integration;

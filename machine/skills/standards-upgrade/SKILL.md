@@ -74,7 +74,9 @@ and report unresolved conflicts rather than declaring adoption from text alone.
 Reassess the Application Code/Tooling mapping and actual gates. Apply the selected
 standard's Validation and adoption and Verification evidence outcomes to the
 target's actual workflows, CI, scripts, tests and fixtures in this upgrade change,
-verifying each through its native checks and real use. The upgrade is complete
+verifying them through proportionate native checks and available authorized
+behavioral evidence. Report unexercised future-use scenarios as limits under the
+standard's closure policy. The upgrade is complete
 only when guidance and executable controls agree; an unresolved design,
 authorization or capability blocker keeps it explicitly incomplete. Record
 unrelated application coverage gaps in scoped, deduplicated issues.

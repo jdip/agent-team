@@ -60,11 +60,13 @@ shell entry points around a deliberately retained implementation are valid.
 Establish actual root guidance, tracker instructions, lazy domain guidance, local
 Application Code/Tooling mapping, development commands, fixed delivery scripts, and
 local runbooks. Use rigorous application lint/type/validation and meaningful high
-coverage. Tooling requires successful real use, without fake infrastructure or
-recursive tooling tests. Apply the selected standard's Validation and adoption and
+coverage. Tooling uses proportionate source checks and available authorized
+behavioral checks, without fake infrastructure or recursive tooling tests.
+Apply the selected standard's Validation and adoption and
 Verification evidence outcomes to the actual workflows, CI, scripts, tests and
-fixtures in this adoption change, verifying each through its native checks and real
-use. Adoption is complete only when guidance and executable controls agree; an
+fixtures in this adoption change through their relevant native checks. Record
+unexercised future-use scenarios as limits under the standard's closure policy.
+Adoption is complete only when guidance and executable controls agree; an
 unresolved design, authorization or capability blocker keeps it explicitly
 incomplete. Document unrelated application coverage deficiencies in scoped tracker
 issues after duplicate checks.

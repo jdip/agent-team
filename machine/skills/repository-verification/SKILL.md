@@ -72,15 +72,17 @@ exercise the public consumer path rather than inventing a UI. Preserve real
 external-action permissions; a verification label does not authorize live messages,
 deletions or production writes.
 
-Follow the resulting instructions on the actual repository: establish readiness,
-exercise each initially selected behavior, capture the action and resulting state,
+Follow the resulting instructions on the actual repository where prerequisites
+and authority permit: establish readiness, exercise selected behaviors, capture the action and resulting state,
 check relevant side effects and verify that evidence remains available. When the
 setup or proof phase completes or pauses, use `cleanup-task-artifacts` with local
 guidance before reporting. Phase cleanup does not complete a continuing task or
 detach its checkout. Fix instruction/control gaps within authorized scope and
 repeat only affected proof. Unexecuted or unreachable instructions remain
-unverified; name the missing prerequisite. Do not declare setup complete without
-the real-use proof.
+unverified; name the missing prerequisite. Deliver guide changes under the global
+Validation and delivery closure rule, reporting unexercised scenarios as limits.
+If actual execution is itself the requested outcome, report any unfinished
+operation explicitly rather than claiming it succeeded.
 
 ## Audit an adopted guide
 
@@ -94,8 +96,8 @@ Before reporting a completed or paused audit phase, use `cleanup-task-artifacts`
 with the guide's local guidance.
 
 Distinguish stale instructions, working behavior the controls cannot reach, and a
-product regression. Correct authorized guide/control drift at its owner and prove
-changed instructions through real use. File product regressions through the owning
+product regression. Correct authorized guide/control drift at its owner and check
+changed instructions with the available authorized behavioral evidence. File product regressions through the owning
 tracker; never rewrite expected results to normalize broken behavior. An audit does
 not authorize unrelated product fixes. Report blocked coverage and retain evidence.
 
