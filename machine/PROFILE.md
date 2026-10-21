@@ -518,8 +518,9 @@ A removed declaration is only a retirement candidate. Remove that exact scope on
 when the prior receipt proves reconciliation wrote it and its current fingerprint
 matches. Preserve all unrelated neighbors and fields. Use atomic individual writes
 and receipt replacement, without claiming a cross-file transaction. Record only
-actual successful writes and report partial failure honestly; no history, backup
-framework, or rollback journal belongs in the receipt.
+actual successful writes and report partial failure honestly. Apart from the shared
+config entry's unchanged-field evidence for preserved model settings, no history,
+backup framework, or rollback journal belongs in the receipt.
 
 ## Cleanup schedule
 

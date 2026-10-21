@@ -471,7 +471,7 @@ def read_receipt(path):
     entries = {}
     for entry in receipt['entries']:
         if (not isinstance(entry, dict)
-                or set(entry) != {'target', 'scope', 'algorithm', 'fingerprint'}
+                or set(entry) - {'evidence'} != {'target', 'scope', 'algorithm', 'fingerprint'}
                 or entry['algorithm'] != 'sha256'
                 or not isinstance(entry['target'], str)
                 or not isinstance(entry['scope'], dict)):
@@ -479,6 +479,8 @@ def read_receipt(path):
         if (not isinstance(entry['fingerprint'], str)
                 or re.fullmatch(r'[0-9a-f]{64}', entry['fingerprint']) is None):
             raise ValueError('invalid receipt SHA-256 fingerprint')
+        if 'evidence' in entry and not valid_evidence(entry):
+            raise ValueError('invalid receipt unchanged-field evidence')
         if entry['scope'] == {'kind': 'cleanup-schedule'}:
             target = entry['target']
             if not cleanup_schedule_identity(target):
@@ -513,6 +515,32 @@ def managed_projection(source, fields, preserved=None):
             raise ValueError('preserved model settings require managed root model fields')
         values.update({field: ['str', repr(value)] for field, value in zip(PRESERVED_MODEL_FIELDS, preserved)})
     return values
+
+
+def unchanged_field_evidence(values, scope):
+    """Digest the receipted owned projection other than the root pair, tied to its scope."""
+    fields = sorted(set(scope['fields']) - set(PRESERVED_MODEL_FIELDS))
+    return {'fields': fields, 'fingerprint': digest(encoded({field: values[field] for field in fields}))}
+
+
+def valid_evidence(entry):
+    scope, evidence = entry['scope'], entry['evidence']
+    fields = scope.get('fields')
+    return (scope.get('kind') == 'toml' and isinstance(fields, list)
+            and all(isinstance(field, str) for field in fields)
+            and set(PRESERVED_MODEL_FIELDS) <= set(fields)
+            and isinstance(evidence, dict) and set(evidence) == {'fields', 'fingerprint'}
+            and evidence['fields'] == sorted(set(fields) - set(PRESERVED_MODEL_FIELDS))
+            and isinstance(evidence['fingerprint'], str)
+            and re.fullmatch(r'[0-9a-f]{64}', evidence['fingerprint']) is not None)
+
+
+def unchanged_fields_proven(path, entry, scope, observed):
+    """From one read, prove the live scope is `observed` and the receipt's non-pair fields are unchanged."""
+    values = projection(path, scope['fields'])
+    evidence = entry['evidence']
+    return (digest(encoded(values)) == observed
+            and digest(encoded({field: values[field] for field in evidence['fields']})) == evidence['fingerprint'])
 
 
 def unmanaged_projection(data, managed, retired):
@@ -636,7 +664,8 @@ def run(args):
         current = fingerprint(Path(target), scope)
         observed[target] = (scope, current)
         expected = old['fingerprint'] if old else None
-        conflict = (old is not None and current != expected) or (old is None and current is not None)
+        drift = (old is not None and current != expected) or (old is None and current is not None)
+        widened = False
         gate_scope = scope
         if old and target in desired and old['scope'] != desired[target][1]:
             new_scope = desired[target][1]
@@ -647,20 +676,30 @@ def run(args):
                 gate_scope = {'kind': 'json', 'fields': fields, 'resources': resources}
                 added = set(new_scope['fields']) - set(scope['fields'])
                 if any(v != ['absent'] for v in projection(Path(target), added, 'json').values()):
-                    conflict = True
+                    widened = True
                 document = json.loads(Path(target).read_text(encoding='utf-8')) if Path(target).exists() else {}
                 for key, paths in new_scope.get('resources', {}).items():
                     if any(path in document.get(key, []) for path in set(paths) - set(scope.get('resources', {}).get(key, []))):
-                        conflict = True
+                        widened = True
             elif scope['kind'] != 'toml' or new_scope['kind'] != 'toml':
                 errors.append(f'{target}: ownership kind changed; investigate before migration')
             else:
                 added = set(new_scope['fields']) - set(scope['fields'])
                 if any(v != ['absent'] for v in projection(Path(target), added).values()):
-                    conflict = True
+                    widened = True
                 gate_scope = {'kind': 'toml', 'fields': sorted(set(scope['fields']) | set(new_scope['fields']))}
         gate_current = fingerprint(Path(target), gate_scope)
+        if gate_scope == scope and gate_current != current:
+            errors.append(f'{target}: state changed during preflight; prepare again')
         observed[target] = (gate_scope, gate_current)
+        if (old and 'evidence' in old and current == expected
+                and not unchanged_fields_proven(Path(target), old, scope, current)):
+            errors.append(f'{target}: receipt evidence disagrees with its matching fingerprint; investigate')
+        if (drift and preserved is not None and target == config_target and old and 'evidence' in old
+                and gate_current is not None and unchanged_fields_proven(Path(target), old, gate_scope, gate_current)):
+            # Only the frozen, verified root pair differs from the receipt; added fields still conflict.
+            drift = False
+        conflict = drift or widened
         if conflict and approvals.get(target) != (gate_current or 'absent'):
             errors.append(f'{target}: scope={scope} saved={expected} observed={gate_current}; supervised decision required')
         if target not in desired and target not in releasing and target not in preserved_targets and scope['kind'] in ('toml', 'json'):
@@ -707,6 +746,10 @@ def run(args):
                 and observed[target] == (scope, old['fingerprint'])
                 and wanted == old['fingerprint'])
 
+    def lacks_evidence(target):
+        """A legacy config entry whose agreement was just gate-verified can enroll evidence."""
+        return target == config_target and 'evidence' not in entries[target]
+
     for target in sorted(observed) if not args.apply else ():
         if target in releasing:
             print(f'Would release ownership without changing the file: {target}', flush=True)
@@ -714,6 +757,8 @@ def run(args):
             print(f'Would retire {target}', flush=True)
         elif target in desired and not agrees(target):
             print(f'Would publish {target}', flush=True)
+        elif target in desired and lacks_evidence(target):
+            print(f'Would record unchanged-field evidence for {target}', flush=True)
     if not args.apply:
         print('All declared sources and live target/retirement scopes passed preflight; no writes.')
         return
@@ -735,8 +780,11 @@ def run(args):
         raise ValueError('source checkout has uncommitted changes; select a clean revision')
     # Agreeing targets keep their live bytes, metadata and receipt entry untouched.
     unchanged = {target for target in desired if agrees(target)}
+    # Enrollment updates only the receipt entry; the agreeing config keeps its bytes.
+    enrolling = {target for target in unchanged if lacks_evidence(target)}
+    unchanged -= enrolling
     prepared_files = {target: candidate.read_bytes() for target, (candidate, scope) in desired.items()
-                      if scope['kind'] != 'directory' and target not in unchanged}
+                      if scope['kind'] != 'directory' and target not in unchanged | enrolling}
     release_originals = {target: Path(target).read_bytes() if Path(target).exists() else None
                          for target in releasing}
     prepared = {}
@@ -745,7 +793,7 @@ def run(args):
     try:
         # Prepare complete copies off discovery before any live target is touched.
         for target, (candidate, scope) in desired.items():
-            if target in unchanged:
+            if target in unchanged or target in enrolling:
                 continue
             if same_path(candidate, Path(target)) or path_within(candidate, Path(target)):
                 raise ValueError(f'candidate overlaps live target: {target}')
@@ -816,6 +864,12 @@ def run(args):
                     raise ValueError(f'released file changed immediately before ownership release: {target}')
                 entries.pop(target)
                 print(f'Released to Unmanaged Local State; file preserved: {target}', flush=True)
+            elif target in enrolling:
+                values = projection(path, scope['fields'])
+                if digest(encoded(values)) != expected:
+                    raise ValueError(f'state changed immediately before evidence enrollment: {target}')
+                entries[target] = {**entries[target], 'evidence': unchanged_field_evidence(values, scope)}
+                print(f'Recorded unchanged-field evidence for {target}', flush=True)
             elif target in preserved_targets or target in unchanged:
                 continue
             elif target not in desired:
@@ -866,6 +920,10 @@ def run(args):
                     raise ValueError(f'installed result mismatch: {target}')
                 entries[target] = {'target': target, 'scope': new_scope,
                                    'algorithm': 'sha256', 'fingerprint': actual}
+                if target == config_target:
+                    # The verified candidate's projection equals the installed one.
+                    entries[target]['evidence'] = unchanged_field_evidence(
+                        projection(candidate, new_scope['fields']), new_scope)
                 print(f'Wrote {target}', flush=True)
             atomic_file(receipt_path, encoded({'version': 1, 'entries': list(entries.values())}) + b'\n')
             raw_receipt = receipt_path.read_bytes()
