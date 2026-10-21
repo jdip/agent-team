@@ -154,7 +154,10 @@ reconciliation writes and repairs as meaningful.
    anchors keep their ordinary participation. Report conflicts, including a legacy
    receipt lacking pair-only proof, for supervised resolution. After an apply failure
    report printed writes as partial effects and inspect them without retrying.
-4. **Self-reference repair.** The saved prompt is this job's only repairable
+4. **Self-reference repair.** Recheck locally that clone HEAD equals `$REVISION`,
+   its working tree is clean and its effective origin URL is canonical immediately
+   before repair; retain and report any unexpected change without writing.
+   The saved prompt is this job's only repairable
    reference. Update it only when `inspect` for this identity passes, `desktop-prompt`
    reports `receipted: true` and `prompt_current: false`, and this run exposes the
    supported automation tool. View the same identity and confirm it matches the

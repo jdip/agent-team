@@ -191,12 +191,13 @@ def select_revision(repository, apply, revision=None):
     remote_branch = merge.removeprefix('refs/heads/')
     if revision is not None:
         frozen_checkout(repository, revision)
-    fresh = command(git, 'ls-remote', '--exit-code', remote, f'refs/heads/{remote_branch}',
+    source_remote = CANONICAL_REPOSITORY if revision is not None else remote
+    fresh = command(git, 'ls-remote', '--exit-code', source_remote, f'refs/heads/{remote_branch}',
                     cwd=repository).split()[0]
     if not re.fullmatch(r'[0-9a-f]{40}', fresh):
         raise ValueError(f'{branch}: remote returned an invalid revision')
     # Fetch objects only; local refs and the checkout keep any frozen revision.
-    command(git, 'fetch', '--no-tags', '--no-write-fetch-head', remote, fresh, cwd=repository)
+    command(git, 'fetch', '--no-tags', '--no-write-fetch-head', source_remote, fresh, cwd=repository)
     head = command(git, 'rev-parse', 'HEAD', cwd=repository)
     selected, published = fresh, True
     if revision is not None:
@@ -205,6 +206,7 @@ def select_revision(repository, apply, revision=None):
             raise ValueError(f'{revision} is not reachable from published {remote}/{remote_branch} {fresh}; '
                              'investigate source authority')
         selected = revision
+        frozen_checkout(repository, revision)
     elif head != fresh:
         ahead = subprocess.run([git, 'merge-base', '--is-ancestor', fresh, head], cwd=repository)
         behind = subprocess.run([git, 'merge-base', '--is-ancestor', head, fresh], cwd=repository)
