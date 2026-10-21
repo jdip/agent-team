@@ -95,7 +95,11 @@ The answer isn't part of the body; it's recorded on resolution (see [Work throug
 Every ticket is either **HITL** (human in the loop, worked _with_ a human who speaks for themselves) or **AFK**, driven by the agent alone. A HITL ticket only resolves through that live exchange; the agent never stands in for the human's side of it (a grilling agent that answers its own questions has broken this).
 
 - **Research** (AFK): Reading documentation, third-party APIs, or local resources like knowledge bases to surface a fact a decision waits on. Use the `research` skill; an assigned researcher investigates directly and returns cited evidence within its write authority. Use when knowledge outside the current working directory is required.
-- **Prototype** (HITL): Raise the fidelity of the discussion by making a cheap, rough, concrete artifact to react to (an outline, a rough take, a stub, or UI/logic code) using the `prototype` skill. Links the prototype as an asset. Use when "how should it look" or "how should it behave" is the key question.
+- **Prototype** (HITL or AFK): Use the `prototype` skill when a small experiment can
+  settle a consequential empirical claim, including one from interface comparison,
+  or when a concrete artifact helps the human judge a design. Its inquiry rules
+  own the factual-experiment versus human-decision boundary. Link the prototype
+  as an asset; let the question determine its shape and number of alternatives.
 - **Grilling** (HITL): Conversation. The default case. Read and apply the `grilling` and `domain-modeling` skills.
 - **Task** (HITL or AFK): Manual work that must happen before a _decision_ can be made: nothing to decide, prototype, or research, but the discussion is blocked until it's done. Signing up for a service so its API can be judged, provisioning access, moving data so its shape can be seen. This is the one type that _does_ rather than decides, and it earns its place by unblocking a decision, not by delivering the destination. Keep it limited to unblocking a decision within existing action authority;
   repository implementation changes intended to ship follow the global planning
