@@ -18,10 +18,11 @@ authenticated gh, Bash, and Python 3.11+ (`AGENT_TEAM_PYTHON` can select it).
 
 Review all submitted changes. Reuse completed review only with evidence covering
 every change and resolved/accepted findings; doubt requires the relevant review.
-Run git diff --check and the actual changed helper operation. The script runs the
-mandatory staged privacy check before pushing; hosted Validate is the
-authoritative source check for delivery to test/main, so a full local run before
-that delivery is optional, following
+Run git diff --check and exercise changed helpers where practical under the
+repository's closure policy.
+The script runs the mandatory staged privacy check before pushing; hosted Validate
+is the authoritative source check for delivery to test/main, so a full local run
+before that delivery is optional, following
 [development guidance](../development.md). No review record framework or Tooling
 coverage suite is needed.
 
@@ -57,7 +58,7 @@ integration's parents and tree, making the run the merged revision's attributabl
 evidence instead of repeating the checks locally. A mismatch or missing run stops
 for investigation; that merge needs its own validation. This repository has no
 deployed application: completion is that attributed Validate evidence plus the
-issue's applicable real-use evidence.
+issue's proportionate checks and available behavioral evidence.
 
 Validate's run name records the tested synthetic integration SHA, which differs
 from the API's feature-head SHA. Its validation step records the runner image and
@@ -69,9 +70,10 @@ rollup children's Targeted checks runs never do, so a completed rollup's PR runs
 the full check.
 This source-only equivalence does not establish application or deployment acceptance.
 
-The supervising agent then records the PR, review and real-use evidence, closes the
-issue only when its acceptance outcome is met, and cleans all associated resources
-proven safe. Task-created branches/worktrees, staging, and logs can qualify; shared
+The supervising agent then records the PR, review, behavioral evidence and
+verification limits, closes the issue when its acceptance outcome is met under the
+[global closure rule](../../machine/AGENTS.md#validation-and-delivery), and cleans
+all associated resources proven safe. Task-created branches/worktrees, staging, and logs can qualify; shared
 or uncertain resources cannot. Never remove a checkout backing a Codex task. Use
 supported lifecycle handling or retain it. An attached worktree is not a delivery
 failure. Do not use broad pruning or edit app storage.

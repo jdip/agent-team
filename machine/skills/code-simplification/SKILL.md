@@ -52,8 +52,10 @@ Substantial redesign needs approved scope or a design handoff before implementat
 
 Verify at existing interfaces and run the repository's applicable gates.
 Application Code needs meaningful behavioral validation and its established lint,
-type, and test checks. Tooling needs source checks and successful actual use; do
-not create a characterization suite merely for this refactor.
+type, and test checks. Tooling uses proportionate source checks and available
+authorized behavioral checks under the repository's closure policy. Report
+unexercised scenarios as limits; do not create a characterization suite merely
+for this refactor.
 
 Use `code-review` for review. When delivery is authorized, follow `pr-to-test` and
 the repository's local delivery rules. Report the behavior preserved, maintenance

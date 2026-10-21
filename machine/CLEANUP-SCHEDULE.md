@@ -62,9 +62,9 @@ Resolve the saved project identity against the current supported inventory befor
 installation or repair; an existing path alone does not prove a saved project target.
 Preserve the existing schedule and notification preferences unless a change is
 requested. After configuration/receipt readback, exercise a supervised real sweep
-and separately observe an actual scheduled run through supported run evidence.
-An ACTIVE status or manual invocation does not prove scheduled execution. If the
-host cannot expose that evidence, report the limit and keep runtime acceptance open.
+where practical. An ACTIVE status or manual invocation does not prove scheduled
+execution: report a future scheduled run not yet observed as a verification limit
+after delivery, not a reason to keep installation or its issue open.
 
 Before updating an existing native job, use:
 

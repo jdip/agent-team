@@ -22,8 +22,9 @@ requirement merely to unblock another ticket.
 
 Read the local delivery runbook's feature-to-rollup path, including actual required
 checks and deployment triggers. Child checks cover changed behavior and affected
-integration paths only, with mandatory privacy checks and changed Tooling real-use
-proof. Full suites belong to the final PR to test and separately requested promotion,
+integration paths only, with mandatory privacy checks, proportionate Tooling
+checks and available behavioral evidence. Full suites belong to the final PR to
+test and separately requested promotion,
 with equivalent full evidence reusable under the target's verification policy.
 Keep targeted and full results distinguishable; targeted evidence cannot satisfy
 full delivery acceptance.

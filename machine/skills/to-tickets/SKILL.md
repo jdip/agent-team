@@ -75,7 +75,10 @@ remain parent acceptance criteria.
 
 Set acceptance evidence by purpose: Application Code requires linting, type
 checking, validation, meaningful behavioral tests, and strong coverage; Tooling
-requires successful real use and focused source checks. Prefer clean replacements
+requires focused source checks and proportionate behavioral evidence available now.
+Keep the approved acceptance within the global Validation and delivery closure
+rule: unexercised scenarios are stated limits, not added future-use gates or
+separate proof tickets. Prefer clean replacements
 that remove superseded callers and configuration. Use expand--contract only when a
 concrete blast radius requires temporary coexistence.
 

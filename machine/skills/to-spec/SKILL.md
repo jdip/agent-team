@@ -89,10 +89,14 @@ contribution for the parent.
 
 Classify each outcome by purpose. Application Code needs linting, type checking,
 validation, meaningful behavioral tests, and strong coverage. Tooling needs
-successful real use and focused source checks; do not manufacture coverage or
-fake-environment suites. Prefer a clean replacement that removes superseded
-callers and configuration; use expand--contract only when a concrete blast radius
-requires both forms to coexist temporarily.
+focused source checks and proportionate behavioral evidence available now; do not
+manufacture coverage or fake-environment suites. Write acceptance that present
+checks, review and required delivery can satisfy under the global Validation and
+delivery closure rule. Name foreseeable unexercised scenarios as expected limits;
+add a future incident, pilot or scheduled-run gate only when the operator
+explicitly requests that observation as the outcome. Prefer a clean replacement
+that removes superseded callers and configuration; use expand--contract only when
+a concrete blast radius requires both forms to coexist temporarily.
 
 Present the parent draft and the full ticket breakdown together in one ordinary
 text batch. Ask for approval of the scope, acceptance criteria, ticket granularity,

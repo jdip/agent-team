@@ -260,15 +260,25 @@ product behavior, including a CLI when that CLI is the product. Give it rigorous
 linting, type checking, validation, and meaningful tests with high coverage. Use
 risk-appropriate test-first work at stable behavioral seams and the repository's
 authoritative gates.
-Tooling supports development, delivery, or maintenance. Validate it through
-successful real use; do not create tooling coverage suites, fake infrastructure,
-or tests of tests. Inspect rendered results for visual behavior.
+Tooling supports development, delivery, or maintenance. Validate it with
+proportionate checks: focused source checks plus the behavioral evidence
+available now, such as a practical native invocation of the changed operation or
+live configuration readback. Do not create tooling coverage suites, fake
+infrastructure, or tests of tests. Inspect rendered results for visual behavior.
 
 Investigate the earliest causal failure; do not blindly retry or weaken checks.
 Stop verification after relevant checks pass unless changes or unresolved evidence
 justify more. Review all submitted changes for correctness and requirement fidelity.
 Reuse completed review only when its evidence covers every change and findings are
 resolved or explicitly accepted. Doubt means perform the needed review.
+
+Close delivered work once its proportionate checks, review and required delivery
+pass. Report unexercised scenarios, future-dependent benefit, unavailable pilot
+cases and unobserved future scheduled runs as verification limits; they are not
+default closure gates or grounds for deferred proof issues, and evidence is never
+manufactured to fill them. Observed failures and unfinished requested operations,
+including requested installation or deployment, stay actionable. Later concrete
+defects use ordinary issue intake.
 
 Read local delivery runbooks and use canonical shell entry points. For a named
 rollup, verified feature integration lets the next eligible child continue; the
