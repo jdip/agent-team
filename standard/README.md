@@ -315,7 +315,8 @@ enforces appropriate stack-specific gates and coverage targets. Do not use a loc
 target as permission for weak coverage or inflate numbers with meaningless tests.
 
 Tooling supports development, validation, delivery, and machine/repository maintenance.
-Validate it by successful real use. No tooling coverage targets, fake environments,
+Validate it with proportionate checks and the behavioral evidence available
+for the changed operation. No tooling coverage targets, fake environments,
 conformance suites, tests of tests, or resumable workflow engines. Running application
 checks through a shell wrapper does not turn those checks into prohibited Tooling tests.
 
@@ -362,7 +363,7 @@ and relevant context, such as a runtime matrix entry, data service or deployment
 target. Hosted CI is authoritative where it exists; at full-delivery boundaries,
 full local runs are optional unless the runbook names a local-only gate.
 Cheap pre-publication privacy checks stay mandatory before each push, and changed
-Tooling still needs successful actual use.
+Tooling uses proportionate checks and available behavioral evidence.
 
 Targeted evidence never satisfies a full-suite gate. Keep the scopes distinguishable
 in native CI results and delivery lookup. A conflicting full child requirement
@@ -449,8 +450,12 @@ Use merge commits for task-to-test, test-to-main, and main-to-test synchronizati
 Review every submitted change; reuse prior evidence only when it covers all changes
 and findings are resolved or explicitly accepted. No review ledger is required.
 Completion means the local runbook's verified result, including real deployment or
-processing when applicable. Verified rollup integration permits the next eligible
-child; final verified test delivery completes its parent. Promotion is separately
+processing when applicable. Close delivered work at that point under the
+[global closure rule](../machine/AGENTS.md#validation-and-delivery): unexercised
+scenarios requiring future use are reported limits, not open-issue gates, while observed
+failures and unfinished requested effects stay actionable. Verified rollup
+integration permits the next eligible child; final verified test delivery
+completes its parent. Promotion is separately
 requested. Do not make promotion a per-task gate.
 
 Use semver:major, semver:minor, semver:patch, and semver:none labels. Classify

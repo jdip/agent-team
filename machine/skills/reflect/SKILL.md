@@ -73,9 +73,9 @@ neighboring behavior through the required native invocation, respecting local
 verification classification. Record its command, revision, observed result and
 limits; configured enforcement alone does not establish execution. For a mixed or
 judgment lesson, justify the residual rule and keep it with the relevant context.
-Validate other approved changes against the motivating incident through relevant
-real use where possible. Keep future-dependent benefit unverified until that use;
-this requires no evaluation campaign.
+Validate other approved changes against the motivating incident with the evidence
+available now. Report future-dependent benefit as a verification limit after
+delivery; it does not hold the lesson issue open or require an evaluation campaign.
 
 Consolidate overlapping reports into one disposition per lesson at the primary's
 screen. Expected TDD red, resolved transients without an actionable defect and

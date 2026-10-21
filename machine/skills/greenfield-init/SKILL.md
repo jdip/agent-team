@@ -57,7 +57,8 @@ Do not select or scaffold an application stack, empty coverage program, CI matri
 or deployment environment without explicit user authorization. Apply the selected
 standard's language/environment declaration to each actual component. Application
 linting, type checking, validation, and meaningful high coverage grow with actual
-application development; Tooling is verified through real use.
+application development; Tooling uses proportionate source checks and available
+authorized behavioral checks under the selected standard's closure policy.
 
 Use `define-project-goal` to establish the project purpose with the human operator.
 Reuse a clear existing blurb; include approved purpose edits at the top of every
