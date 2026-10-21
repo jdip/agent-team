@@ -1,6 +1,6 @@
 ---
 name: prototype
-description: Build a throwaway prototype to answer a design question. Use when the user wants to sanity-check whether a state model or logic feels right, or explore what a UI should look like.
+description: Build a throwaway prototype to test a factual design claim or support human judgment about logic, an interface, or a UI.
 ---
 
 # Prototype
@@ -16,8 +16,14 @@ fits its surrounding product. When one question contains both, separate the
 decisions or build the smallest artifact that can answer the unresolved part.
 
 State the question and the observation that would resolve it before writing the
-artifact. Ask the user when those are not concrete; otherwise record the
-assumption used to choose the branch.
+artifact. Ask the user when those are not concrete; reuse agreed criteria.
+
+Run already-authorized factual experiments with agreed observable criteria
+autonomously. Report what the observations establish and their limits. When an
+experiment leaves a preference, tradeoff or scope decision, bring the evidence
+to the operator through the owning planning workflow. If execution lacks
+authorization or an approved, available environment, keep it pending. An experiment
+does not expand authority or replace map-entry dialogue and confirmation.
 
 ## Rules that apply to every prototype
 
@@ -48,7 +54,8 @@ assumption used to choose the branch.
    complete or before it pauses, use `cleanup-task-artifacts` with local guidance
    before reporting the verdict. Phase cleanup does not end a continuing task or
    detach its checkout. Capture the question, evidence, decision, and proposed
-   implementation seam in the artifact or authorized planning record. A
+   implementation seam in the artifact or authorized planning record. Distinguish
+   established facts from decisions still awaiting the operator. A
    planning-only prototype ends with a concrete handoff. When implementation is
    already authorized, continue through the normal workflow; the prototype remains
    evidence rather than production code.
