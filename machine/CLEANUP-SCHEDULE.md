@@ -5,7 +5,10 @@ or reconciliation request. The shared cleanup-task-artifacts skill is the policy
 no scheduler expands cleanup authority. Keep its source checkout stable and
 outside task cleanup. Select one verified source revision; do not fetch or update
 it during scheduled sweeps. A native job may start in a saved stable project while
-reading the shared policy from a separate stable source checkout.
+reading the shared policy from a separate stable source checkout. The
+[current-Mac self-healing run](#current-mac-self-healing-run) is the one exception:
+its prompt grants bounded reconciliation and repair authority and acquires a fresh
+frozen source each run.
 
 ## Shared evidence
 
@@ -52,8 +55,8 @@ verified resource dispositions. Missing task archival evidence must not suppress
 independently provable cleanup of ended temporary operations. Read discovery skip
 reasons and retain coverage failures in the existing run output/memory. Notify on
 meaningful cleanup, new or changed failures, or required action; unchanged
-non-actionable skips and genuine no-ops stay quiet. Do not schedule Machine
-Reconciliation or software/source updates.
+non-actionable skips and genuine no-ops stay quiet. Apart from the current-Mac
+self-healing run, do not schedule Machine Reconciliation or software/source updates.
 
 Resolve the saved project identity against the current supported inventory before
 installation or repair; an existing path alone does not prove a saved project target.
@@ -101,6 +104,91 @@ id, supported view succeeded, and the saved v1 configuration matched the request
 project/model/prompt/schedule. A normalized receipt was recorded after that observed
 creation and read back successfully. This is configuration evidence, not a claim
 that a scheduled wake already ran or that headless cron was exercised.
+
+## Current-Mac self-healing run
+
+This Mac's existing desktop job is the one authorized exception to the stable-source,
+no-reconciliation contract; other desktop and headless schedules keep it. The job's
+durable prompt comes from:
+
+```bash
+python3 machine/cleanup_schedule.py desktop-prompt --codex-home /actual/codex-home \
+  --identity automation:actual-id
+```
+
+This read-only macOS report gives the exact `prompt` (canonical repository URL,
+Codex home and identity; no checkout path), the observed `fingerprint`, whether the
+receipt matches it (`receipted`), whether the saved prompt is current
+(`prompt_current`), the `updated_fingerprint` a prompt-only update must read back,
+and `receipt_hash`. The prompt supplies the run's bounded authority; the generic
+cleanup skill grants none. Placing it on an existing job, including replacing a
+legacy prompt, is a supervised update through the procedure above.
+
+Each run performs its prompt's source acquisition, then these steps from the
+clone `$SOURCE` at frozen revision `$REVISION` with Python 3.11+ `python3`. Run
+these commands with `$SOURCE` as the working directory until teardown. Retain the
+exact `mkdtemp` result in the current run output as source-ownership evidence. A failed
+step leaves later independent steps available unless it says otherwise. Record
+every outcome in the run output; notify under the desktop rule above, treating
+reconciliation writes and repairs as meaningful.
+
+1. **Source.** Prove the clone:
+   ```bash
+   python3 machine/cleanup_schedule.py verify-source --codex-home /actual/codex-home \
+     --source "$SOURCE" --published-revision "$REVISION"
+   ```
+   It requires a clean ordinary `main` clone tracking canonical `origin`, exactly at
+   that commit, reachable from freshly read remote main; it reports a newer
+   `published_head` without moving to it. On failure make no source-dependent
+   mutation (reconciliation, schedule repair or cleanup removal) and go to teardown.
+2. **Identity.** `desktop-prompt` for this identity and home must report a non-null
+   `fingerprint`. Otherwise this home does not hold the job: make no mutation and go
+   to teardown.
+3. **Reconcile.** Run the read-only gate, then, when it passes, the same command with
+   `--apply`, adding `--codex /actual/codex` when it is not on PATH:
+   ```bash
+   python3 machine/prepare_reconciliation.py --repository "$SOURCE" \
+     --published-revision "$REVISION" --codex-home /actual/codex-home --preserve-model-settings
+   ```
+   Pass no `--resolve`, `--enable-pi`, `--skip-pi` or `--migrate-experiment`; receipt
+   anchors keep their ordinary participation. Report conflicts, including a legacy
+   receipt lacking pair-only proof, for supervised resolution. After an apply failure
+   report printed writes as partial effects and inspect them without retrying.
+4. **Self-reference repair.** Recheck locally that clone HEAD equals `$REVISION`,
+   its working tree is clean and its effective origin URL is canonical immediately
+   before repair; retain and report any unexpected change without writing.
+   The saved prompt is this job's only repairable
+   reference. Update it only when `inspect` for this identity passes, `desktop-prompt`
+   reports `receipted: true` and `prompt_current: false`, and this run exposes the
+   supported automation tool. View the same identity and confirm it matches the
+   inspected configuration; rerun `inspect` immediately before the supported update;
+   replace only the prompt in the full preserved configuration, retaining kind, name, status, rrule, model,
+   effort, environment, saved project, cwds and notification preferences. After
+   viewing the readback, `desktop-prompt` must report `fingerprint` equal to the
+   earlier `updated_fingerprint`; then run `record-desktop` with the pre-update
+   `receipt_hash`, that fingerprint and `--observed-write`, and rerun `inspect`. The
+   tool has no compare-and-swap, so any other change, a missing saved project or
+   ambiguous ownership stays unresolved and reported without further writes. Without
+   the tool, report that limitation.
+5. **Sweep.** Recheck locally that clone HEAD equals `$REVISION` and its working
+   tree is clean; retain and report any unexpected change. Load
+   `$SOURCE/machine/skills/cleanup-task-artifacts/SKILL.md` and perform
+   the sweep yourself under the desktop requirements above, without launching
+   `codex exec`. It runs after a reconciliation failure when step 1 passed. The run
+   root stays in place until teardown. Report other `agent-team-cleanup-*` roots for
+   supervised inspection; interrupted runs can leave them.
+6. **Teardown.** After every other action, confirm the root is exactly the directory
+   this run created and no task attachment, active user or needed state now depends
+   on it. A matching name alone is not ownership evidence. Preserve uncertain roots.
+   From outside the verified run root:
+   ```bash
+   python3 "$SOURCE/machine/cleanup_schedule.py" remove-source --codex-home /actual/codex-home \
+     --source "$SOURCE" --published-revision "$REVISION"
+   ```
+   It rechecks the clone's canonical identity, revision and clean state, requires no
+   linked worktree and nothing else in the run root, removes both and verifies
+   absence. Otherwise it retains them; report that without retrying. Host loss or an
+   abruptly ended run can leave the root behind, so teardown is not guaranteed.
 
 ## Headless Linux and WSL
 

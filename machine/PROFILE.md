@@ -518,8 +518,9 @@ A removed declaration is only a retirement candidate. Remove that exact scope on
 when the prior receipt proves reconciliation wrote it and its current fingerprint
 matches. Preserve all unrelated neighbors and fields. Use atomic individual writes
 and receipt replacement, without claiming a cross-file transaction. Record only
-actual successful writes and report partial failure honestly; no history, backup
-framework, or rollback journal belongs in the receipt.
+actual successful writes and report partial failure honestly. Apart from the shared
+config entry's unchanged-field evidence for preserved model settings, no history,
+backup framework, or rollback journal belongs in the receipt.
 
 ## Cleanup schedule
 
@@ -534,7 +535,11 @@ verify identity and normalization on the real target. Use
 [CLEANUP-SCHEDULE.md](CLEANUP-SCHEDULE.md) and the narrow target adapter for
 installation, observation, and receipt updates. The managing agent owns that
 separate native operation; filesystem reconciliation preserves its receipt entry
-without requiring or observing the schedule. There is no scheduled reconciliation
+without requiring or observing the schedule. Only the current Mac's desktop job
+reconciles on schedule: each run clones canonical `main`, freezes one published
+revision and reconciles the existing managed scope with preserved root model
+settings ([self-healing run](CLEANUP-SCHEDULE.md#current-mac-self-healing-run)).
+Other desktop and headless schedules keep their stable source and never reconcile
 or update.
 Windows CLI jobs run only as the logged-in user, without elevation, stored account
 passwords, or machine wake. Missed runs are acceptable; native delayed-run
