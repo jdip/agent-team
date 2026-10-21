@@ -185,15 +185,37 @@ def flatten(value, prefix=()):
     return result
 
 
-def projection(path, fields, kind='toml'):
-    text = path.read_text(encoding='utf-8') if path.exists() else None
-    document = (tomllib.loads(text) if kind == 'toml' else json.loads(text)) if text is not None else {}
+def configuration_document(path, kind):
+    path = plain_path(path)
+    if not path.exists():
+        return None
+    text = path.read_text(encoding='utf-8')
+    document = tomllib.loads(text) if kind == 'toml' else json.loads(text)
     if not isinstance(document, dict):
         raise ValueError(f'expected a {kind} object: {path}')
+    return document
+
+
+def projection(path, fields, kind='toml'):
+    return document_projection(configuration_document(path, kind) or {}, fields)
+
+
+def document_projection(document, fields):
     data = flatten(document)
     # Types matter: true, 1, and "1" must not compare equal.
     return {key: [type(data[tuple(key.split('.'))]).__name__, repr(data[tuple(key.split('.'))])]
             if tuple(key.split('.')) in data else ['absent'] for key in sorted(fields)}
+
+
+def configuration_fingerprint(document, scope):
+    if document is None:
+        return None
+    if scope['kind'] == 'json' and 'resources' in scope:
+        from pi_runtime import settings_projection
+        values = settings_projection(document, scope)
+    else:
+        values = document_projection(document, scope['fields'])
+    return digest(encoded(values))
 
 
 def fingerprint(path, scope):
@@ -223,14 +245,8 @@ def fingerprint(path, scope):
                            for p in (path, *path.rglob('*')) if p.is_dir()}
             return digest(encoded({'files': entries, 'directories': directories}))
         return digest(encoded({name: digest(data) for name, data in contents.items()}))
-    if scope['kind'] == 'json' and 'resources' in scope:
-        from pi_runtime import settings_projection
-        document = json.loads(path.read_text(encoding='utf-8'))
-        if not isinstance(document, dict):
-            raise ValueError('Pi settings must be a JSON object')
-        return digest(encoded(settings_projection(document, scope)))
     if scope['kind'] in ('toml', 'json'):
-        return digest(encoded(projection(path, scope['fields'], scope['kind'])))
+        return configuration_fingerprint(configuration_document(path, scope['kind']), scope)
     raise ValueError(f'unsupported scope requires its target-specific adapter: {path}')
 
 
@@ -661,7 +677,13 @@ def run(args):
         if scope['kind'] == 'json' and target not in releasing and target not in preserved_pi_targets and (
                 target not in desired or desired[target][1]['kind'] != 'json'):
             errors.append(f'{target}: JSON scope requires its declared migration owner; no writes')
-        current = fingerprint(Path(target), scope)
+        # Scope expansion and conflict classification share one configuration read.
+        scoped_config = scope['kind'] in ('toml', 'json')
+        document = configuration_document(Path(target), scope['kind']) if scoped_config else None
+        current = configuration_fingerprint(document, scope) if scoped_config else fingerprint(Path(target), scope)
+        if (target == config_target and preserved is not None
+                and tuple((document or {}).get(field) for field in PRESERVED_MODEL_FIELDS) != preserved):
+            errors.append(f'{target}: root model settings changed after freezing; prepare again')
         observed[target] = (scope, current)
         expected = old['fingerprint'] if old else None
         drift = (old is not None and current != expected) or (old is None and current is not None)
@@ -675,20 +697,20 @@ def run(args):
                              for key in scope.get('resources', {}).keys() | new_scope.get('resources', {}).keys()}
                 gate_scope = {'kind': 'json', 'fields': fields, 'resources': resources}
                 added = set(new_scope['fields']) - set(scope['fields'])
-                if any(v != ['absent'] for v in projection(Path(target), added, 'json').values()):
+                if any(v != ['absent'] for v in document_projection(document or {}, added).values()):
                     widened = True
-                document = json.loads(Path(target).read_text(encoding='utf-8')) if Path(target).exists() else {}
                 for key, paths in new_scope.get('resources', {}).items():
-                    if any(path in document.get(key, []) for path in set(paths) - set(scope.get('resources', {}).get(key, []))):
+                    if any(path in (document or {}).get(key, []) for path in set(paths) - set(scope.get('resources', {}).get(key, []))):
                         widened = True
             elif scope['kind'] != 'toml' or new_scope['kind'] != 'toml':
                 errors.append(f'{target}: ownership kind changed; investigate before migration')
             else:
                 added = set(new_scope['fields']) - set(scope['fields'])
-                if any(v != ['absent'] for v in projection(Path(target), added).values()):
+                if any(v != ['absent'] for v in document_projection(document or {}, added).values()):
                     widened = True
                 gate_scope = {'kind': 'toml', 'fields': sorted(set(scope['fields']) | set(new_scope['fields']))}
-        gate_current = fingerprint(Path(target), gate_scope)
+        gate_current = (configuration_fingerprint(document, gate_scope) if scoped_config
+                        else fingerprint(Path(target), gate_scope))
         if gate_scope == scope and gate_current != current:
             errors.append(f'{target}: state changed during preflight; prepare again')
         observed[target] = (gate_scope, gate_current)
