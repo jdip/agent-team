@@ -63,8 +63,9 @@ installation or repair; an existing path alone does not prove a saved project ta
 Preserve the existing schedule and notification preferences unless a change is
 requested. After configuration/receipt readback, exercise a supervised real sweep
 where practical. An ACTIVE status or manual invocation does not prove scheduled
-execution: report a future scheduled run not yet observed as a verification limit
-after delivery, not a reason to keep installation or its issue open.
+execution. Unless observing a scheduled run is explicitly the requested outcome,
+report a future run not yet observed as a verification limit after delivery,
+without keeping installation or its issue open for that observation.
 
 Before updating an existing native job, use:
 

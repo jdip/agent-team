@@ -451,7 +451,7 @@ Review every submitted change; reuse prior evidence only when it covers all chan
 and findings are resolved or explicitly accepted. No review ledger is required.
 Completion means the local runbook's verified result, including real deployment or
 processing when applicable. Close delivered work at that point under the
-[global closure rule](../machine/AGENTS.md#validation-and-delivery): unexercised or
+[global closure rule](../machine/AGENTS.md#validation-and-delivery): unexercised
 scenarios requiring future use are reported limits, not open-issue gates, while observed
 failures and unfinished requested effects stay actionable. Verified rollup
 integration permits the next eligible child; final verified test delivery
