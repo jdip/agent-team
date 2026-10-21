@@ -93,10 +93,20 @@ declared role, subagent and reviewer pair is still verified, and post-apply
 verification checks the installed pair. A pair changed after freezing fails the
 preflight, candidate and raw-config rechecks; prepare again.
 
-The flag selects desired values only; it never resolves drift. The config receipt
-still fingerprints all thirteen fields together, so it cannot attribute a mismatch to
-one field: a live config differing from its receipt remains an ordinary conflict
-requiring an exact `--resolve`. Apply receipts the actual installed config, and an
+The config receipt fingerprints all thirteen fields together. Each config entry
+reconciliation writes also carries `evidence`: a digest of that entry's eleven
+other owned fields. With the flag, a live config differing from its receipt passes
+the gate only when that evidence proves those fields unchanged, so the frozen pair
+alone moved. Mixed drift, missing evidence and newly owned fields remain ordinary
+conflicts requiring an exact `--resolve`; without the flag every mismatch does. The
+flag never substitutes the newer source profile for this history.
+
+A legacy entry without evidence acquires it only from verified state. When the
+live config matches that receipt, preflight reports `Would record unchanged-field
+evidence` and apply rewrites only the receipt entry, not the config. A conflicting
+legacy entry stays unresolved until an exact `--resolve`; that publication receipts
+the evidence. Malformed evidence, or evidence contradicting a matching fingerprint,
+stops reconciliation. Apply receipts the actual installed config, and an
 unchanged later run with the flag is a no-op. A later run without the flag treats
 the profile values as desired again and reports `Would publish` for the config
 when those values differ from the installed pair.
@@ -389,7 +399,8 @@ before and immediately at each mutation.
 A declared target whose receipt scope, gate-verified live fingerprint and desired
 fingerprint already agree is unchanged: the helper skips its preparation and
 publication, leaving its content, file metadata and receipt entry untouched. A run
-with no changed target leaves the receipt file itself untouched. Every target still
+with no changed target and no config evidence to record leaves the receipt file
+itself untouched. Every target still
 passes the gate and its pre-write receipt, live-state and shared-config rechecks;
 upstream and candidate-config validation still run. Changed or missing targets,
 changed scopes, approved conflicts, retirement and release follow the paths below.
@@ -420,7 +431,9 @@ do not erase receipt evidence, enroll existing bytes, blindly retry, roll back
 unrelated work, or build a recovery journal.
 
 The receipt contains version 1 and entries with only target, scope, algorithm, and
-fingerprint. Whole files hash exact bytes. Whole directories hash canonical sorted
+fingerprint. The shared config entry may add `evidence`, holding its scope's sorted
+fields other than the root pair and their projection fingerprint; entries without
+it stay valid. Whole files hash exact bytes. Whole directories hash canonical sorted
 relative file names and their byte hashes. Pi runtime directory fingerprints also
 include POSIX file/directory modes; its launcher includes its POSIX mode. Scoped Pi
 JSON hashes only declared scalar values and exact skill-path membership counts,
