@@ -23,6 +23,8 @@ sys.dont_write_bytecode = True
 
 from reconcile import command_path, executable_path, path_within, plain_path, root_model_settings, same_path
 
+CANONICAL_REPOSITORY = 'https://github.com/jdip/agent-team.git'
+
 
 def discovered_path(path):
     return plain_path(path) if sys.platform == 'win32' else Path(path)
@@ -153,8 +155,30 @@ def app_server_data(executable, requested_home, source, timeout):
         server.close()
 
 
-def select_source(repository, work_root, apply):
-    repository = plain_path(repository)
+def published_revision(value):
+    if not re.fullmatch(r'[0-9a-f]{40}', value):
+        raise argparse.ArgumentTypeError('expected a full lowercase 40-character commit SHA')
+    return value
+
+
+def frozen_checkout(repository, revision):
+    """Prove a clean canonical main checkout is exactly at the frozen revision, without network access."""
+    if not (repository / '.git').is_dir():
+        raise ValueError('a frozen published revision requires an ordinary clone')
+    git = str(command_path('git'))
+    branch = command(git, 'symbolic-ref', '--quiet', '--short', 'HEAD', cwd=repository)
+    remote = command(git, 'config', '--get', f'branch.{branch}.remote', cwd=repository)
+    merge = command(git, 'config', '--get', f'branch.{branch}.merge', cwd=repository)
+    url = command(git, 'remote', 'get-url', remote, cwd=repository)
+    if (branch, remote, merge, url) != ('main', 'origin', 'refs/heads/main', CANONICAL_REPOSITORY):
+        raise ValueError(f'a published revision requires main tracking origin at {CANONICAL_REPOSITORY}')
+    if command(git, 'rev-parse', 'HEAD', cwd=repository) != revision:
+        raise ValueError(f'checkout HEAD is not the frozen revision {revision}')
+    if command(git, 'status', '--porcelain', '--untracked-files=normal', cwd=repository):
+        raise ValueError('frozen revision requires no staged, unstaged or untracked changes')
+
+
+def select_revision(repository, apply, revision=None):
     if not (repository / '.git').exists():
         raise ValueError(f'not a Git checkout: {repository}')
     git = str(command_path('git'))
@@ -165,14 +189,23 @@ def select_source(repository, work_root, apply):
     if remote == '.' or not merge.startswith('refs/heads/'):
         raise ValueError(f'{branch}: upstream identity is ambiguous; inspect branch tracking')
     remote_branch = merge.removeprefix('refs/heads/')
+    if revision is not None:
+        frozen_checkout(repository, revision)
     fresh = command(git, 'ls-remote', '--exit-code', remote, f'refs/heads/{remote_branch}',
                     cwd=repository).split()[0]
     if not re.fullmatch(r'[0-9a-f]{40}', fresh):
         raise ValueError(f'{branch}: remote returned an invalid revision')
+    # Fetch objects only; local refs and the checkout keep any frozen revision.
     command(git, 'fetch', '--no-tags', '--no-write-fetch-head', remote, fresh, cwd=repository)
     head = command(git, 'rev-parse', 'HEAD', cwd=repository)
     selected, published = fresh, True
-    if head != fresh:
+    if revision is not None:
+        # A newer remote head is publication evidence only; never switch revisions.
+        if subprocess.run([git, 'merge-base', '--is-ancestor', revision, fresh], cwd=repository).returncode:
+            raise ValueError(f'{revision} is not reachable from published {remote}/{remote_branch} {fresh}; '
+                             'investigate source authority')
+        selected = revision
+    elif head != fresh:
         ahead = subprocess.run([git, 'merge-base', '--is-ancestor', fresh, head], cwd=repository)
         behind = subprocess.run([git, 'merge-base', '--is-ancestor', head, fresh], cwd=repository)
         if ahead.returncode == 0:
@@ -184,6 +217,13 @@ def select_source(repository, work_root, apply):
             selected, published = head, False
         elif behind.returncode != 0:
             raise ValueError(f'{branch}: local and {remote}/{remote_branch} have diverged; investigate source authority')
+    return branch, remote, selected, published, fresh
+
+
+def select_source(repository, work_root, apply, revision=None):
+    repository = plain_path(repository)
+    branch, remote, selected, published, fresh = select_revision(repository, apply, revision)
+    git = str(command_path('git'))
     root = Path(tempfile.mkdtemp(prefix='agent-team-source-', dir=work_root))
     checkout = root / 'source'
     try:
@@ -191,7 +231,7 @@ def select_source(repository, work_root, apply):
     except Exception:
         root.rmdir()
         raise
-    return branch, remote, selected, published, root, checkout
+    return branch, remote, selected, published, fresh, root, checkout
 
 
 def source_skill_names(source):
@@ -681,12 +721,15 @@ def run_bootstrap(args):
     work_root.mkdir(parents=True, exist_ok=True)
     source_root = source = None
     try:
-        branch, remote, revision, published, source_root, source = select_source(repository, work_root, args.apply)
-        print(json.dumps({'branch': branch, 'remote': remote, 'revision': revision,
-                          'publication': 'published' if published else 'unpublished',
-                          'result': 'selected clean reconciliation source' if published
-                          else 'selected clean unpublished source for no-apply preview only'},
-                         sort_keys=True), flush=True)
+        branch, remote, revision, published, fresh, source_root, source = select_source(
+            repository, work_root, args.apply, args.published_revision)
+        selection = {'branch': branch, 'remote': remote, 'revision': revision,
+                     'publication': 'published' if published else 'unpublished',
+                     'result': 'selected clean reconciliation source' if published
+                     else 'selected clean unpublished source for no-apply preview only'}
+        if args.published_revision:
+            selection.update(published_head=fresh, result='selected frozen published reconciliation source')
+        print(json.dumps(selection, sort_keys=True), flush=True)
         helper = source / 'machine/prepare_reconciliation.py'
         if not helper.is_file():
             raise ValueError(f'selected revision lacks the canonical preparation script: {helper}')
@@ -729,6 +772,9 @@ def main():
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--repository', default='.', help='current-branch Agent Team checkout')
+    parser.add_argument('--published-revision', type=published_revision,
+                        help='exact commit checked out in a clean canonical main clone; must be reachable '
+                             'from published main and is kept even when main has advanced')
     parser.add_argument('--prepared-source', help=argparse.SUPPRESS)
     parser.add_argument('--codex-home')
     parser.add_argument('--skills-root')
