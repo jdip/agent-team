@@ -1,6 +1,8 @@
 # Machine Reconciliation
 
-Use this procedure only for an explicit reconciliation request. Python 3.11+ and
+Use this procedure only for an explicit reconciliation request or the
+[current-Mac self-healing cleanup run](CLEANUP-SCHEDULE.md#current-mac-self-healing-run)
+that its prompt authorizes. Python 3.11+ and
 Git/gh are needed for the narrow helper; supported skill-installer performs upstream
 acquisition. Read PROFILE.md and the exact target's current instructions first.
 These are Tooling helpers, verified by actual operations. No machine simulator or
@@ -34,8 +36,9 @@ Windows executable through WSL interop. The path gate inspects the actual mount
 table so moving a Windows mount does not make it eligible for managed writes.
 Verify native Windows state remains unchanged after WSL reconciliation.
 
-It resolves the checkout's tracked branch and freshest published remote revision,
-uses a temporary detached worktree, discovers the actual Codex home and user-skill
+It resolves the checkout's tracked branch and selects the freshest published remote
+revision, with the no-apply unpublished-preview exception below. It uses a temporary
+detached worktree, discovers the actual Codex home and user-skill
 destinations through the native app-server and existing receipt, and checks the
 target operating system and every declared model/effort. When `claude` is available,
 it runs only a bounded `claude --version` probe and resolves the separate Claude
@@ -56,10 +59,14 @@ exact pin in [requirements.txt](requirements.txt), consumed by the existing Pyth
 installation. Dependabot alerts cover this same manifest; the installed version is
 checked against it. Preparation never installs a global dependency.
 
-The command stops if the current branch has unpublished commits, has diverged from
-its tracked remote, or a required target capability/source is unavailable. Publish
-or resolve the source authority first; do not bypass that evidence with a local
-checkout.
+The command stops if the current branch has diverged from its tracked remote or a
+required target capability/source is unavailable. When the branch is only ahead of
+its freshly fetched remote, a run without `--apply` may preview the exact local HEAD
+commit, provided the checkout has no staged, unstaged or untracked changes; the
+source report labels it `"publication": "unpublished"`. That preview supplies no
+application authority: `--apply` refuses unpublished commits before preparing a
+source. Publish or resolve the source authority before applying; do not bypass that
+evidence with a local checkout.
 
 After specific preflight conflicts have been resolved, run the same command with
 `--apply` and each exact approved `--resolve target=observed-sha256` argument. It
@@ -69,6 +76,26 @@ discovery. It manages only the Machine Profile's files, configuration, and skill
 Claude filesystem publication is not Claude session usability; record that evidence
 through the separate host verification workflow. The managing agent maintains cleanup
 schedules separately through the native tools and `cleanup_schedule.py`.
+
+## Frozen published revision
+
+`--published-revision <full-sha>` selects that exact commit instead of the freshest
+one, so separate read-only and `--apply` invocations use one revision even after
+main advances:
+
+```bash
+python3 machine/prepare_reconciliation.py --repository /actual/clone \
+  --published-revision full-commit-sha --preserve-model-settings
+```
+
+The repository must be a clean ordinary checkout of `main` tracking `origin` at
+`https://github.com/jdip/agent-team.git`, with HEAD exactly at that commit. Each
+invocation still reads remote main, fetches its objects without moving local refs or
+the checkout, and requires the commit to be reachable from it, with or without
+`--apply`. A newer head is reported as `published_head`, never selected; a rewritten
+or unreachable main stops before a source is prepared. The temporary detached
+worktree is created beside the repository. Without the option, source selection is
+unchanged.
 
 ## Preserving root model settings
 
@@ -88,10 +115,20 @@ declared role, subagent and reviewer pair is still verified, and post-apply
 verification checks the installed pair. A pair changed after freezing fails the
 preflight, candidate and raw-config rechecks; prepare again.
 
-The flag selects desired values only; it never resolves drift. The config receipt
-still fingerprints all thirteen fields together, so it cannot attribute a mismatch to
-one field: a live config differing from its receipt remains an ordinary conflict
-requiring an exact `--resolve`. Apply receipts the actual installed config, and an
+The config receipt fingerprints all thirteen fields together. Each config entry
+reconciliation writes also carries `evidence`: a digest of that entry's eleven
+other owned fields. With the flag, a live config differing from its receipt passes
+the gate only when that evidence proves those fields unchanged, so the frozen pair
+alone moved. Mixed drift, missing evidence and newly owned fields remain ordinary
+conflicts requiring an exact `--resolve`; without the flag every mismatch does. The
+flag never substitutes the newer source profile for this history.
+
+A legacy entry without evidence acquires it only from verified state. When the
+live config matches that receipt, preflight reports `Would record unchanged-field
+evidence` and apply rewrites only the receipt entry, not the config. A conflicting
+legacy entry stays unresolved until an exact `--resolve`; that publication receipts
+the evidence. Malformed evidence, or evidence contradicting a matching fingerprint,
+stops reconciliation. Apply receipts the actual installed config, and an
 unchanged later run with the flag is a no-op. A later run without the flag treats
 the profile values as desired again and reports `Would publish` for the config
 when those values differ from the installed pair.
@@ -274,9 +311,12 @@ publication; existing schedules and unrelated state retain their owners.
 ## Preparation details
 
 Resolve the repository's current branch and its remote. Fetch that branch,
-preserving dirty work. Select and report one concrete freshest revision. If branch
-identity, detached state, divergence, or unpublished work leaves intent unclear,
-resolve that concrete source question. Use an isolated clean checkout of the chosen
+preserving dirty work. Select and report one concrete freshest published revision,
+an explicit frozen `--published-revision`, or, for a clean no-apply preview only,
+the unpublished local HEAD ahead of it. If
+branch identity, detached state, divergence, or unpublished work for an apply leaves
+intent unclear, resolve that concrete source question. Use an isolated clean
+checkout of the chosen
 revision for the run; never silently change the source branch or use stale content.
 Read every declared source there. An incomplete profile stops before live writes.
 
@@ -382,7 +422,8 @@ before and immediately at each mutation.
 A declared target whose receipt scope, gate-verified live fingerprint and desired
 fingerprint already agree is unchanged: the helper skips its preparation and
 publication, leaving its content, file metadata and receipt entry untouched. A run
-with no changed target leaves the receipt file itself untouched. Every target still
+with no changed target and no config evidence to record leaves the receipt file
+itself untouched. Every target still
 passes the gate and its pre-write receipt, live-state and shared-config rechecks;
 upstream and candidate-config validation still run. Changed or missing targets,
 changed scopes, approved conflicts, retirement and release follow the paths below.
@@ -413,7 +454,9 @@ do not erase receipt evidence, enroll existing bytes, blindly retry, roll back
 unrelated work, or build a recovery journal.
 
 The receipt contains version 1 and entries with only target, scope, algorithm, and
-fingerprint. Whole files hash exact bytes. Whole directories hash canonical sorted
+fingerprint. The shared config entry may add `evidence`, holding its scope's sorted
+fields other than the root pair and their projection fingerprint; entries without
+it stay valid. Whole files hash exact bytes. Whole directories hash canonical sorted
 relative file names and their byte hashes. Pi runtime directory fingerprints also
 include POSIX file/directory modes; its launcher includes its POSIX mode. Scoped Pi
 JSON hashes only declared scalar values and exact skill-path membership counts,

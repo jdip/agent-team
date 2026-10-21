@@ -36,7 +36,8 @@ ticket. If Wayfinder is unavailable, report the missing dependency.
    an autonomous one. Do not take a ticket claimed by another session.
 2. Follow Wayfinder's workflow and the selected ticket's required skills.
    Continue independently through authorized work and routine recoverable
-   failures. A prototype or grilling ticket requires the human's actual
+   failures. For prototypes, follow the `prototype` skill's inquiry rules.
+   Grilling and other human-dependent tickets require the human's actual
    participation; never supply their answers yourself.
 3. For a human decision, follow Wayfinder's **Human-decision completion** rule,
    invoking `grilling` for the actual dialogue. Keep the ticket claimed and unresolved

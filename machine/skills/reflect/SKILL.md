@@ -44,15 +44,19 @@ into a global rule without evidence and applicable authorization.
 ## Record and follow through
 
 Record every accepted actionable lesson through the owning repository's issue
-tracker guidance for deduplication, filing, readback and failure handling. Include
+tracker guidance for deduplication, filing, readback and failure handling, applying
+the global Scope and implementation rule's target-repository write boundary. Include
 the incident, affected owner, proposed improvement and observable completion
 criterion. Report the issue link; use the existing task issue when it already
 covers the lesson.
 Keep credentials and private transcript content out of tracker records.
 
-Keep the local incident, cause, fix and proof as canonical evidence. Promptly route
-severe, repeated or clearly shared candidates as sanitized intake at the maintained
-source, deduplicating both records and linking only where publication permits.
+Keep the local incident, cause, fix and proof as canonical evidence. Prepare
+severe, repeated or clearly shared candidates as sanitized intake for the maintained
+source, deduplicating both records. When that source is outside the task's target
+repository, present its destination and proposed write for explicit approval before
+publishing; retain the draft in the authorized task context while approval is pending.
+Reuse applicable prior approval and link records only where publication permits.
 Record a justified local-only disposition when shared adaptation is unwarranted.
 Shared policy changes still require their applicable review, approval and normal
 distribution; intake does not authorize editing installed copies.

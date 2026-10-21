@@ -24,8 +24,10 @@ Use this procedure for actionable friction, discovered weaknesses, and deferred
 blockers under the global scope guidance. The primary agent completes filing for
 findings returned by delegated agents.
 
-1. Resolve the owning repository from its remote and affected component; use
-   `--repo <owner>/<repo>` explicitly when filing outside the current clone.
+1. Establish the task's target repository from its authorized scope and verify its
+   remote. Resolve the finding's owning repository separately; component ownership
+   or changing checkouts does not expand the task's target. Use explicit
+   `--repo <owner>/<repo>` arguments for destination-specific operations.
 2. Search open and closed issues using component names, symptoms, and distinctive
    error text, for example
    `gh issue list --repo <owner>/<repo> --state all --search '<terms>' --limit 100`.
@@ -34,18 +36,25 @@ findings returned by delegated agents.
    `gh issue view <number> --repo <owner>/<repo> --comments` and inspect relevant
    code or recorded fixes. Match the underlying problem and affected behavior,
    rather than title similarity alone.
-3. Reuse a matching open issue, adding a comment only for material new evidence.
+3. Before any issue creation, comment or evidence update outside the task's target
+   repository, apply the global target-repository write boundary: present the exact
+   destination and sanitized proposed content and obtain explicit operator approval,
+   even for another operator-owned repository. Reuse prior explicit approval only
+   when it covers that write. Read-only investigation and deduplication need no such
+   approval. Retain pending drafts in the authorized task context and continue
+   independent work. Filing within the task's target remains autonomous.
+4. Reuse a matching open issue, adding a comment only for material new evidence.
    For a closed match, inspect its resolution and current behavior: a resolved
    problem needs no new issue; a demonstrated recurrence can be recorded in a new
    issue linked to the prior fix, explaining why it is new work. Preserve existing
    ownership, claims, and approved scope.
-4. If no issue covers the remaining problem, create a scoped issue with the
+5. If no issue covers the remaining problem, create a scoped issue with the
    observed behavior, concrete reproduction or source evidence, impact, relevant
    workaround, and a verifiable remediation outcome. State whether it blocks the
    current task and link the originating issue or PR when one exists. Use a body
    file for multiline text: `gh issue create --repo <owner>/<repo> --title '<title>'
    --body-file <path>`. Filing does not admit work to an implementation backlog.
-5. Read back the created issue or updated comment and report its URL. When the
+6. Read back the created issue or updated comment and report its URL. When the
    current task has an issue, link the finding there and record an actual blocker
    using the native dependency convention below; use an explicit linked blocker
    note when native dependencies cannot represent it. Keep the blocked task open.

@@ -15,7 +15,9 @@ Interactive helper scripts require a human-capable terminal. When a needed
 capability is unavailable, report that limit and preserve affected state. Missing
 lifecycle evidence also preserves the resource.
 
-Use the reconciled Bash/Zsh `codex` function for shell invocations. It checks
+When invoking the Codex CLI from Bash/Zsh, use the reconciled `codex` function.
+Run ordinary shell commands through the host’s shell execution capability.
+The function checks
 only whether `HERDR_ENV` is set, including an empty value, and whether invocation
 text matches the `--no-daemon` regex; when set and unmatched it prepends that flag.
 It forwards the original arguments and native status, leaving command validity to
@@ -140,8 +142,16 @@ workaround lets the task proceed. Require concrete evidence of a remaining probl
 a transient hiccup with no remaining actionable defect need not become an issue.
 Follow the owning repository's tracker guidance: search and inspect likely matches,
 reuse an existing issue and add material new evidence, or create a scoped remediation
-issue when none matches. This guidance authorizes that filing and evidence update,
-not unrelated remediation or backlog expansion. For a filed or reused blocker,
+issue when none matches. This guidance authorizes filing and evidence updates in
+the task's target repository only, not unrelated remediation or backlog expansion.
+Before any issue creation, comment or evidence update outside that repository,
+present the exact destination and sanitized proposed content and obtain explicit
+operator approval. Reuse prior explicit approval only when it covers that write.
+Common ownership, upstream responsibility, tool access or changing checkouts does
+not extend the task's target or transfer write authority. Read-only discovery and
+deduplication may proceed; retain unapproved drafts in the authorized task context
+and continue independent work.
+For a filed or reused blocker,
 register the remediation issue as blocking the original tracked issue or task using
 the tracker's native dependency feature when supported; otherwise record explicit
 links and the blocking relationship. Verify the recorded relationship and keep the
@@ -185,7 +195,10 @@ continue without separate permission approval, including ordinary native dispatc
 and inherited Full Access. For planner and worker
 assignments, load
 [Claude delegation](agents/claude-delegation.md) before choosing the preferred
-Opus route or its explicit native Sol fallback.
+Opus route or its explicit native Sol fallback. Before any `test_verifier`
+assignment, including ordinary native dispatch, load
+[test verifier routing](agents/test-verifier/routing.md) for mode-aware model
+selection and loaded-role checks.
 
 Use these canonical selectors and `<id>_<purpose>` task names, with one to four
 specific lowercase words after the prefix. Display the emoji, uppercase ID, and
@@ -197,7 +210,7 @@ spawn tool's task-name argument. The primary display ID is ORC.
 | explorer | 🧭 EXP | exp_ | gpt-6-luna / max | default |
 | planner | 🗺️ PLN | pln_ | Opus 5.5 / high; gpt-6.1-sol / high fallback | default |
 | worker | 🛠️ WRK | wrk_ | Opus 5.5 / high; gpt-6.1-sol / high fallback | default |
-| test_verifier | 🧪 TST | tst_ | gpt-6.1-sol / medium | default |
+| test_verifier | 🧪 TST | tst_ | mode-selected / medium | default |
 | browser_verifier | 🖥️ BRW | brw_ | gpt-6.1-sol / medium | default |
 | workflow_monitor | ⏳ MON | mon_ | gpt-6-luna / high | default |
 | sysadmin_operator | 🧰 OPS | ops_ | gpt-6.1-sol / high | default |
