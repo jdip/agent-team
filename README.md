@@ -1,5 +1,10 @@
 # Agent Team
 
+> **Successor: [Orca Pod](https://github.com/jdip/orca-pod).** Orca Pod has replaced
+> Agent Team on the owner's machine and carries its skills, roles and Repository
+> Standard forward for the Orca app. This repository stays available for reference
+> and history.
+
 Portable Codex configuration and repository working conventions for macOS desktop,
 headless Linux, native Windows, and WSL 2 Ubuntu.
 
